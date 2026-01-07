@@ -170,10 +170,12 @@ export function use3DModel(
       model.value.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           meshCount++;
-          
+
           // Если у меша нет материала или материал невидим, создаем стандартный материал
           if (!child.material || child.material.length === 0) {
-            console.log("Найден меш без материала, создаем стандартный материал");
+            console.log(
+              "Найден меш без материала, создаем стандартный материал",
+            );
             child.material = new THREE.MeshStandardMaterial({
               color: 0x808080,
               roughness: 0.7,
@@ -197,7 +199,10 @@ export function use3DModel(
               child.material.visible = true;
             }
             // Если материал не имеет цвета или слишком темный, добавляем цвет
-            if (!child.material.color || child.material.color.getHex() === 0x000000) {
+            if (
+              !child.material.color ||
+              child.material.color.getHex() === 0x000000
+            ) {
               child.material.color = new THREE.Color(0x808080);
             }
           }
@@ -230,7 +235,12 @@ export function use3DModel(
         const targetSize = 100;
         const scale = targetSize / maxSize;
         model.value.scale.setScalar(scale);
-        console.log("✅ Масштаб модели:", scale.toFixed(4), "Исходный размер:", maxSize.toFixed(2));
+        console.log(
+          "✅ Масштаб модели:",
+          scale.toFixed(4),
+          "Исходный размер:",
+          maxSize.toFixed(2),
+        );
         console.log("🎯 Целевой размер модели:", targetSize);
       }
 
@@ -243,52 +253,60 @@ export function use3DModel(
         const finalBox = new THREE.Box3().setFromObject(model.value);
         const finalSize = finalBox.getSize(new THREE.Vector3());
         const finalCenter = finalBox.getCenter(new THREE.Vector3());
-        const finalMaxDimension = Math.max(finalSize.x, finalSize.y, finalSize.z);
-        
+        const finalMaxDimension = Math.max(
+          finalSize.x,
+          finalSize.y,
+          finalSize.z,
+        );
+
         console.log("🔍 Финальные параметры модели:");
         console.log("  📏 Размер:", {
           x: finalSize.x.toFixed(2),
           y: finalSize.y.toFixed(2),
           z: finalSize.z.toFixed(2),
-          max: finalMaxDimension.toFixed(2)
+          max: finalMaxDimension.toFixed(2),
         });
         console.log("  📍 Центр:", {
           x: finalCenter.x.toFixed(4),
           y: finalCenter.y.toFixed(4),
-          z: finalCenter.z.toFixed(4)
+          z: finalCenter.z.toFixed(4),
         });
         console.log("  🎭 Позиция модели:", {
           x: model.value.position.x.toFixed(4),
           y: model.value.position.y.toFixed(4),
-          z: model.value.position.z.toFixed(4)
+          z: model.value.position.z.toFixed(4),
         });
         console.log("  🔧 Rotation:", {
-          x: (model.value.rotation.x * 180 / Math.PI).toFixed(2) + "°",
-          y: (model.value.rotation.y * 180 / Math.PI).toFixed(2) + "°",
-          z: (model.value.rotation.z * 180 / Math.PI).toFixed(2) + "°"
+          x: ((model.value.rotation.x * 180) / Math.PI).toFixed(2) + "°",
+          y: ((model.value.rotation.y * 180) / Math.PI).toFixed(2) + "°",
+          z: ((model.value.rotation.z * 180) / Math.PI).toFixed(2) + "°",
         });
         console.log("  📐 Scale:", model.value.scale.x.toFixed(4));
-        
+
         // Вычисляем расстояние для камеры
         // Камера должна быть на расстоянии 1.5-2 размера модели для хорошего обзора
         const distance = Math.max(finalMaxDimension * 1.5, 5);
-        
+
         // Размещаем камеру под углом для лучшего обзора
-        camera.value.position.set(distance * 0.6, distance * 0.5, distance * 0.8);
+        camera.value.position.set(
+          distance * 0.6,
+          distance * 0.5,
+          distance * 0.8,
+        );
         // Смотрим на центр модели (после центрирования должен быть близок к 0,0,0)
         camera.value.lookAt(finalCenter.x, finalCenter.y, finalCenter.z);
         camera.value.updateProjectionMatrix();
-        
+
         console.log("📷 Камера:");
         console.log("  Позиция:", {
           x: camera.value.position.x.toFixed(2),
           y: camera.value.position.y.toFixed(2),
-          z: camera.value.position.z.toFixed(2)
+          z: camera.value.position.z.toFixed(2),
         });
         console.log("  Смотрит на центр модели:", {
           x: finalCenter.x.toFixed(4),
           y: finalCenter.y.toFixed(4),
-          z: finalCenter.z.toFixed(4)
+          z: finalCenter.z.toFixed(4),
         });
         console.log("  Расстояние от центра:", distance.toFixed(2));
         console.log("  FOV:", camera.value.fov + "°");
@@ -297,18 +315,25 @@ export function use3DModel(
         // Обновляем контролы если они есть
         // Центр вращения в центре модели
         if (controls.value) {
-          controls.value.target.set(finalCenter.x, finalCenter.y, finalCenter.z);
+          controls.value.target.set(
+            finalCenter.x,
+            finalCenter.y,
+            finalCenter.z,
+          );
           controls.value.minDistance = Math.max(finalMaxDimension * 0.5, 2);
           controls.value.maxDistance = finalMaxDimension * 5;
           controls.value.update();
-          
+
           console.log("🎮 Контролы:");
           console.log("  Target (центр модели):", {
             x: finalCenter.x.toFixed(4),
             y: finalCenter.y.toFixed(4),
-            z: finalCenter.z.toFixed(4)
+            z: finalCenter.z.toFixed(4),
           });
-          console.log("  minDistance:", Math.max(finalMaxDimension * 0.5, 2).toFixed(2));
+          console.log(
+            "  minDistance:",
+            Math.max(finalMaxDimension * 0.5, 2).toFixed(2),
+          );
           console.log("  maxDistance:", (finalMaxDimension * 5).toFixed(2));
         }
       }
@@ -371,7 +396,6 @@ export function use3DModel(
       });
       scene.value.remove(model.value);
     }
-
 
     controls.value?.dispose();
     renderer.value?.dispose();

@@ -2,7 +2,8 @@
   <header :class="$style.header">
     <div :class="$style.container">
       <NuxtLink to="/" :class="$style.logo">
-        {{ $t("home.title") }}
+        <LogoIcon :class="$style.logoImage" />
+        <span>Homefab</span>
       </NuxtLink>
       <nav :class="$style.nav">
         <NuxtLink
@@ -37,6 +38,8 @@
 </template>
 
 <script setup lang="ts">
+import LogoIcon from "~/assets/icons/Logo.svg";
+
 const route = useRoute();
 const { locale, setLocale } = useI18n();
 </script>
@@ -72,6 +75,9 @@ const { locale, setLocale } = useI18n();
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: rem(8);
   font-size: rem(20);
   font-weight: 600;
   color: var(--a-text-dark);
@@ -85,6 +91,13 @@ const { locale, setLocale } = useI18n();
   @include tablet {
     font-size: rem(24);
   }
+}
+
+.logoImage {
+  width: rem(36);
+  height: rem(36);
+  display: block;
+  flex-shrink: 0;
 }
 
 .nav {

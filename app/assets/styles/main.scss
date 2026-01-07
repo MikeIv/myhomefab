@@ -10,9 +10,10 @@
     -apple-system, blinkmacsystemfont, "Segoe UI", roboto, "Helvetica Neue",
     arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
     "Noto Color Emoji", sans-serif;
+  --default-font: "Open Sans", var(--system-font);
 }
 
 body {
-  font-family: var(--system-font);
+  font-family: var(--default-font);
 }
 
