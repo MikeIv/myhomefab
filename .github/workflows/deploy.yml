@@ -1,0 +1,47 @@
+name: Build and Deploy to Timeweb
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build project
+        run: yarn build
+        env:
+          NODE_ENV: production
+
+      - name: Deploy to Timeweb via SFTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.TIMEWEB_HOST }}
+          username: ${{ secrets.TIMEWEB_USERNAME }}
+          password: ${{ secrets.TIMEWEB_PASSWORD }}
+          server-dir: ${{ secrets.TIMEWEB_REMOTE_PATH }}
+          local-dir: ./.output/public/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.DS_Store
+            **/Thumbs.db
+

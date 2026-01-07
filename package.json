@@ -1,0 +1,82 @@
+{
+  "name": "my-3d",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "stylelint": "stylelint \"**/*.{vue,scss}\"",
+    "stylelint:fix": "stylelint \"**/*.{vue,scss}\" --fix"
+  },
+  "dependencies": {
+    "@nuxt/fonts": "^0.12.1",
+    "@nuxt/icon": "^1.5.5",
+    "@nuxt/image": "^1.10.0",
+    "@nuxt/ui": "^3.3.0",
+    "@nuxtjs/i18n": "10.0.0",
+    "@pinia/nuxt": "^0.11.2",
+    "@vueuse/core": "^13.5.0",
+    "@vueuse/nuxt": "^13.5.0",
+    "nuxt": "^4.2.1",
+    "pinia": "^3.0.3",
+    "three": "^0.169.0",
+    "vue": "^3.5.17",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.7.1",
+    "@nuxt/eslint-config": "^1.7.1",
+    "@nuxt/schema": "^4.0.0",
+    "@types/node": "^24.10.1",
+    "@types/three": "^0.169.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.1",
+    "eslint-plugin-vue": "^10.3.0",
+    "postcss": "^8.5.6",
+    "postcss-html": "^1.8.0",
+    "postcss-scss": "^4.0.9",
+    "prettier": "^3.6.2",
+    "sass": "^1.89.2",
+    "sass-embedded": "^1.89.2",
+    "sass-loader": "^16.0.5",
+    "stylelint": "^16.25.0",
+    "stylelint-config-recommended-vue": "^1.6.1",
+    "stylelint-config-standard-scss": "^16.0.0",
+    "typescript": "^5.8.3",
+    "vite-plugin-eslint2": "^5.0.4",
+    "vite-svg-loader": "^5.1.0"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.14.0"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,scss}": [
+      "prettier --write",
+      "stylelint --fix --allow-empty-input"
+    ]
+  },
+  "prettier": {
+    "overrides": [
+      {
+        "files": "*.scss",
+        "options": {
+          "tabWidth": 2
+        }
+      }
+    ]
+  }
+}
+

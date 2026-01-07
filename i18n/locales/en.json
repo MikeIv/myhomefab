@@ -1,0 +1,51 @@
+{
+  "nav": {
+    "home": "Home",
+    "portfolio": "Portfolio"
+  },
+  "home": {
+    "title": "3D Models",
+    "subtitle": "Professional models for 3D printing",
+    "description": "I create quality 3D models with detailed descriptions and technical specifications for successful printing",
+    "cta": "View portfolio",
+    "features": {
+      "title": "What I offer",
+      "quality": {
+        "title": "High Quality",
+        "description": "Models optimized for 3D printing"
+      },
+      "documentation": {
+        "title": "Detailed Documentation",
+        "description": "Complete description and technical specifications"
+      },
+      "support": {
+        "title": "Support",
+        "description": "Help with print settings"
+      }
+    }
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "subtitle": "My 3D Models",
+    "empty": "Models coming soon",
+    "viewDetails": "View Details",
+    "modal": {
+      "close": "Close",
+      "technicalSpecs": "Technical Specifications",
+      "printInfo": "Print Information",
+      "dimensions": "Dimensions",
+      "volume": "Volume",
+      "weight": "Weight",
+      "material": "Material",
+      "printerModel": "Printer Model",
+      "filamentType": "Filament Type",
+      "filamentColor": "Filament Color",
+      "layerHeight": "Layer Height",
+      "infill": "Infill",
+      "printTime": "Print Time",
+      "supports": "Supports",
+      "notes": "Notes"
+    }
+  }
+}
+

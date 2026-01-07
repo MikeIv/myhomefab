@@ -1,0 +1,29 @@
+@use "../variables/_base-font-size.scss" as size;
+@use "../tools/functions" as *;
+@use "../variables/resolutions" as with;
+
+html,
+body {
+  font-size: size.$base-font-size;
+  background-color: var(--a-white) !important;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style-type: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+

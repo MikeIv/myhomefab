@@ -1,0 +1,44 @@
+:root {
+  --primary: #3b82f6;
+  --secondary: #64748b;
+  --success: #10b981;
+  --info: #06b6d4;
+  --warning: #f59e0b;
+  --error: #ef4444;
+
+  /* Base */
+  --a-white: #fff;
+  --a-black: #000;
+  --a-base: #3b82f6;
+
+  /* Typography */
+  --ui-text: var(--a-white);
+  --a-text-white: #fff;
+  --a-text-primary: #3b82f6;
+  --a-text-light: #94a3b8;
+  --a-text-dark: #1e293b;
+  --a-text-accent: #6366f1;
+
+  /* Background */
+  --a-whiteBg: #fff;
+  --a-blackBg: #000;
+  --a-mainBg: #f8fafc;
+  --a-primaryBg: #3b82f6;
+  --a-lightBg: #e2e8f0;
+  --a-lightPrimaryBg: #eff6ff;
+  --a-accentBg: #6366f1;
+  --a-accentLightBg: #e0e7ff;
+  --a-accentDarkBg: #4338ca;
+
+  /* Border */
+  --a-border: #e2e8f0;
+  --a-border-white: #f1f5f9;
+  --a-border-primary: #3b82f6;
+  --a-border-dark: #334155;
+  --a-border-light: #cbd5e1;
+  --a-border-accent: #6366f1;
+
+  /* UI Colors */
+  --ui-icon: #64748b;
+}
+

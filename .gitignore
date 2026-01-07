@@ -1,0 +1,37 @@
+# Nuxt
+.nuxt
+.output
+.nitro
+.cache
+dist
+.cursor
+
+# Node
+node_modules
+*.log
+yarn-error.log
+.eslintcache
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea
+.vscode
+.cursor
+.cursorrules
+CURSOR_RULES_EXPORT.md
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage
+.nyc_output
+
