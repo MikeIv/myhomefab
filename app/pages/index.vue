@@ -1,7 +1,7 @@
 <template>
   <div>
     <MainHeroSection />
-    <section :class="$style.modelSection">
+    <section v-if="false" :class="$style.modelSection">
       <div :class="$style.container">
         <MainHero3D
           :model-path="defaultModelPath"

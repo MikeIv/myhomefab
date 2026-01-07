@@ -6,6 +6,19 @@ on:
       - main
       - master
   workflow_dispatch:
+    inputs:
+      full_clean:
+        description: 'Полная очистка на сервере (dangerous-clean-slate)'
+        required: false
+        default: 'false'
+      debug:
+        description: 'Включить подробные логи и диагностику'
+        required: false
+        default: 'false'
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
@@ -30,6 +43,7 @@ jobs:
           NODE_ENV: production
 
       - name: List build output
+        if: ${{ inputs.debug == 'true' }}
         run: |
           echo "=== Checking build output structure ==="
           if [ ! -d .output/public ]; then
@@ -67,6 +81,7 @@ jobs:
           fi
 
       - name: List build output after ensuring index.html
+        if: ${{ inputs.debug == 'true' }}
         run: |
           ls -la .output/public/ || true
 
@@ -100,9 +115,9 @@ jobs:
           local-dir: ./.output/public/
           # dangerous-clean-slate удаляет все файлы на сервере перед загрузкой новых
           # ВАЖНО: Убедитесь, что index.html создан перед деплоем (проверка выше)
-          dangerous-clean-slate: true
+          dangerous-clean-slate: ${{ inputs.full_clean == 'true' }}
           dry-run: false
-          log-level: verbose
+          log-level: ${{ inputs.debug == 'true' && 'verbose' || 'standard' }}
           # state-name указывает имя файла состояния, но он все равно создается на сервере
           # Поэтому удаляем его после деплоя
           exclude: |
@@ -114,6 +129,7 @@ jobs:
             .ftp-deploy-sync-state.json
 
       - name: Remove .ftp-deploy-sync-state.json from server
+        if: ${{ inputs.debug == 'true' }}
         continue-on-error: true
         run: |
           echo "Removing .ftp-deploy-sync-state.json from server..."
