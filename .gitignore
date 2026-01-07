@@ -6,6 +6,9 @@
 dist
 .cursor
 
+# FTP Deploy
+.ftp-deploy-sync-state.json
+
 # Node
 node_modules
 *.log

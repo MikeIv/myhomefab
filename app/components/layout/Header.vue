@@ -3,7 +3,7 @@
     <div :class="$style.container">
       <NuxtLink to="/" :class="$style.logo">
         <LogoIcon :class="$style.logoImage" />
-        <span>Homefab</span>
+        <span>Homefab 2</span>
       </NuxtLink>
       <nav :class="$style.nav">
         <NuxtLink
@@ -14,7 +14,10 @@
         </NuxtLink>
         <NuxtLink
           to="/portfolio"
-          :class="[$style.navLink, { [$style.active]: route.path === '/portfolio' }]"
+          :class="[
+            $style.navLink,
+            { [$style.active]: route.path === '/portfolio' },
+          ]"
         >
           {{ $t("nav.portfolio") }}
         </NuxtLink>
@@ -168,4 +171,3 @@ const { locale, setLocale } = useI18n();
   }
 }
 </style>
-

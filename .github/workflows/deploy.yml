@@ -57,9 +57,9 @@ jobs:
           password: ${{ secrets.TIMEWEB_PASSWORD }}
           server-dir: ${{ steps.normalize-path.outputs.normalized_path }}
           local-dir: ./.output/public/
-          # dangerous-clean-slate: true - раскомментируйте, если файлы всё ещё не обновляются
-          # Это удалит ВСЕ файлы на сервере перед загрузкой новых (используйте осторожно!)
-          dangerous-clean-slate: false
+          # dangerous-clean-slate удаляет все файлы на сервере перед загрузкой новых
+          # Это гарантирует полное обновление всех файлов, включая index.html
+          dangerous-clean-slate: true
           dry-run: false
           log-level: verbose
           exclude: |
@@ -68,4 +68,6 @@ jobs:
             **/node_modules/**
             **/.DS_Store
             **/Thumbs.db
+            **/.ftp-deploy-sync-state.json
+            **/.ftp-deploy-sync-state.json/**
 
