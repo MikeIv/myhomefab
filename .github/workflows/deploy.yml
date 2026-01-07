@@ -10,7 +10,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    environment: production
     
     steps:
       - name: Checkout code
@@ -30,13 +29,22 @@ jobs:
         env:
           NODE_ENV: production
 
+      - name: Normalize remote path
+        id: normalize-path
+        run: |
+          REMOTE_PATH="${{ secrets.TIMEWEB_REMOTE_PATH }}"
+          if [[ ! "$REMOTE_PATH" =~ /$ ]]; then
+            REMOTE_PATH="${REMOTE_PATH}/"
+          fi
+          echo "normalized_path=${REMOTE_PATH}" >> $GITHUB_OUTPUT
+
       - name: Deploy to Timeweb via SFTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.TIMEWEB_HOST }}
           username: ${{ secrets.TIMEWEB_USERNAME }}
           password: ${{ secrets.TIMEWEB_PASSWORD }}
-          server-dir: ${{ secrets.TIMEWEB_REMOTE_PATH }}
+          server-dir: ${{ steps.normalize-path.outputs.normalized_path }}
           local-dir: ./.output/public/
           exclude: |
             **/.git*

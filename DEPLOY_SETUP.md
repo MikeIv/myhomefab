@@ -27,7 +27,7 @@
 | `TIMEWEB_HOST` | Адрес FTP/SFTP сервера | `ftp.myhomefab.ru` или IP-адрес |
 | `TIMEWEB_USERNAME` | Имя пользователя FTP | `u1234567` |
 | `TIMEWEB_PASSWORD` | Пароль FTP | `ваш_пароль` |
-| `TIMEWEB_REMOTE_PATH` | Путь на сервере | `/public_html` или `/www/myhomefab.ru/public_html` |
+| `TIMEWEB_REMOTE_PATH` | Путь на сервере (с `/` или без - workflow автоматически добавит `/` в конце) | `/public_html` или `/public_html/` |
 
 ### Шаг 2: Обновление workflow (если нужно)
 
@@ -58,7 +58,7 @@
 | `TIMEWEB_HOST` | Адрес FTP/SFTP сервера | `ftp.myhomefab.ru` или IP-адрес |
 | `TIMEWEB_USERNAME` | Имя пользователя FTP | `u1234567` |
 | `TIMEWEB_PASSWORD` | Пароль FTP | `ваш_пароль` |
-| `TIMEWEB_REMOTE_PATH` | Путь на сервере | `/public_html` или `/www/myhomefab.ru/public_html` |
+| `TIMEWEB_REMOTE_PATH` | Путь на сервере (с `/` или без - workflow автоматически добавит `/` в конце) | `/public_html` или `/public_html/` |
 
 ### Шаг 3: Настройка Variables (опционально)
 
@@ -128,7 +128,12 @@ environment: production
 ### Ошибка "Directory not found"
 - Проверьте правильность `TIMEWEB_REMOTE_PATH`
 - Путь должен начинаться с `/`
+- Workflow автоматически добавит `/` в конце, если его нет
 - Убедитесь, что директория существует на сервере
+
+### Ошибка "server-dir should be a folder (must end with /)"
+- Эта ошибка исправлена в workflow - путь автоматически нормализуется
+- Убедитесь, что используете последнюю версию workflow файла
 
 ### Файлы не загружаются
 - Проверьте права доступа на сервере (должны быть 755 для папок, 644 для файлов)
