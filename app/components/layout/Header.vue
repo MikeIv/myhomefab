@@ -3,7 +3,7 @@
     <div :class="$style.container">
       <NuxtLink to="/" :class="$style.logo">
         <LogoIcon :class="$style.logoImage" />
-        <span>Homefab 2</span>
+        <span>Homefab</span>
       </NuxtLink>
       <nav :class="$style.nav">
         <NuxtLink

@@ -24,21 +24,62 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build project
-        run: yarn build
+      - name: Generate static site
+        run: yarn generate
         env:
           NODE_ENV: production
 
       - name: List build output
         run: |
-          echo "Checking build output structure:"
-          ls -la .output/public/ || echo "No .output/public directory found"
+          echo "=== Checking build output structure ==="
+          if [ ! -d .output/public ]; then
+            echo "ERROR: .output/public directory not found!"
+            echo "Checking .output directory:"
+            ls -la .output/ || echo ".output directory does not exist"
+            exit 1
+          fi
+          echo ""
+          echo "Contents of .output/public/:"
+          ls -la .output/public/
           echo ""
           echo "Checking for index.html:"
-          ls -la .output/public/index.html || echo "index.html not found in .output/public/"
+          ls -la .output/public/index.html || echo "index.html not found"
           echo ""
           echo "Checking for 200.html:"
           ls -la .output/public/200.html || echo "200.html not found"
+
+      - name: Ensure index.html exists (copy from 200.html if missing)
+        run: |
+          if [ -f .output/public/200.html ]; then
+            if [ ! -f .output/public/index.html ]; then
+              cp .output/public/200.html .output/public/index.html
+              echo "✓ index.html created from 200.html"
+            else
+              echo "✓ index.html already exists"
+            fi
+          elif [ -f .output/public/index.html ]; then
+            echo "✓ index.html exists (no 200.html found)"
+          else
+            echo "ERROR: Neither index.html nor 200.html found!"
+            echo "Available files in .output/public/:"
+            ls -la .output/public/
+            exit 1
+          fi
+
+      - name: List build output after ensuring index.html
+        run: |
+          ls -la .output/public/ || true
+
+      - name: Verify index.html exists before deploy
+        run: |
+          if [ ! -f .output/public/index.html ]; then
+            echo "ERROR: index.html not found after generation!"
+            echo "Contents of .output/public/:"
+            ls -la .output/public/ || echo "Directory does not exist"
+            exit 1
+          fi
+          echo "✓ index.html exists, ready to deploy"
+          echo "File size: $(du -h .output/public/index.html | cut -f1)"
 
       - name: Normalize remote path
         id: normalize-path
@@ -58,16 +99,43 @@ jobs:
           server-dir: ${{ steps.normalize-path.outputs.normalized_path }}
           local-dir: ./.output/public/
           # dangerous-clean-slate удаляет все файлы на сервере перед загрузкой новых
-          # Это гарантирует полное обновление всех файлов, включая index.html
+          # ВАЖНО: Убедитесь, что index.html создан перед деплоем (проверка выше)
           dangerous-clean-slate: true
           dry-run: false
           log-level: verbose
+          # state-name указывает имя файла состояния, но он все равно создается на сервере
+          # Поэтому удаляем его после деплоя
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
             **/.DS_Store
             **/Thumbs.db
-            **/.ftp-deploy-sync-state.json
-            **/.ftp-deploy-sync-state.json/**
+            .ftp-deploy-sync-state.json
+
+      - name: Remove .ftp-deploy-sync-state.json from server
+        continue-on-error: true
+        run: |
+          echo "Removing .ftp-deploy-sync-state.json from server..."
+          # Устанавливаем инструменты для работы с FTP/SFTP
+          sudo apt-get update && sudo apt-get install -y sshpass lftp
+          
+          # Пробуем удалить через SFTP (если используется SFTP)
+          sshpass -p "${{ secrets.TIMEWEB_PASSWORD }}" sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 ${{ secrets.TIMEWEB_USERNAME }}@${{ secrets.TIMEWEB_HOST }} <<EOF || true
+          cd ${{ steps.normalize-path.outputs.normalized_path }}
+          rm .ftp-deploy-sync-state.json
+          quit
+          EOF
+          
+          # Если SFTP не сработал, пробуем через FTP
+          lftp -c "
+            set ftp:ssl-allow no;
+            set net:timeout 10;
+            open -u ${{ secrets.TIMEWEB_USERNAME }},${{ secrets.TIMEWEB_PASSWORD }} ${{ secrets.TIMEWEB_HOST }};
+            cd ${{ steps.normalize-path.outputs.normalized_path }};
+            rm -f .ftp-deploy-sync-state.json;
+            quit;
+          " || true
+          
+          echo "✓ Attempted to remove .ftp-deploy-sync-state.json"
 
