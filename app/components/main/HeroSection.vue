@@ -21,6 +21,7 @@ import LogoIcon from "~/assets/icons/Logo.svg";
 .hero {
   position: relative;
   padding: rem(40) rem(20);
+  height: rem(340);
   background: linear-gradient(
     45deg,
     var(--a-accentDarkBg) 0%,
@@ -30,10 +31,14 @@ import LogoIcon from "~/assets/icons/Logo.svg";
 
   @include tablet {
     padding: rem(60) rem(32);
+    min-height: rem(520);
+    height: auto;
   }
 
   @include desktop {
     padding: rem(80) rem(48);
+    min-height: rem(520);
+    height: auto;
   }
 }
 

@@ -5,6 +5,9 @@ definePageMeta({
 
 // Локальная модель рождественской ёлки
 const defaultModelPath = "/models/Christmastree.glb";
+
+// Импорт изображения из assets
+import coverBg from "~/assets/images/cover-bg.jpg";
 </script>
 
 <template>
@@ -19,6 +22,14 @@ const defaultModelPath = "/models/Christmastree.glb";
           :enable-controls="true"
         />
       </div>
+    </section>
+    <section :class="$style.coverSection">
+      <img
+        :src="coverBg"
+        alt="Cover background"
+        :class="$style.coverImage"
+        loading="lazy"
+      />
     </section>
     <MainFeaturesSection />
   </div>
@@ -41,5 +52,27 @@ const defaultModelPath = "/models/Christmastree.glb";
 .container {
   max-width: 1280px;
   margin: 0 auto;
+}
+
+.coverSection {
+  width: 100%;
+  overflow: hidden;
+}
+
+.coverImage {
+  width: 100%;
+  height: rem(340);
+  object-fit: cover;
+  display: block;
+
+  @include tablet {
+    height: auto;
+    max-height: rem(500);
+  }
+
+  @include desktop {
+    height: auto;
+    max-height: rem(500);
+  }
 }
 </style>
