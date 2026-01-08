@@ -1,10 +1,32 @@
+<script setup lang="ts">
+import LogoIcon from "~/assets/icons/Logo.svg";
+
+const route = useRoute();
+const { locale, setLocale } = useI18n();
+
+const isMenuOpen = ref(false);
+
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value;
+};
+
+const closeMenu = () => {
+  isMenuOpen.value = false;
+};
+
+// Закрываем меню при изменении маршрута
+watch(() => route.path, () => {
+  closeMenu();
+});
+</script>
+
 <template>
   <header :class="$style.header">
     <div :class="$style.container">
       <button
         :class="[$style.burgerButton, { [$style.active]: isMenuOpen }]"
-        @click="toggleMenu"
         aria-label="Toggle menu"
+        @click="toggleMenu"
       >
         <span :class="$style.burgerLine"></span>
         <span :class="$style.burgerLine"></span>
@@ -54,8 +76,8 @@
     <aside :class="[$style.sideMenu, { [$style.active]: isMenuOpen }]">
       <button
         :class="$style.closeButton"
-        @click="closeMenu"
         aria-label="Close menu"
+        @click="closeMenu"
       >
         <svg
           :class="$style.closeIcon"
@@ -94,28 +116,6 @@
     </aside>
   </header>
 </template>
-
-<script setup lang="ts">
-import LogoIcon from "~/assets/icons/Logo.svg";
-
-const route = useRoute();
-const { locale, setLocale } = useI18n();
-
-const isMenuOpen = ref(false);
-
-const toggleMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value;
-};
-
-const closeMenu = () => {
-  isMenuOpen.value = false;
-};
-
-// Закрываем меню при изменении маршрута
-watch(() => route.path, () => {
-  closeMenu();
-});
-</script>
 
 <style module lang="scss">
 .header {
@@ -159,7 +159,7 @@ watch(() => route.path, () => {
   border: none;
   cursor: pointer;
   padding: 0;
-  z-index: 10;
+  z-index: var(--z-index-button);
   flex-shrink: 0;
 
   @include tablet {
@@ -307,7 +307,7 @@ watch(() => route.path, () => {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
-  z-index: calc(var(--z-index-fixed) + 1);
+  z-index: var(--z-index-overlay);
 
   @include tablet {
     display: none;
@@ -329,7 +329,7 @@ watch(() => route.path, () => {
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   transform: translateX(-100%);
   transition: transform 0.3s ease;
-  z-index: calc(var(--z-index-fixed) + 2);
+  z-index: var(--z-index-side-menu);
   padding: rem(24);
   padding-top: rem(80);
   overflow-y: auto;
@@ -360,7 +360,7 @@ watch(() => route.path, () => {
   cursor: pointer;
   transition: all 0.3s ease;
   color: var(--a-text-dark);
-  z-index: 1;
+  z-index: var(--z-index-button-inline);
 
   &:hover {
     background-color: var(--a-lightPrimaryBg);

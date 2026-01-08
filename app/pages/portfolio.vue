@@ -1,29 +1,3 @@
-<template>
-  <div>
-    <section :class="$style.header">
-      <div :class="$style.container">
-        <h1 :class="$style.title">{{ $t("portfolio.title") }}</h1>
-        <p :class="$style.subtitle">{{ $t("portfolio.subtitle") }}</p>
-      </div>
-    </section>
-
-    <section :class="$style.content">
-      <div :class="$style.container">
-        <PortfolioModelGrid
-          v-if="models.length > 0"
-          :models="models"
-          @model-select="handleModelSelect"
-        />
-        <div v-else :class="$style.empty">
-          <p>{{ $t("portfolio.empty") }}</p>
-        </div>
-      </div>
-    </section>
-
-    <PortfolioModelModal :model="selectedModel" :is-open="isModalOpen" @close="handleCloseModal" />
-  </div>
-</template>
-
 <script setup lang="ts">
 import { models } from "~/data/models";
 import type { Model } from "~/types/model";
@@ -49,6 +23,32 @@ const handleCloseModal = () => {
   document.body.style.overflow = "";
 };
 </script>
+
+<template>
+  <div>
+    <section :class="$style.header">
+      <div :class="$style.container">
+        <h1 :class="$style.title">{{ $t("portfolio.title") }}</h1>
+        <p :class="$style.subtitle">{{ $t("portfolio.subtitle") }}</p>
+      </div>
+    </section>
+
+    <section :class="$style.content">
+      <div :class="$style.container">
+        <PortfolioModelGrid
+          v-if="models.length > 0"
+          :models="models"
+          @model-select="handleModelSelect"
+        />
+        <div v-else :class="$style.empty">
+          <p>{{ $t("portfolio.empty") }}</p>
+        </div>
+      </div>
+    </section>
+
+    <PortfolioModelModal :model="selectedModel" :is-open="isModalOpen" @close="handleCloseModal" />
+  </div>
+</template>
 
 <style module lang="scss">
 .header {
@@ -116,4 +116,3 @@ const handleCloseModal = () => {
   font-size: rem(18);
 }
 </style>
-

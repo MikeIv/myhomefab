@@ -1,3 +1,40 @@
+<script setup lang="ts">
+import type { Model } from "~/types/model";
+
+interface Props {
+  model: Model | null;
+  isOpen: boolean;
+}
+
+const props = defineProps<Props>();
+
+const emit = defineEmits<{
+  close: [];
+}>();
+
+const handleClose = () => {
+  emit("close");
+};
+
+const handleOverlayClick = () => {
+  handleClose();
+};
+
+// Закрытие по Escape
+onMounted(() => {
+  const handleEscape = (e: KeyboardEvent) => {
+    if (e.key === "Escape" && props.isOpen) {
+      handleClose();
+    }
+  };
+  window.addEventListener("keydown", handleEscape);
+
+  onUnmounted(() => {
+    window.removeEventListener("keydown", handleEscape);
+  });
+});
+</script>
+
 <template>
   <Teleport to="body">
     <Transition name="fade">
@@ -149,43 +186,6 @@
   </Teleport>
 </template>
 
-<script setup lang="ts">
-import type { Model } from "~/types/model";
-
-interface Props {
-  model: Model | null;
-  isOpen: boolean;
-}
-
-const props = defineProps<Props>();
-
-const emit = defineEmits<{
-  close: [];
-}>();
-
-const handleClose = () => {
-  emit("close");
-};
-
-const handleOverlayClick = () => {
-  handleClose();
-};
-
-// Закрытие по Escape
-onMounted(() => {
-  const handleEscape = (e: KeyboardEvent) => {
-    if (e.key === "Escape" && props.isOpen) {
-      handleClose();
-    }
-  };
-  window.addEventListener("keydown", handleEscape);
-
-  onUnmounted(() => {
-    window.removeEventListener("keydown", handleEscape);
-  });
-});
-</script>
-
 <style module lang="scss">
 .overlay {
   position: fixed;
@@ -227,7 +227,7 @@ onMounted(() => {
   line-height: 1;
   border-radius: 50%;
   cursor: pointer;
-  z-index: 1;
+  z-index: var(--z-index-button-inline);
   transition: background-color 0.3s ease;
   display: flex;
   align-items: center;
@@ -362,4 +362,3 @@ onMounted(() => {
   opacity: 0;
 }
 </style>
-

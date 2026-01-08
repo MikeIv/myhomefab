@@ -1,3 +1,21 @@
+<script setup lang="ts">
+import type { Model } from "~/types/model";
+
+interface Props {
+  model: Model;
+}
+
+const props = defineProps<Props>();
+
+const emit = defineEmits<{
+  click: [model: Model];
+}>();
+
+const handleClick = () => {
+  emit("click", props.model);
+};
+</script>
+
 <template>
   <article :class="$style.card" @click="handleClick">
     <div :class="$style.imageWrapper">
@@ -20,24 +38,6 @@
     </div>
   </article>
 </template>
-
-<script setup lang="ts">
-import type { Model } from "~/types/model";
-
-interface Props {
-  model: Model;
-}
-
-const props = defineProps<Props>();
-
-const emit = defineEmits<{
-  click: [model: Model];
-}>();
-
-const handleClick = () => {
-  emit("click", props.model);
-};
-</script>
 
 <style module lang="scss">
 .card {
@@ -123,4 +123,3 @@ const handleClick = () => {
   overflow: hidden;
 }
 </style>
-

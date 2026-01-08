@@ -9,7 +9,9 @@
   /* Base */
   --a-white: #fff;
   --a-black: #000;
-  --a-base: #3b82f6;
+  --a-base: #1caad9;
+  --a-primary: #19295a;
+  --a-primary-accent: #f87e02;
 
   /* Typography */
   --ui-text: var(--a-white);
@@ -23,12 +25,12 @@
   --a-whiteBg: #fff;
   --a-blackBg: #000;
   --a-mainBg: #f8fafc;
-  --a-primaryBg: #3b82f6;
+  --a-primaryBg: #1caad9;
   --a-lightBg: #e2e8f0;
   --a-lightPrimaryBg: #eff6ff;
-  --a-accentBg: #6366f1;
+  --a-accentBg: #f87e02;
   --a-accentLightBg: #e0e7ff;
-  --a-accentDarkBg: #4338ca;
+  --a-accentDarkBg: #19295a;
 
   /* Border */
   --a-border: #e2e8f0;
@@ -41,4 +43,3 @@
   /* UI Colors */
   --ui-icon: #64748b;
 }
-

@@ -1,13 +1,3 @@
-<template>
-  <UApp>
-    <NuxtLayout>
-      <NuxtLoadingIndicator :color="'#3b82f6'" :height="3" />
-      <NuxtPage />
-      <NuxtRouteAnnouncer />
-    </NuxtLayout>
-  </UApp>
-</template>
-
 <script setup lang="ts">
 useHead({
   titleTemplate: (title) =>
@@ -23,10 +13,22 @@ useHead({
     { name: "theme-color", content: "#ffffff" },
   ],
   link: [
+    {
+      rel: "preconnect",
+      href: "https://fonts.googleapis.com",
+    },
+    {
+      rel: "preconnect",
+      href: "https://fonts.gstatic.com",
+      crossorigin: "",
+    },
+    {
+      rel: "stylesheet",
+      href: "https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@100;300;400;500;600;700;800&display=swap",
+    },
     { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
     { rel: "alternate icon", type: "image/x-icon", href: "/favicon.ico" },
     { rel: "apple-touch-icon", href: "/favicon.svg" },
-    { rel: "preconnect", href: "https://fonts.googleapis.com" },
   ],
   bodyAttrs: {
     class: "min-h-screen bg-gray-50",
@@ -34,9 +36,18 @@ useHead({
 });
 </script>
 
+<template>
+  <UApp>
+    <NuxtLayout>
+      <NuxtLoadingIndicator :color="'#3b82f6'" :height="3" />
+      <NuxtPage />
+      <NuxtRouteAnnouncer />
+    </NuxtLayout>
+  </UApp>
+</template>
+
 <style>
 html {
   scroll-behavior: smooth;
 }
 </style>
-

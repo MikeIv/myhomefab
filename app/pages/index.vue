@@ -1,3 +1,12 @@
+<script setup lang="ts">
+definePageMeta({
+  layout: "default",
+});
+
+// Локальная модель рождественской ёлки
+const defaultModelPath = "/models/Christmastree.glb";
+</script>
+
 <template>
   <div>
     <MainHeroSection />
@@ -14,15 +23,6 @@
     <MainFeaturesSection />
   </div>
 </template>
-
-<script setup lang="ts">
-definePageMeta({
-  layout: "default",
-});
-
-// Локальная модель рождественской ёлки
-const defaultModelPath = "/models/Christmastree.glb";
-</script>
 
 <style module lang="scss">
 .modelSection {
@@ -43,4 +43,3 @@ const defaultModelPath = "/models/Christmastree.glb";
   margin: 0 auto;
 }
 </style>
-

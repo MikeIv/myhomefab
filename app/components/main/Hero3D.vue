@@ -1,13 +1,3 @@
-<template>
-  <div :class="$style.container">
-    <canvas ref="canvasRef" :class="$style.canvas"></canvas>
-    <div v-if="isLoading" :class="$style.loader">
-      <div :class="$style.spinner"></div>
-    </div>
-    <div v-if="error" :class="$style.error">{{ error }}</div>
-  </div>
-</template>
-
 <script setup lang="ts">
 interface Props {
   modelPath?: string;
@@ -41,6 +31,16 @@ watch(
   }
 );
 </script>
+
+<template>
+  <div :class="$style.container">
+    <canvas ref="canvasRef" :class="$style.canvas"></canvas>
+    <div v-if="isLoading" :class="$style.loader">
+      <div :class="$style.spinner"></div>
+    </div>
+    <div v-if="error" :class="$style.error">{{ error }}</div>
+  </div>
+</template>
 
 <style module lang="scss">
 .container {
@@ -113,4 +113,3 @@ watch(
   font-size: rem(14);
 }
 </style>
-

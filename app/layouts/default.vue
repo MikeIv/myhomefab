@@ -1,3 +1,5 @@
+<script setup lang="ts"></script>
+
 <template>
   <div :class="$style.layout">
     <LayoutHeader />
@@ -6,8 +8,6 @@
     </main>
   </div>
 </template>
-
-<script setup lang="ts"></script>
 
 <style module lang="scss">
 .layout {
@@ -30,4 +30,3 @@
   }
 }
 </style>
-

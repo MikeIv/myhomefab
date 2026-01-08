@@ -16,7 +16,6 @@ export default defineNuxtConfig({
 
   googleFonts: {
     families: {
-      "Open Sans": [300, 400, 500, 600, 700, 800],
       Inter: [400, 500, 600, 700],
       "Roboto Mono": [400, 500, 600],
     },

@@ -1,3 +1,5 @@
+<script setup lang="ts"></script>
+
 <template>
   <section :class="$style.features">
     <div :class="$style.container">
@@ -30,8 +32,6 @@
     </div>
   </section>
 </template>
-
-<script setup lang="ts"></script>
 
 <style module lang="scss">
 .features {
@@ -120,4 +120,3 @@
   }
 }
 </style>
-

@@ -1,14 +1,3 @@
-<template>
-  <div :class="$style.grid">
-    <PortfolioModelCard
-      v-for="model in models"
-      :key="model.id"
-      :model="model"
-      @click="handleCardClick"
-    />
-  </div>
-</template>
-
 <script setup lang="ts">
 import type { Model } from "~/types/model";
 
@@ -27,6 +16,17 @@ const handleCardClick = (model: Model) => {
 };
 </script>
 
+<template>
+  <div :class="$style.grid">
+    <PortfolioModelCard
+      v-for="model in models"
+      :key="model.id"
+      :model="model"
+      @click="handleCardClick"
+    />
+  </div>
+</template>
+
 <style module lang="scss">
 .grid {
   display: grid;
@@ -44,4 +44,3 @@ const handleCardClick = (model: Model) => {
   }
 }
 </style>
-
