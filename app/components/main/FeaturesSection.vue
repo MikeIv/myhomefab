@@ -3,8 +3,10 @@ import { ref, onMounted, computed } from "vue";
 import coverBg from "~/assets/images/cover-bg.jpg";
 import mainPage01 from "~/assets/images/main-page/main-page-01.jpg";
 import featuresData from "~/data/features.json";
+import { useFeatures } from "~/composables/useFeatures";
 
 const isDev = import.meta.dev;
+const { getFeatures, saveFeatures, uploadImage, base64ToFile } = useFeatures();
 
 interface FeatureData {
   backgroundImage: string | null;
@@ -60,107 +62,149 @@ const features = ref<FeatureData[]>([
 ]);
 
 const STORAGE_KEY = "features_section_data";
+const isLoading = ref(false);
 
-const loadFeaturesData = () => {
+const loadFeaturesData = async () => {
   if (typeof window === "undefined") return;
 
+  isLoading.value = true;
+
   try {
-    // Сначала пытаемся загрузить из localStorage (для режима разработки)
+    // Сначала пытаемся загрузить из localStorage
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved && isDev) {
+    if (saved) {
       const parsed = JSON.parse(saved) as FeatureData[];
       if (Array.isArray(parsed) && parsed.length === 3) {
         features.value = parsed.map((feature) => {
           if (!feature.backgroundImage) {
-            return feature;
+            return {
+              backgroundImage: null,
+              text: feature.text || "Для дома",
+              textColor: feature.textColor || "#ffffff",
+            };
           }
 
           // Если это base64, используем как есть
           if (feature.backgroundImage.startsWith("data:")) {
-            return feature;
+            return {
+              backgroundImage: feature.backgroundImage,
+              text: feature.text || "Для дома",
+              textColor: feature.textColor || "#ffffff",
+            };
           }
 
           // Если это ключ из проекта, преобразуем в путь
           const imagePath = imageMap.value.get(feature.backgroundImage);
           if (imagePath) {
             return {
-              ...feature,
               backgroundImage: imagePath,
+              text: feature.text || "Для дома",
+              textColor: feature.textColor || "#ffffff",
             };
           }
 
-          // Если это уже путь, используем как есть
-          return feature;
+          // Если это уже путь или URL, используем как есть
+          return {
+            backgroundImage: feature.backgroundImage,
+            text: feature.text || "Для дома",
+            textColor: feature.textColor || "#ffffff",
+          };
         });
+        isLoading.value = false;
         return;
       }
     }
+  } catch (error) {
+    console.error("Ошибка при загрузке данных из localStorage:", error);
+  }
 
-    // Загружаем из статического JSON файла
+  // Fallback: загружаем из статического JSON файла
+  try {
     if (Array.isArray(featuresData) && featuresData.length === 3) {
       features.value = featuresData.map((feature) => {
         if (!feature.backgroundImage) {
-          return feature;
+          return {
+            backgroundImage: null,
+            text: feature.text || "Для дома",
+            textColor: feature.textColor || "#ffffff",
+          };
         }
 
         // Если это ключ из проекта, преобразуем в путь
         const imagePath = imageMap.value.get(feature.backgroundImage);
         if (imagePath) {
           return {
-            ...feature,
             backgroundImage: imagePath,
+            text: feature.text || "Для дома",
+            textColor: feature.textColor || "#ffffff",
           };
         }
 
         // Если это уже путь или URL, используем как есть
-        return feature;
+        return {
+          backgroundImage: feature.backgroundImage,
+          text: feature.text || "Для дома",
+          textColor: feature.textColor || "#ffffff",
+        };
       });
     }
   } catch (error) {
-    console.error("Ошибка при загрузке данных секции Features:", error);
-    // В случае ошибки используем значения по умолчанию
+    console.error("Ошибка при загрузке данных из JSON:", error);
   }
+
+  isLoading.value = false;
 };
 
-const saveFeaturesData = () => {
-  if (typeof window === "undefined" || !isDev) return;
+const saveFeaturesData = async () => {
+  if (typeof window === "undefined") return;
 
   try {
-    // Сохраняем в localStorage для режима разработки
-    // Для продакшена нужно будет вручную обновить файл app/data/features.json
+    // Подготавливаем данные для сохранения
     const dataToSave = features.value.map((feature) => {
+      const result: FeatureData = {
+        backgroundImage: null,
+        text: feature.text || "Для дома",
+        textColor: feature.textColor || "#ffffff",
+      };
+
       if (!feature.backgroundImage) {
-        return feature;
+        return result;
       }
 
       // Если это base64, сохраняем как есть
       if (feature.backgroundImage.startsWith("data:")) {
-        return feature;
+        result.backgroundImage = feature.backgroundImage;
+        return result;
       }
 
       // Если это путь из проекта, находим ключ
       for (const [key, path] of imageMap.value.entries()) {
         if (path === feature.backgroundImage) {
-          return {
-            ...feature,
-            backgroundImage: key,
-          };
+          result.backgroundImage = key;
+          return result;
         }
       }
 
-      // Если не нашли, сохраняем как есть (может быть внешний URL или путь)
-      return feature;
+      // Если это уже путь или URL, используем как есть
+      result.backgroundImage = feature.backgroundImage;
+      return result;
     });
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+    // Сохраняем в localStorage
+    const saveResult = await saveFeatures(
+      dataToSave.map((feature, index) => ({
+        featureIndex: index,
+        backgroundImage: feature.backgroundImage,
+        text: feature.text,
+        textColor: feature.textColor,
+      })),
+    );
 
-    // В режиме разработки показываем инструкцию для обновления JSON файла
-    if (isDev) {
-      console.log(
-        "%c📝 Для применения изменений в продакшене обновите файл app/data/features.json:",
-        "color: #3b82f6; font-weight: bold; font-size: 14px"
-      );
-      console.log(JSON.stringify(dataToSave, null, 2));
+    if (saveResult.success) {
+      // Обновляем локальные данные
+      features.value = dataToSave;
+    } else {
+      console.error("Ошибка при сохранении:", saveResult.error);
     }
   } catch (error) {
     console.error("Ошибка при сохранении данных секции Features:", error);
@@ -169,11 +213,39 @@ const saveFeaturesData = () => {
 
 onMounted(() => {
   loadFeaturesData();
+
+  // Добавляем функцию экспорта в window для доступа из консоли
+  if (isDev && typeof window !== "undefined") {
+    (window as unknown as { exportFeaturesToJSON: () => void })
+      .exportFeaturesToJSON = () => {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (data) {
+        const blob = new Blob([data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "features.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        console.log(
+          "%c✅ Файл features.json скачан. Скопируйте его содержимое в app/data/features.json",
+          "color: #10b981; font-weight: bold",
+        );
+      } else {
+        console.warn(
+          "%c⚠️ Нет сохраненных данных в localStorage",
+          "color: #f59e0b; font-weight: bold",
+        );
+      }
+    };
+  }
 });
 
 const fileInputs = ref<(HTMLInputElement | null)[]>([]);
 
-const handleFileSelect = (index: number, event: Event) => {
+const handleFileSelect = async (index: number, event: Event) => {
   if (!isDev) return;
 
   const target = event.target as HTMLInputElement;
@@ -181,17 +253,16 @@ const handleFileSelect = (index: number, event: Event) => {
     const file = target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
+    // Загружаем файл (конвертируем в base64 и сохраняем в localStorage)
+    const uploadResult = await uploadImage(file);
 
-    reader.onload = (e) => {
-      const result = e.target?.result;
-      if (typeof result === "string" && features.value[index]) {
-        features.value[index].backgroundImage = result;
-        saveFeaturesData();
-      }
-    };
+    if (uploadResult.success && uploadResult.filePath && features.value[index]) {
+      features.value[index].backgroundImage = uploadResult.filePath;
+      await saveFeaturesData();
+    } else {
+      console.error("Ошибка при загрузке изображения:", uploadResult.error);
+    }
 
-    reader.readAsDataURL(file);
     // Сбрасываем input для возможности повторного выбора того же файла
     target.value = "";
   }
@@ -206,18 +277,18 @@ const triggerFileInput = (index: number) => {
   }
 };
 
-const updateText = (index: number, newText: string) => {
+const updateText = async (index: number, newText: string) => {
   if (!isDev || !features.value[index]) return;
 
   features.value[index].text = newText;
-  saveFeaturesData();
+  await saveFeaturesData();
 };
 
-const updateTextColor = (index: number, newColor: string) => {
+const updateTextColor = async (index: number, newColor: string) => {
   if (!isDev || !features.value[index]) return;
 
   features.value[index].textColor = newColor;
-  saveFeaturesData();
+  await saveFeaturesData();
 };
 
 const isEditingText = ref<number | null>(null);
