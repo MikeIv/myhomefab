@@ -35,7 +35,7 @@ export default withNuxt([
         },
       ],
       "vue/attributes-order": [
-        "warn",
+        "error",
         {
           order: [
             "DEFINITION",

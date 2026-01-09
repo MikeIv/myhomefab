@@ -156,7 +156,7 @@ export default defineNuxtConfig({
         "vue/prop-name-casing": ["warn", "camelCase"],
         "vue/v-on-event-hyphenation": "warn",
         "vue/attributes-order": [
-          "warn",
+          "error",
           {
             order: [
               "DEFINITION",
