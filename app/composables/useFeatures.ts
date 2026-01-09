@@ -29,40 +29,54 @@ export const useFeatures = () => {
     ];
   };
 
-  const saveFeaturesAndDownloadJSON = (
+  const saveFeaturesJSON = async (
     features: FeatureData[],
-  ): { success: boolean; error?: string } => {
+  ): Promise<{ success: boolean; error?: string }> => {
     if (typeof window === "undefined") {
       return { success: false, error: "Только для клиентской стороны" };
     }
 
     try {
       // Подготавливаем данные для JSON файла
-      const dataToSave = features.map((feature) => ({
-        backgroundImage: feature.backgroundImage,
-        text: feature.text,
-        textColor: feature.textColor,
-      }));
+      const dataToSave = features.map((feature) => {
+        let backgroundImage: string | null = null;
 
-      // Сразу скачиваем обновленный JSON файл
-      const jsonString = JSON.stringify(dataToSave, null, 2);
-      const blob = new Blob([jsonString], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "features.json";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+        if (feature.backgroundImage) {
+          // Если это base64 (старые данные), не сохраняем
+          if (!feature.backgroundImage.startsWith("data:")) {
+            // Сохраняем путь к изображению (ключ из app/assets/images)
+            backgroundImage = feature.backgroundImage;
+          }
+          // Если это base64 (startsWith("data:")), не сохраняем - backgroundImage останется null
+        }
+
+        return {
+          backgroundImage,
+          text: feature.text,
+          textColor: feature.textColor,
+        };
+      });
+
+      // Сохраняем через API
+      const response = await $fetch<{
+        success: boolean;
+        message?: string;
+        error?: string;
+      }>("/api/features/save", {
+        method: "POST",
+        body: dataToSave,
+      });
+
+      if (!response.success) {
+        const errorMessage =
+          response.error || "Ошибка при сохранении features.json";
+        console.error("Ошибка при сохранении:", errorMessage);
+        return { success: false, error: errorMessage };
+      }
 
       console.log(
-        "%c✅ Файл features.json скачан!",
+        "%c✅ Файл features.json успешно обновлен!",
         "color: #10b981; font-weight: bold; font-size: 14px",
-      );
-      console.log(
-        "%c📝 Скопируйте содержимое скачанного файла в app/data/features.json и выполните билд проекта",
-        "color: #3b82f6; font-size: 12px",
       );
 
       return { success: true };
@@ -76,46 +90,36 @@ export const useFeatures = () => {
     }
   };
 
-  const uploadImage = async (
-    file: File,
-  ): Promise<{ success: boolean; filePath?: string; error?: string }> => {
+  const getAvailableImages = async (): Promise<{
+    success: boolean;
+    images?: string[];
+    error?: string;
+  }> => {
     try {
-      // Конвертируем файл в base64
-      const base64 = await fileToBase64(file);
+      const response = await $fetch<{
+        success: boolean;
+        images?: string[];
+        error?: string;
+      }>("/api/images/list");
 
-      // Возвращаем base64 как путь (будет использоваться в компоненте)
-      return { success: true, filePath: base64 };
+      if (!response.success || !response.images) {
+        const errorMessage =
+          response.error || "Ошибка при получении списка изображений";
+        return { success: false, error: errorMessage };
+      }
+
+      return { success: true, images: response.images };
     } catch (error) {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Ошибка при загрузке изображения";
-      console.error("Ошибка при загрузке изображения:", error);
+          : "Ошибка при получении списка изображений";
+      console.error("Ошибка при получении списка изображений:", error);
       return { success: false, error: errorMessage };
     }
   };
 
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === "string") {
-          resolve(reader.result);
-        } else {
-          reject(new Error("Ошибка при чтении файла"));
-        }
-      };
-      reader.onerror = () => {
-        reject(new Error("Ошибка при чтении файла"));
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const base64ToFile = (
-    base64: string,
-    filename: string,
-  ): File | null => {
+  const base64ToFile = (base64: string, filename: string): File | null => {
     try {
       // Проверяем, что это base64 изображение
       if (!base64.startsWith("data:image/")) {
@@ -123,7 +127,7 @@ export const useFeatures = () => {
       }
 
       // Извлекаем MIME тип и данные
-      const matches = base64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      const matches = base64.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
       if (!matches || matches.length !== 3) {
         return null;
       }
@@ -149,8 +153,8 @@ export const useFeatures = () => {
 
   return {
     getDefaultFeatures,
-    saveFeaturesAndDownloadJSON,
-    uploadImage,
+    saveFeaturesJSON,
+    getAvailableImages,
     base64ToFile,
   };
 };

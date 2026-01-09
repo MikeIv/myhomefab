@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
-import coverBg from "~/assets/images/cover-bg.jpg";
-import mainPage01 from "~/assets/images/main-page/main-page-01.jpg";
+import { ref, onMounted } from "vue";
 import featuresData from "~/data/features.json";
 import { useFeatures } from "~/composables/useFeatures";
 
 const isDev = import.meta.dev;
-const { saveFeaturesAndDownloadJSON, uploadImage, base64ToFile } = useFeatures();
+const { saveFeaturesJSON, getAvailableImages } = useFeatures();
 
 interface FeatureData {
   backgroundImage: string | null;
@@ -14,34 +12,24 @@ interface FeatureData {
   textColor: string;
 }
 
-interface AvailableImage {
-  key: string;
-  path: string;
-  label: string;
-}
-
-// Доступные изображения из папки app/assets/images
-const availableImages: AvailableImage[] = [
-  {
-    key: "cover-bg.jpg",
-    path: coverBg,
-    label: "Cover Background",
-  },
-  {
-    key: "main-page/main-page-01.jpg",
-    path: mainPage01,
-    label: "Main Page 01",
-  },
-];
+// Синхронная версия для использования в template
+const getImageUrlSync = (imageKey: string): string => {
+  // В Nuxt изображения из app/assets/images обрабатываются через Vite
+  // и получают путь через /_nuxt/assets/images/
+  return `/_nuxt/assets/images/${imageKey}`;
+};
 
 // Мапа для быстрого доступа к изображениям по ключу
 const imageMap = computed(() => {
   const map = new Map<string, string>();
-  availableImages.forEach((img) => {
-    map.set(img.key, img.path);
+  availableImages.value.forEach((imgPath) => {
+    map.set(imgPath, getImageUrlSync(imgPath));
   });
   return map;
 });
+
+const availableImages = ref<string[]>([]);
+const isLoadingImages = ref(false);
 
 const features = ref<FeatureData[]>([
   {
@@ -63,6 +51,22 @@ const features = ref<FeatureData[]>([
 
 const isLoading = ref(false);
 
+const loadAvailableImages = async () => {
+  if (typeof window === "undefined") return;
+
+  isLoadingImages.value = true;
+  try {
+    const result = await getAvailableImages();
+    if (result.success && result.images) {
+      availableImages.value = result.images;
+    }
+  } catch (error) {
+    console.error("Ошибка при загрузке списка изображений:", error);
+  } finally {
+    isLoadingImages.value = false;
+  }
+};
+
 const loadFeaturesData = () => {
   if (typeof window === "undefined") return;
 
@@ -72,7 +76,7 @@ const loadFeaturesData = () => {
     // Загружаем данные из статического JSON файла
     if (Array.isArray(featuresData) && featuresData.length === 3) {
       features.value = (featuresData as FeatureData[]).map((feature) => {
-        const bgImage = feature.backgroundImage as string | null | undefined;
+        const bgImage = feature.backgroundImage;
 
         if (!bgImage) {
           return {
@@ -82,7 +86,7 @@ const loadFeaturesData = () => {
           };
         }
 
-        // Если это base64, используем как есть
+        // Если это base64 (старые данные), используем как есть (для обратной совместимости)
         if (bgImage.startsWith("data:")) {
           return {
             backgroundImage: bgImage,
@@ -91,19 +95,19 @@ const loadFeaturesData = () => {
           };
         }
 
-        // Если это ключ из проекта, преобразуем в путь
-        const imagePath = imageMap.value.get(bgImage);
-        if (imagePath) {
+        // Если это уже путь (начинается с /_nuxt/ или /), используем как есть
+        if (bgImage.startsWith("/_nuxt/") || bgImage.startsWith("/")) {
           return {
-            backgroundImage: imagePath,
+            backgroundImage: bgImage,
             text: feature.text || "Для дома",
             textColor: feature.textColor || "#ffffff",
           };
         }
 
-        // Если это уже путь или URL, используем как есть
+        // Если это ключ из проекта (путь к изображению в app/assets/images), преобразуем в путь
+        // Используем правильный путь через /_nuxt/assets/images/
         return {
-          backgroundImage: bgImage,
+          backgroundImage: `/_nuxt/assets/images/${bgImage}`,
           text: feature.text || "Для дома",
           textColor: feature.textColor || "#ffffff",
         };
@@ -116,43 +120,50 @@ const loadFeaturesData = () => {
   isLoading.value = false;
 };
 
-const saveFeaturesData = () => {
+const saveFeaturesData = async () => {
   if (typeof window === "undefined") return;
 
   try {
     // Подготавливаем данные для сохранения
     const dataToSave = features.value.map((feature) => {
-      const result: FeatureData = {
-        backgroundImage: null,
-        text: feature.text || "Для дома",
-        textColor: feature.textColor || "#ffffff",
-      };
+      let backgroundImageKey: string | null = null;
 
-      if (!feature.backgroundImage) {
-        return result;
-      }
+      if (feature.backgroundImage) {
+        // Если это base64, не сохраняем
+        if (feature.backgroundImage.startsWith("data:")) {
+          return {
+            backgroundImage: null,
+            text: feature.text || "Для дома",
+            textColor: feature.textColor || "#ffffff",
+          };
+        }
 
-      // Если это base64, сохраняем как есть
-      if (feature.backgroundImage.startsWith("data:")) {
-        result.backgroundImage = feature.backgroundImage;
-        return result;
-      }
+        // Находим ключ изображения по пути
+        for (const [key, path] of imageMap.value.entries()) {
+          if (path === feature.backgroundImage) {
+            backgroundImageKey = key;
+            break;
+          }
+        }
 
-      // Если это путь из проекта, находим ключ
-      for (const [key, path] of imageMap.value.entries()) {
-        if (path === feature.backgroundImage) {
-          result.backgroundImage = key;
-          return result;
+        // Если не нашли в мапе, возможно это уже ключ
+        if (!backgroundImageKey) {
+          // Проверяем, является ли это ключом из списка доступных изображений
+          if (availableImages.value.includes(feature.backgroundImage)) {
+            backgroundImageKey = feature.backgroundImage;
+          }
         }
       }
 
-      // Если это уже путь или URL, используем как есть
-      result.backgroundImage = feature.backgroundImage;
-      return result;
+      return {
+        backgroundImage: backgroundImageKey,
+        text: feature.text || "Для дома",
+        textColor: feature.textColor || "#ffffff",
+      };
     });
 
-    // Сохраняем и сразу скачиваем JSON файл
-    const saveResult = saveFeaturesAndDownloadJSON(
+    // Сохраняем через API
+    const saveResult = await saveFeaturesJSON(
       dataToSave.map((feature, index) => ({
         featureIndex: index,
         backgroundImage: feature.backgroundImage,
@@ -169,48 +180,58 @@ const saveFeaturesData = () => {
   }
 };
 
-onMounted(() => {
+const isImageModalOpen = ref(false);
+const selectedFeatureIndex = ref<number | null>(null);
+
+const openImageModal = (index: number) => {
+  if (!isDev) return;
+  selectedFeatureIndex.value = index;
+  isImageModalOpen.value = true;
+};
+
+const closeImageModal = () => {
+  isImageModalOpen.value = false;
+  selectedFeatureIndex.value = null;
+};
+
+const selectImage = async (imageKey: string) => {
+  if (
+    selectedFeatureIndex.value === null ||
+    !features.value[selectedFeatureIndex.value]
+  ) {
+    return;
+  }
+
+  const index = selectedFeatureIndex.value;
+  const imagePath = imageMap.value.get(imageKey);
+  const feature = features.value[index];
+  
+  if (imagePath && feature) {
+    feature.backgroundImage = imagePath;
+    closeImageModal();
+    await saveFeaturesData();
+  }
+};
+
+onMounted(async () => {
+  await loadAvailableImages();
   loadFeaturesData();
 });
 
-const fileInputs = ref<(HTMLInputElement | null)[]>([]);
-
-const handleFileSelect = async (index: number, event: Event) => {
-  if (!isDev) return;
-
-  const target = event.target as HTMLInputElement;
-  if (target.files && target.files.length > 0) {
-    const file = target.files[0];
-    if (!file) return;
-
-    // Загружаем файл (конвертируем в base64 и сохраняем в localStorage)
-    const uploadResult = await uploadImage(file);
-
-    if (uploadResult.success && uploadResult.filePath && features.value[index]) {
-      features.value[index].backgroundImage = uploadResult.filePath;
-      await saveFeaturesData();
-    } else {
-      console.error("Ошибка при загрузке изображения:", uploadResult.error);
-    }
-
-    // Сбрасываем input для возможности повторного выбора того же файла
-    target.value = "";
-  }
-};
-
-const triggerFileInput = (index: number) => {
-  if (!isDev) return;
-
-  const input = fileInputs.value[index];
-  if (input) {
-    input.click();
-  }
-};
+// Локальное состояние для редактирования текста
+const editingTextValue = ref<string>("");
 
 const updateText = async (index: number, newText: string) => {
   if (!isDev || !features.value[index]) return;
 
+  // Обновляем значение только локально, без сохранения
   features.value[index].text = newText;
+};
+
+const saveText = async (index: number) => {
+  if (!isDev || !features.value[index]) return;
+  
+  // Сохраняем только при завершении редактирования
   await saveFeaturesData();
 };
 
@@ -227,10 +248,17 @@ const isEditingColor = ref<number | null>(null);
 const startEditingText = (index: number) => {
   if (!isDev) return;
   isEditingText.value = index;
+  // Сохраняем текущее значение для редактирования
+  editingTextValue.value = features.value[index]?.text || "";
 };
 
-const finishEditingText = (_index: number) => {
-  isEditingText.value = null;
+const finishEditingText = async (index: number) => {
+  if (isEditingText.value === index) {
+    // Сохраняем изменения при завершении редактирования
+    await saveText(index);
+    isEditingText.value = null;
+    editingTextValue.value = "";
+  }
 };
 
 const startEditingColor = (index: number) => {
@@ -271,21 +299,12 @@ const colorOptions = [
             backgroundRepeat: 'no-repeat',
           }"
         >
-          <input
-            v-if="isDev"
-            :ref="(el) => (fileInputs[index] = el as HTMLInputElement | null)"
-            type="file"
-            accept="image/*"
-            :class="$style.fileInput"
-            @change="handleFileSelect(index, $event)"
-          />
-
           <button
             v-if="isDev && feature.backgroundImage"
             :class="$style.editButton"
             type="button"
             aria-label="Изменить изображение"
-            @click="triggerFileInput(index)"
+            @click="openImageModal(index)"
           >
             <svg
               width="20"
@@ -315,7 +334,7 @@ const colorOptions = [
             <div
               v-if="isDev && !feature.backgroundImage"
               :class="$style.addButton"
-              @click="triggerFileInput(index)"
+              @click="openImageModal(index)"
             >
               Добавить
             </div>
@@ -335,14 +354,12 @@ const colorOptions = [
 
             <div v-else-if="isDev" :class="$style.textEditContainer">
               <input
+                v-model="editingTextValue"
                 :class="$style.textInput"
-                :value="feature.text"
                 autofocus
                 @blur="finishEditingText(index)"
                 @keyup.enter="finishEditingText(index)"
-                @input="
-                  updateText(index, ($event.target as HTMLInputElement).value)
-                "
+                @input="updateText(index, ($event.target as HTMLInputElement).value)"
               />
               <div :class="$style.colorPickerContainer">
                 <button
@@ -389,6 +406,69 @@ const colorOptions = [
         </div>
       </div>
     </div>
+
+    <!-- Модальное окно для выбора изображения -->
+    <Teleport to="body">
+      <div
+        v-if="isImageModalOpen"
+        :class="$style.modalOverlay"
+        @click="closeImageModal"
+      >
+        <div :class="$style.modalContent" @click.stop>
+          <div :class="$style.modalHeader">
+            <h3 :class="$style.modalTitle">Выберите изображение</h3>
+            <button
+              :class="$style.modalClose"
+              type="button"
+              aria-label="Закрыть"
+              @click="closeImageModal"
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M18 6L6 18M6 6L18 18"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+          <div :class="$style.modalBody">
+            <div v-if="isLoadingImages" :class="$style.loading">
+              Загрузка изображений...
+            </div>
+            <div v-else :class="$style.imageGrid">
+              <button
+                v-for="imageKey in availableImages"
+                :key="imageKey"
+                :class="$style.imageItem"
+                type="button"
+                @click="selectImage(imageKey)"
+              >
+                <img
+                  :src="imageMap.get(imageKey) || getImageUrlSync(imageKey)"
+                  :alt="imageKey"
+                  :class="$style.imagePreview"
+                  @error="
+                    (e) => {
+                      console.error('Ошибка загрузки изображения:', imageKey, 'URL:', (e.target as HTMLImageElement).src);
+                    }
+                  "
+                />
+                <span :class="$style.imageName">{{ imageKey }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </section>
 </template>
 
@@ -639,8 +719,112 @@ const colorOptions = [
   }
 }
 
-.fileInput {
-  display: none;
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: rem(20);
+}
+
+.modalContent {
+  background-color: var(--a-whiteBg);
+  border-radius: rem(12);
+  max-width: rem(800);
+  width: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 rem(20) rem(60) rgba(0, 0, 0, 0.3);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: rem(20) rem(24);
+  border-bottom: 1px solid var(--a-border);
+}
+
+.modalTitle {
+  font-size: rem(20);
+  font-weight: 600;
+  color: var(--a-text-dark);
+  margin: 0;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: rem(4);
+  color: var(--a-text-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--a-primary);
+  }
+}
+
+.modalBody {
+  padding: rem(24);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.loading {
+  text-align: center;
+  padding: rem(40);
+  color: var(--a-text-secondary);
+}
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(rem(120), 1fr));
+  gap: rem(16);
+}
+
+.imageItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: rem(8);
+  padding: rem(12);
+  border: 2px solid var(--a-border);
+  border-radius: rem(8);
+  background-color: var(--a-whiteBg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--a-primary);
+    transform: translateY(rem(-2));
+    box-shadow: 0 rem(4) rem(12) rgba(0, 0, 0, 0.1);
+  }
+}
+
+.imagePreview {
+  width: 100%;
+  height: rem(100);
+  object-fit: cover;
+  border-radius: rem(4);
+}
+
+.imageName {
+  font-size: rem(12);
+  color: var(--a-text-secondary);
+  text-align: center;
+  word-break: break-word;
+  max-width: 100%;
 }
 </style>
 

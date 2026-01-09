@@ -1,33 +1,26 @@
 /**
  * Скрипт для экспорта данных features из localStorage в JSON файл
- * 
+ *
  * Использование:
  * 1. Откройте консоль браузера на странице с компонентом FeaturesSection
  * 2. Выполните: exportFeaturesToJSON()
  * 3. Файл features.json будет скачан
  * 4. Скопируйте содержимое в app/data/features.json
- * 
+ *
  * Или используйте этот скрипт в Node.js для автоматического экспорта
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const STORAGE_KEY = "features_section_data";
-
 /**
  * Экспортирует данные из localStorage-подобного хранилища в JSON файл
- * 
+ *
  * @param {string} dataPath - Путь к файлу с данными localStorage (опционально)
  * @param {string} outputPath - Путь для сохранения JSON файла
  */
 export function exportFeaturesToJSON(dataPath, outputPath) {
-  const defaultOutputPath = join(
-    process.cwd(),
-    "app",
-    "data",
-    "features.json",
-  );
+  const defaultOutputPath = join(process.cwd(), "app", "data", "features.json");
 
   const output = outputPath || defaultOutputPath;
 
@@ -77,4 +70,3 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
   exportFeaturesToJSON(dataPath, outputPath);
 }
-
