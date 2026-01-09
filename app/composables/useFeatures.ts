@@ -5,36 +5,7 @@ interface FeatureData {
   textColor: string;
 }
 
-const STORAGE_KEY = "features_section_data";
-
 export const useFeatures = () => {
-  const getFeatures = async (): Promise<FeatureData[]> => {
-    if (typeof window === "undefined") {
-      return getDefaultFeatures();
-    }
-
-    try {
-      // Пытаемся загрузить из localStorage
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved) as FeatureData[];
-        if (Array.isArray(parsed) && parsed.length === 3) {
-          return parsed.map((feature, index) => ({
-            featureIndex: index,
-            backgroundImage: feature.backgroundImage || null,
-            text: feature.text || "Для дома",
-            textColor: feature.textColor || "#ffffff",
-          }));
-        }
-      }
-    } catch (error) {
-      console.error("Ошибка при загрузке данных из localStorage:", error);
-    }
-
-    // Возвращаем значения по умолчанию
-    return getDefaultFeatures();
-  };
-
   const getDefaultFeatures = (): FeatureData[] => {
     return [
       {
@@ -58,60 +29,41 @@ export const useFeatures = () => {
     ];
   };
 
-  const saveFeatures = async (
+  const saveFeaturesAndDownloadJSON = (
     features: FeatureData[],
-  ): Promise<{ success: boolean; error?: string }> => {
+  ): { success: boolean; error?: string } => {
     if (typeof window === "undefined") {
       return { success: false, error: "Только для клиентской стороны" };
     }
 
     try {
-      // Сохраняем в localStorage
+      // Подготавливаем данные для JSON файла
       const dataToSave = features.map((feature) => ({
         backgroundImage: feature.backgroundImage,
         text: feature.text,
         textColor: feature.textColor,
       }));
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+      // Сразу скачиваем обновленный JSON файл
+      const jsonString = JSON.stringify(dataToSave, null, 2);
+      const blob = new Blob([jsonString], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "features.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-      // Показываем инструкцию для экспорта в JSON
-      if (import.meta.dev) {
-        console.log(
-          "%c📝 Данные сохранены в localStorage. Для применения в продакшене:",
-          "color: #3b82f6; font-weight: bold; font-size: 14px",
-        );
-        console.log(
-          "%c1. Выполните в консоли: exportFeaturesToJSON()",
-          "color: #10b981; font-size: 12px",
-        );
-        console.log(
-          "%c2. Или скопируйте данные ниже и обновите app/data/features.json:",
-          "color: #10b981; font-size: 12px",
-        );
-        console.log(JSON.stringify(dataToSave, null, 2));
-
-        // Добавляем функцию в window для экспорта
-        (window as unknown as { exportFeaturesToJSON: () => void })
-          .exportFeaturesToJSON = () => {
-          const data = localStorage.getItem(STORAGE_KEY);
-          if (data) {
-            const blob = new Blob([data], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "features.json";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            console.log(
-              "%c✅ Файл features.json скачан. Скопируйте его содержимое в app/data/features.json",
-              "color: #10b981; font-weight: bold",
-            );
-          }
-        };
-      }
+      console.log(
+        "%c✅ Файл features.json скачан!",
+        "color: #10b981; font-weight: bold; font-size: 14px",
+      );
+      console.log(
+        "%c📝 Скопируйте содержимое скачанного файла в app/data/features.json и выполните билд проекта",
+        "color: #3b82f6; font-size: 12px",
+      );
 
       return { success: true };
     } catch (error) {
@@ -128,29 +80,8 @@ export const useFeatures = () => {
     file: File,
   ): Promise<{ success: boolean; filePath?: string; error?: string }> => {
     try {
-      // Конвертируем файл в base64 для хранения в localStorage
+      // Конвертируем файл в base64
       const base64 = await fileToBase64(file);
-
-      // Генерируем уникальное имя файла
-      const timestamp = Date.now();
-      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-      const filename = `${timestamp}_${sanitizedName}`;
-
-      // Сохраняем base64 в localStorage с метаданными
-      const imageData = {
-        filename,
-        originalFilename: file.name,
-        base64,
-        mimeType: file.type,
-        fileSize: file.size,
-        uploadedAt: new Date().toISOString(),
-      };
-
-      const imagesKey = "features_uploaded_images";
-      const existingImages = localStorage.getItem(imagesKey);
-      const images = existingImages ? JSON.parse(existingImages) : [];
-      images.push(imageData);
-      localStorage.setItem(imagesKey, JSON.stringify(images));
 
       // Возвращаем base64 как путь (будет использоваться в компоненте)
       return { success: true, filePath: base64 };
@@ -216,28 +147,10 @@ export const useFeatures = () => {
     }
   };
 
-  const exportToJSON = (): string | null => {
-    if (typeof window === "undefined") {
-      return null;
-    }
-
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        return saved;
-      }
-      return null;
-    } catch {
-      return null;
-    }
-  };
-
   return {
-    getFeatures,
-    saveFeatures,
+    getDefaultFeatures,
+    saveFeaturesAndDownloadJSON,
     uploadImage,
     base64ToFile,
-    exportToJSON,
   };
 };
-
