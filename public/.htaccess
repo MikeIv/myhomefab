@@ -1,0 +1,12 @@
+# Защита .env файла от доступа через веб
+<FilesMatch "^\.env">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+# Защита других конфиденциальных файлов
+<FilesMatch "^(\.git|\.env|\.env\.local|\.env\.production)$">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+

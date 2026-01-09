@@ -1,63 +1,28 @@
-import type {
-  Image,
-  ImageListResponse,
-  ImageUploadResponse,
-  ImageUploadData,
-} from "~/types/image";
+import type { Image, ImageListResponse, ImageUploadData } from "~/types/image";
+import { imageStorage } from "~/utils/imageStorage";
 
 export const useImages = () => {
-  const config = useRuntimeConfig();
-  const getApiUrl = (path: string): string => {
-    // Если указан базовый URL в конфиге - используем его
-    const configBaseUrl = config.public.apiBase;
-    if (configBaseUrl) {
-      return `${configBaseUrl}${path}`;
-    }
-
-    // Для клиентской стороны (SPA) - используем текущий хост из браузера
-    if (import.meta.client && typeof window !== "undefined") {
-      const origin = window.location.origin;
-      return `${origin}${path}`;
-    }
-
-    // Fallback - относительный путь (будет работать, если фронт и API на одном домене)
-    return path;
-  };
-
   const uploadImage = async (
     data: ImageUploadData,
   ): Promise<{ success: boolean; image?: Image; error?: string }> => {
     try {
-      const formData = new FormData();
-      formData.append("file", data.file);
-
-      if (data.altText) {
-        formData.append("altText", data.altText);
-      }
-
-      const response = await $fetch<ImageUploadResponse>(
-        getApiUrl("/api/images/upload"),
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
-
-      if (response.success && response.image) {
-        return { success: true, image: response.image };
-      }
-
-      return { success: false, error: "Ошибка при загрузке изображения" };
-    } catch (error) {
-      if (error && typeof error === "object" && "data" in error) {
-        const errorData = error.data as { statusMessage?: string };
+      // Проверка поддержки IndexedDB
+      if (typeof window === "undefined" || !window.indexedDB) {
         return {
           success: false,
-          error: errorData.statusMessage || "Ошибка при загрузке изображения",
+          error: "Ваш браузер не поддерживает хранение данных",
         };
       }
 
-      return { success: false, error: "Ошибка при загрузке изображения" };
+      const image = await imageStorage.saveImage(data.file, data.altText);
+
+      return { success: true, image };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Ошибка при загрузке изображения";
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -70,25 +35,23 @@ export const useImages = () => {
     error?: string;
   }> => {
     try {
-      const response = await $fetch<ImageListResponse>(
-        getApiUrl("/api/images"),
-        {
-          method: "GET",
-          params: { page, limit },
-        },
-      );
-
-      return { success: true, data: response };
-    } catch (error) {
-      if (error && typeof error === "object" && "data" in error) {
-        const errorData = error.data as { statusMessage?: string };
+      // Проверка поддержки IndexedDB
+      if (typeof window === "undefined" || !window.indexedDB) {
         return {
           success: false,
-          error: errorData.statusMessage || "Ошибка при получении изображений",
+          error: "Ваш браузер не поддерживает хранение данных",
         };
       }
 
-      return { success: false, error: "Ошибка при получении изображений" };
+      const response = await imageStorage.getImages(page, limit);
+
+      return { success: true, data: response };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Ошибка при получении изображений";
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -96,24 +59,23 @@ export const useImages = () => {
     id: number,
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      await $fetch<{ success: boolean; message: string }>(
-        getApiUrl(`/api/images/${id}`),
-        {
-          method: "DELETE",
-        },
-      );
-
-      return { success: true };
-    } catch (error) {
-      if (error && typeof error === "object" && "data" in error) {
-        const errorData = error.data as { statusMessage?: string };
+      // Проверка поддержки IndexedDB
+      if (typeof window === "undefined" || !window.indexedDB) {
         return {
           success: false,
-          error: errorData.statusMessage || "Ошибка при удалении изображения",
+          error: "Ваш браузер не поддерживает хранение данных",
         };
       }
 
-      return { success: false, error: "Ошибка при удалении изображения" };
+      await imageStorage.deleteImage(id);
+
+      return { success: true };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Ошибка при удалении изображения";
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -122,39 +84,23 @@ export const useImages = () => {
     data: { file?: File; altText?: string },
   ): Promise<{ success: boolean; image?: Image; error?: string }> => {
     try {
-      const formData = new FormData();
-
-      if (data.file) {
-        formData.append("file", data.file);
-      }
-
-      if (data.altText !== undefined) {
-        formData.append("altText", data.altText || "");
-      }
-
-      const response = await $fetch<{ success: boolean; image: Image }>(
-        getApiUrl(`/api/images/${id}`),
-        {
-          method: "PUT",
-          body: formData,
-        },
-      );
-
-      if (response.success && response.image) {
-        return { success: true, image: response.image };
-      }
-
-      return { success: false, error: "Ошибка при обновлении изображения" };
-    } catch (error) {
-      if (error && typeof error === "object" && "data" in error) {
-        const errorData = error.data as { statusMessage?: string };
+      // Проверка поддержки IndexedDB
+      if (typeof window === "undefined" || !window.indexedDB) {
         return {
           success: false,
-          error: errorData.statusMessage || "Ошибка при обновлении изображения",
+          error: "Ваш браузер не поддерживает хранение данных",
         };
       }
 
-      return { success: false, error: "Ошибка при обновлении изображения" };
+      const image = await imageStorage.updateImage(id, data);
+
+      return { success: true, image };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Ошибка при обновлении изображения";
+      return { success: false, error: errorMessage };
     }
   };
 

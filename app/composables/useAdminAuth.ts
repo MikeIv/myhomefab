@@ -1,6 +1,8 @@
 export const useAdminAuth = () => {
+  const config = useRuntimeConfig();
   const authCookie = useCookie("admin_auth", {
     default: () => "",
+    maxAge: 60 * 60 * 24 * 7, // 7 дней
   });
 
   const isAuthenticated = computed(() => {
@@ -10,44 +12,28 @@ export const useAdminAuth = () => {
   const login = async (
     password: string,
   ): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const response = await $fetch<{ success: boolean; message: string }>(
-        "/api/admin/login",
-        {
-          method: "POST",
-          body: { password },
-        },
-      );
+    // Проверка пароля на клиенте
+    // Пароль хранится в runtime config (виден в коде, но это нормально для простой админки)
+    const correctPassword = config.public.adminPassword || "";
 
-      if (response.success) {
-        authCookie.value = "authenticated";
-        return { success: true };
-      }
-
-      return { success: false, error: "Ошибка авторизации" };
-    } catch (error) {
-      if (error && typeof error === "object" && "data" in error) {
-        const errorData = error.data as { statusMessage?: string };
-        return {
-          success: false,
-          error: errorData.statusMessage || "Ошибка авторизации",
-        };
-      }
-
-      return { success: false, error: "Ошибка авторизации" };
+    if (!correctPassword) {
+      return {
+        success: false,
+        error:
+          "Пароль не настроен. Установите NUXT_PUBLIC_ADMIN_PASSWORD в .env",
+      };
     }
+
+    if (password === correctPassword) {
+      authCookie.value = "authenticated";
+      return { success: true };
+    }
+
+    return { success: false, error: "Неверный пароль" };
   };
 
-  const logout = async (): Promise<void> => {
-    try {
-      await $fetch("/api/admin/logout", {
-        method: "POST",
-      });
-    } catch {
-      // Игнорируем ошибки при выходе
-    } finally {
-      authCookie.value = "";
-    }
+  const logout = (): void => {
+    authCookie.value = "";
   };
 
   return {

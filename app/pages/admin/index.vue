@@ -36,8 +36,8 @@ const handleLogin = async () => {
   }
 };
 
-const handleLogout = async () => {
-  await logout();
+const handleLogout = () => {
+  logout();
   password.value = "";
 };
 

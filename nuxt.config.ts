@@ -250,6 +250,12 @@ export default defineNuxtConfig({
     dbDatabase: process.env.DB_DATABASE || "my3d",
     adminPassword: process.env.ADMIN_PASSWORD || "",
     public: {
+      // Пароль админки для статического хостинга (будет виден в коде клиента)
+      // Для production используйте сложный пароль
+      adminPassword:
+        process.env.NUXT_PUBLIC_ADMIN_PASSWORD ||
+        process.env.ADMIN_PASSWORD ||
+        "",
       // Может быть переопределена через NUXT_PUBLIC_API_BASE в .env
       // Если не указана, будет использован текущий хост из браузера
       apiBase: process.env.NUXT_PUBLIC_API_BASE || "",
