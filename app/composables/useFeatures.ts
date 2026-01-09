@@ -119,6 +119,43 @@ export const useFeatures = () => {
     }
   };
 
+  const loadFeaturesJSON = async (): Promise<{
+    success: boolean;
+    data?: FeatureData[];
+    error?: string;
+  }> => {
+    if (typeof window === "undefined") {
+      return { success: false, error: "Только для клиентской стороны" };
+    }
+
+    try {
+      const data = await $fetch<
+        {
+          backgroundImage: string | null;
+          text: string;
+          textColor: string;
+        }[]
+      >("/api/features/json");
+
+      // Преобразуем данные в формат с featureIndex
+      const features: FeatureData[] = data.map((feature, index) => ({
+        featureIndex: index,
+        backgroundImage: feature.backgroundImage,
+        text: feature.text,
+        textColor: feature.textColor,
+      }));
+
+      return { success: true, data: features };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Ошибка при загрузке данных features";
+      console.error("Ошибка при загрузке features:", error);
+      return { success: false, error: errorMessage };
+    }
+  };
+
   const base64ToFile = (base64: string, filename: string): File | null => {
     try {
       // Проверяем, что это base64 изображение
@@ -154,6 +191,7 @@ export const useFeatures = () => {
   return {
     getDefaultFeatures,
     saveFeaturesJSON,
+    loadFeaturesJSON,
     getAvailableImages,
     base64ToFile,
   };

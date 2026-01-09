@@ -41,22 +41,37 @@ export const useImageManager = () => {
     return map;
   });
 
-  // Функция для нормализации фонового изображения
-  const normalizeBackgroundImage = (bgImage: string | null): string | null => {
-    if (!bgImage) return null;
+  /**
+   * Универсальная функция для получения правильного URL изображения
+   * Работает с ключами, URL, base64 и null значениями
+   * Всегда возвращает валидный URL для использования в img src или backgroundImage
+   */
+  const getImageSrc = (image: string | null | undefined): string | null => {
+    if (!image) return null;
 
     // Если это base64 (старые данные), используем как есть (для обратной совместимости)
-    if (bgImage.startsWith("data:")) {
-      return bgImage;
+    if (image.startsWith("data:")) {
+      return image;
     }
 
-    // Если это уже путь (начинается с /_nuxt/ или /), используем как есть
-    if (bgImage.startsWith("/_nuxt/") || bgImage.startsWith("/")) {
-      return bgImage;
+    // Если это уже валидный URL (начинается с /_nuxt/, / или http), используем как есть
+    if (
+      image.startsWith("/_nuxt/") ||
+      image.startsWith("/") ||
+      image.startsWith("http://") ||
+      image.startsWith("https://")
+    ) {
+      return image;
     }
 
     // Если это ключ из проекта (путь к изображению в app/assets/images), получаем правильный URL
-    return getImageUrl(bgImage);
+    const url = getImageUrl(image);
+    return url;
+  };
+
+  // Функция для нормализации фонового изображения (для обратной совместимости)
+  const normalizeBackgroundImage = (bgImage: string | null): string | null => {
+    return getImageSrc(bgImage);
   };
 
   // Функция для получения ключа изображения по URL
@@ -92,8 +107,9 @@ export const useImageManager = () => {
     availableImages,
     isLoadingImages,
     getImageUrl,
+    getImageSrc, // Универсальная функция для получения URL изображения
     imageMap,
-    normalizeBackgroundImage,
+    normalizeBackgroundImage, // Для обратной совместимости
     getImageKeyByUrl,
     STATIC_IMAGE_MAP,
   };

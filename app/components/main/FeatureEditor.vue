@@ -32,16 +32,16 @@ const colorOptions = [
   "#ec4899",
 ];
 
-const updateText = (newText: string) => {
-  emit("update:text", newText);
-};
-
 const updateTextColor = (newColor: string) => {
   emit("update:textColor", newColor);
   isEditingColor.value = false;
 };
 
 const finishEditing = () => {
+  // Убеждаемся, что актуальное значение отправлено перед завершением редактирования
+  if (editingTextValue.value !== props.text) {
+    emit("update:text", editingTextValue.value);
+  }
   emit("finish-edit");
 };
 
@@ -70,6 +70,16 @@ watch(
     }
   },
 );
+
+// Автоматически отправляем изменения при редактировании
+watch(
+  () => editingTextValue.value,
+  (newValue) => {
+    if (props.isEditing && newValue !== props.text) {
+      emit("update:text", newValue);
+    }
+  },
+);
 </script>
 
 <template>
@@ -93,7 +103,6 @@ watch(
       autofocus
       @blur="finishEditing"
       @keyup.enter="finishEditing"
-      @input="updateText(($event.target as HTMLInputElement).value)"
     />
     <div :class="$style.colorPickerContainer">
       <button

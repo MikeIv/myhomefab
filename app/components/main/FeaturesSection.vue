@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, shallowRef } from "vue";
-import featuresData from "~/data/features.json";
 import { useFeatures } from "~/composables/useFeatures";
 import { useImageManager } from "~/composables/useImageManager";
 import EditIcon from "~/assets/icons/Edit.svg";
 import CloseIcon from "~/assets/icons/Close.svg";
 
 const isDev = import.meta.dev;
-const { saveFeaturesJSON } = useFeatures();
+const { saveFeaturesJSON, loadFeaturesJSON } = useFeatures();
 const {
-  normalizeBackgroundImage,
+  getImageSrc,
   getImageKeyByUrl,
   imageMap,
   getImageUrl,
@@ -25,16 +24,18 @@ const features = shallowRef<FeatureData[]>([]);
 
 const isLoading = ref(false);
 
-const loadFeaturesData = () => {
+const loadFeaturesData = async () => {
   if (!import.meta.client) return;
 
   isLoading.value = true;
 
   try {
-    // Загружаем данные из статического JSON файла
-    if (Array.isArray(featuresData) && featuresData.length > 0) {
-      features.value = (featuresData as FeatureData[]).map((feature) => ({
-        backgroundImage: normalizeBackgroundImage(feature.backgroundImage),
+    // Загружаем данные через API
+    const result = await loadFeaturesJSON();
+
+    if (result.success && result.data && result.data.length > 0) {
+      features.value = result.data.map((feature) => ({
+        backgroundImage: getImageSrc(feature.backgroundImage),
         text: feature.text || "Для дома",
         textColor: feature.textColor || "#ffffff",
       }));
@@ -82,6 +83,9 @@ const saveFeaturesData = async () => {
 
     if (!saveResult.success) {
       console.error("Ошибка при сохранении:", saveResult.error);
+    } else {
+      // После успешного сохранения перезагружаем данные для синхронизации
+      await loadFeaturesData();
     }
   } catch {
     console.error("Ошибка при сохранении данных секции Features");

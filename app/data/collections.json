@@ -1,0 +1,102 @@
+{
+  "sections": [
+    {
+      "id": "home",
+      "title": "Для дома",
+      "models": [
+        {
+          "id": "1",
+          "title": "Декоративная ваза",
+          "description": "Элегантная декоративная ваза с уникальным геометрическим узором. Идеально подходит для интерьера в современном стиле.",
+          "shortDescription": "Элегантная декоративная ваза с геометрическим узором",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-002.jpeg"
+        },
+        {
+          "id": "2",
+          "title": "Органайзер для канцелярии",
+          "description": "Удобный органайзер для рабочего стола с отделениями для ручек, карандашей и мелких предметов.",
+          "shortDescription": "Компактный органайзер для рабочего стола",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-003.png"
+        },
+        {
+          "id": "3",
+          "title": "Зажим для пакетов",
+          "description": "Зажим предназначен для надёжного закрытия пакетов с продуктами.\nЛегко фиксируется и открывается одним нажатием.\nПодходит для хлеба, снеков, чипсов и других продуктов.\nПрочный, многоразовый и удобный в повседневном использовании.",
+          "shortDescription": "Зажим предназначен для надёжного закрытия пакетов с продуктами.\nЛегко фиксируется и открывается одним нажатием.\nПодходит для хлеба, снеков, чипсов и других продуктов.\nПрочный, многоразовый и удобный в повседневном использовании.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-001.png",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 100,
+              "height": 100,
+              "depth": 100,
+              "unit": "mm"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "art",
+      "title": "Art",
+      "models": [
+        {
+          "id": "4",
+          "title": "Скульптура",
+          "description": "Художественная скульптура для декора интерьера.",
+          "shortDescription": "Художественная скульптура для декора",
+          "previewImage": null,
+          "previewImageKey": null
+        },
+        {
+          "id": "5",
+          "title": "Арт-объект",
+          "description": "Уникальный арт-объект для современного интерьера.",
+          "shortDescription": "Уникальный арт-объект",
+          "previewImage": null,
+          "previewImageKey": null
+        },
+        {
+          "id": "6",
+          "title": "Декоративная композиция",
+          "description": "Декоративная композиция для украшения пространства.",
+          "shortDescription": "Декоративная композиция",
+          "previewImage": null,
+          "previewImageKey": null
+        }
+      ]
+    },
+    {
+      "id": "toys",
+      "title": "Игрушки",
+      "models": [
+        {
+          "id": "7",
+          "title": "Игрушечная фигурка",
+          "description": "Забавная игрушечная фигурка для детей.",
+          "shortDescription": "Забавная игрушечная фигурка",
+          "previewImage": null,
+          "previewImageKey": null
+        },
+        {
+          "id": "8",
+          "title": "Конструктор",
+          "description": "Развивающий конструктор для детей.",
+          "shortDescription": "Развивающий конструктор",
+          "previewImage": null,
+          "previewImageKey": null
+        },
+        {
+          "id": "9",
+          "title": "Игровая фигурка",
+          "description": "Игровая фигурка для развлечений.",
+          "shortDescription": "Игровая фигурка",
+          "previewImage": null,
+          "previewImageKey": null
+        }
+      ]
+    }
+  ]
+}

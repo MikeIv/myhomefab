@@ -12,11 +12,10 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody<FeatureData[]>(event);
 
-    if (!Array.isArray(body) || body.length !== 3) {
+    if (!Array.isArray(body) || body.length === 0) {
       throw createError({
         statusCode: 400,
-        statusMessage:
-          "Неверный формат данных. Ожидается массив из 3 элементов",
+        statusMessage: "Неверный формат данных. Ожидается непустой массив",
       });
     }
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Model } from "~/types/model";
+import { useAdminAuth } from "~/composables/useAdminAuth";
 
 interface Props {
   model: Model | null;
@@ -10,9 +11,40 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
   close: [];
+  update: [model: Model];
 }>();
 
+const { isAuthenticated } = useAdminAuth();
+const isDev = import.meta.dev;
+const canEdit = computed(() => isAuthenticated.value || isDev);
+
+const localModel = ref<Model | null>(null);
+const isEditingSpecs = ref(false);
+
+watch(
+  () => props.model,
+  (newModel) => {
+    if (newModel) {
+      localModel.value = {
+        ...newModel,
+        technicalSpecs: {
+          ...newModel.technicalSpecs,
+          dimensions: {
+            ...newModel.technicalSpecs.dimensions,
+          },
+        },
+        printInfo: newModel.printInfo ? { ...newModel.printInfo } : undefined,
+      };
+    } else {
+      localModel.value = null;
+    }
+    isEditingSpecs.value = false;
+  },
+  { immediate: true },
+);
+
 const handleClose = () => {
+  isEditingSpecs.value = false;
   emit("close");
 };
 
@@ -20,11 +52,74 @@ const handleOverlayClick = () => {
   handleClose();
 };
 
+const handleSave = () => {
+  if (!localModel.value) return;
+
+  // Очищаем пустые поля printInfo перед сохранением
+  const modelToSave: Model = {
+    ...localModel.value,
+    printInfo: localModel.value.printInfo &&
+      (localModel.value.printInfo.printerModel ||
+        localModel.value.printInfo.filamentType ||
+        localModel.value.printInfo.filamentColor ||
+        localModel.value.printInfo.supports !== undefined ||
+        localModel.value.printInfo.notes)
+      ? {
+          ...localModel.value.printInfo,
+          printerModel: localModel.value.printInfo.printerModel || undefined,
+          filamentType: localModel.value.printInfo.filamentType || undefined,
+          filamentColor: localModel.value.printInfo.filamentColor || undefined,
+          notes: localModel.value.printInfo.notes || undefined,
+        }
+      : undefined,
+  };
+
+  emit("update", modelToSave);
+  isEditingSpecs.value = false;
+};
+
+const handleCancel = () => {
+  if (props.model) {
+    localModel.value = {
+      ...props.model,
+      technicalSpecs: {
+        ...props.model.technicalSpecs,
+        dimensions: {
+          ...props.model.technicalSpecs.dimensions,
+        },
+      },
+      printInfo: props.model.printInfo ? { ...props.model.printInfo } : undefined,
+    };
+  }
+  isEditingSpecs.value = false;
+};
+
+const startEditing = () => {
+  if (!canEdit.value || !localModel.value) return;
+  
+  // Инициализируем printInfo, если его нет
+  if (!localModel.value.printInfo) {
+    localModel.value.printInfo = {
+      printerModel: "",
+      filamentType: "",
+      filamentColor: "",
+      supports: undefined,
+      notes: "",
+    };
+  }
+  
+  isEditingSpecs.value = true;
+};
+
 // Закрытие по Escape
 onMounted(() => {
   const handleEscape = (e: KeyboardEvent) => {
     if (e.key === "Escape" && props.isOpen) {
-      handleClose();
+      if (isEditingSpecs.value) {
+        handleCancel();
+      } else {
+        handleClose();
+      }
     }
   };
   window.addEventListener("keydown", handleEscape);
@@ -44,136 +139,283 @@ onMounted(() => {
             ×
           </button>
 
-          <div v-if="model" :class="$style.content">
+          <div v-if="model && localModel" :class="$style.content">
             <div :class="$style.imageSection">
-              <div v-if="model.modelPath" :class="$style.modelViewer">
-                <MainHero3D
-                  :model-path="model.modelPath"
-                  :auto-rotate="true"
-                  :rotation-speed="0.005"
-                  :enable-controls="true"
-                />
-              </div>
-              <div v-else :class="$style.imageGallery">
-                <NuxtImg
-                  v-for="(image, index) in model.images"
-                  :key="index"
-                  :src="image"
-                  :alt="`${model.title} - изображение ${index + 1}`"
-                  :class="$style.galleryImage"
-                  format="webp"
-                />
+              <img
+                v-if="localModel.previewImage"
+                :src="localModel.previewImage"
+                :alt="localModel.title"
+                :class="$style.previewImage"
+              />
+              <div v-else :class="$style.imagePlaceholder">
+                {{ $t("portfolio.modal.noImage") }}
               </div>
             </div>
 
             <div :class="$style.infoSection">
-              <h2 :class="$style.title">{{ model.title }}</h2>
-              <p :class="$style.description">{{ model.description }}</p>
+              <h2 :class="$style.title">{{ localModel.title }}</h2>
+              <p :class="$style.description">{{ localModel.description }}</p>
 
               <div :class="$style.specsSection">
-                <h3 :class="$style.sectionTitle">
-                  {{ $t("portfolio.modal.technicalSpecs") }}
-                </h3>
+                <div :class="$style.sectionHeader">
+                  <h3 :class="$style.sectionTitle">
+                    {{ $t("portfolio.modal.technicalSpecs") }}
+                  </h3>
+                  <button
+                    v-if="canEdit && !isEditingSpecs"
+                    :class="$style.editButton"
+                    type="button"
+                    aria-label="Редактировать характеристики"
+                    @click="startEditing"
+                  >
+                    {{ $t("portfolio.modal.edit") }}
+                  </button>
+                </div>
                 <dl :class="$style.specsList">
                   <div :class="$style.specItem">
                     <dt :class="$style.specLabel">{{ $t("portfolio.modal.dimensions") }}</dt>
                     <dd :class="$style.specValue">
-                      {{ model.technicalSpecs.dimensions.width }} ×
-                      {{ model.technicalSpecs.dimensions.height }} ×
-                      {{ model.technicalSpecs.dimensions.depth }}
-                      {{ model.technicalSpecs.dimensions.unit }}
+                      <template v-if="!isEditingSpecs">
+                        {{ localModel.technicalSpecs.dimensions.width }} ×
+                        {{ localModel.technicalSpecs.dimensions.height }} ×
+                        {{ localModel.technicalSpecs.dimensions.depth }}
+                        {{ localModel.technicalSpecs.dimensions.unit }}
+                      </template>
+                      <div v-else :class="$style.editInputs">
+                        <input
+                          v-model.number="localModel.technicalSpecs.dimensions.width"
+                          :class="$style.editInput"
+                          type="number"
+                          step="0.1"
+                        />
+                        <span>×</span>
+                        <input
+                          v-model.number="localModel.technicalSpecs.dimensions.height"
+                          :class="$style.editInput"
+                          type="number"
+                          step="0.1"
+                        />
+                        <span>×</span>
+                        <input
+                          v-model.number="localModel.technicalSpecs.dimensions.depth"
+                          :class="$style.editInput"
+                          type="number"
+                          step="0.1"
+                        />
+                        <select
+                          v-model="localModel.technicalSpecs.dimensions.unit"
+                          :class="$style.editSelect"
+                        >
+                          <option value="mm">мм</option>
+                          <option value="cm">см</option>
+                          <option value="m">м</option>
+                        </select>
+                      </div>
                     </dd>
                   </div>
-                  <div v-if="model.technicalSpecs.volume" :class="$style.specItem">
+                  <div :class="$style.specItem">
                     <dt :class="$style.specLabel">{{ $t("portfolio.modal.volume") }}</dt>
                     <dd :class="$style.specValue">
-                      {{ model.technicalSpecs.volume }} см³
+                      <template v-if="!isEditingSpecs">
+                        {{ localModel.technicalSpecs.volume || "-" }} см³
+                      </template>
+                      <div v-else :class="$style.editInputs">
+                        <input
+                          v-model.number="localModel.technicalSpecs.volume"
+                          :class="$style.editInput"
+                          type="number"
+                          step="0.1"
+                        />
+                        <span>см³</span>
+                      </div>
                     </dd>
                   </div>
-                  <div v-if="model.technicalSpecs.weight" :class="$style.specItem">
+                  <div :class="$style.specItem">
                     <dt :class="$style.specLabel">{{ $t("portfolio.modal.weight") }}</dt>
                     <dd :class="$style.specValue">
-                      {{ model.technicalSpecs.weight }} г
+                      <template v-if="!isEditingSpecs">
+                        {{ localModel.technicalSpecs.weight || "-" }} г
+                      </template>
+                      <div v-else :class="$style.editInputs">
+                        <input
+                          v-model.number="localModel.technicalSpecs.weight"
+                          :class="$style.editInput"
+                          type="number"
+                          step="0.1"
+                        />
+                        <span>г</span>
+                      </div>
                     </dd>
                   </div>
-                  <div v-if="model.technicalSpecs.material" :class="$style.specItem">
+                  <div :class="$style.specItem">
                     <dt :class="$style.specLabel">{{ $t("portfolio.modal.material") }}</dt>
                     <dd :class="$style.specValue">
-                      {{ model.technicalSpecs.material }}
+                      <template v-if="!isEditingSpecs">
+                        {{ localModel.technicalSpecs.material || "-" }}
+                      </template>
+                      <template v-else>
+                        <input
+                          v-model="localModel.technicalSpecs.material"
+                          :class="$style.editInput"
+                          type="text"
+                        />
+                      </template>
                     </dd>
                   </div>
-                  <div v-if="model.technicalSpecs.layerHeight" :class="$style.specItem">
+                  <div :class="$style.specItem">
                     <dt :class="$style.specLabel">
                       {{ $t("portfolio.modal.layerHeight") }}
                     </dt>
                     <dd :class="$style.specValue">
-                      {{ model.technicalSpecs.layerHeight }} мм
+                      <template v-if="!isEditingSpecs">
+                        {{ localModel.technicalSpecs.layerHeight || "-" }} мм
+                      </template>
+                      <div v-else :class="$style.editInputs">
+                        <input
+                          v-model.number="localModel.technicalSpecs.layerHeight"
+                          :class="$style.editInput"
+                          type="number"
+                          step="0.01"
+                        />
+                        <span>мм</span>
+                      </div>
                     </dd>
                   </div>
-                  <div v-if="model.technicalSpecs.infill" :class="$style.specItem">
+                  <div :class="$style.specItem">
                     <dt :class="$style.specLabel">{{ $t("portfolio.modal.infill") }}</dt>
-                    <dd :class="$style.specValue">{{ model.technicalSpecs.infill }}%</dd>
+                    <dd :class="$style.specValue">
+                      <template v-if="!isEditingSpecs">
+                        {{ localModel.technicalSpecs.infill || "-" }}%
+                      </template>
+                      <div v-else :class="$style.editInputs">
+                        <input
+                          v-model.number="localModel.technicalSpecs.infill"
+                          :class="$style.editInput"
+                          type="number"
+                          step="1"
+                          min="0"
+                          max="100"
+                        />
+                        <span>%</span>
+                      </div>
+                    </dd>
                   </div>
-                  <div v-if="model.technicalSpecs.printTime" :class="$style.specItem">
+                  <div :class="$style.specItem">
                     <dt :class="$style.specLabel">{{ $t("portfolio.modal.printTime") }}</dt>
                     <dd :class="$style.specValue">
-                      {{ model.technicalSpecs.printTime }}
+                      <template v-if="!isEditingSpecs">
+                        {{ localModel.technicalSpecs.printTime || "-" }}
+                      </template>
+                      <template v-else>
+                        <input
+                          v-model="localModel.technicalSpecs.printTime"
+                          :class="$style.editInput"
+                          type="text"
+                          placeholder="например: 4ч 30мин"
+                        />
+                      </template>
                     </dd>
                   </div>
                 </dl>
+                <div v-if="isEditingSpecs" :class="$style.editActions">
+                  <button :class="$style.saveButton" type="button" @click="handleSave">
+                    {{ $t("portfolio.modal.save") }}
+                  </button>
+                  <button :class="$style.cancelButton" type="button" @click="handleCancel">
+                    {{ $t("portfolio.modal.cancel") }}
+                  </button>
+                </div>
               </div>
 
-              <div v-if="model.printInfo" :class="$style.printSection">
+              <div
+                v-if="localModel.printInfo || (isEditingSpecs && canEdit && localModel.printInfo)"
+                :class="$style.printSection"
+              >
                 <h3 :class="$style.sectionTitle">{{ $t("portfolio.modal.printInfo") }}</h3>
                 <dl :class="$style.specsList">
-                  <div
-                    v-if="model.printInfo.printerModel"
-                    :class="$style.specItem"
-                  >
+                  <div :class="$style.specItem">
                     <dt :class="$style.specLabel">
                       {{ $t("portfolio.modal.printerModel") }}
                     </dt>
                     <dd :class="$style.specValue">
-                      {{ model.printInfo.printerModel }}
+                      <template v-if="!isEditingSpecs">
+                        {{ localModel.printInfo?.printerModel || "-" }}
+                      </template>
+                      <template v-else-if="localModel.printInfo">
+                        <input
+                          v-model="localModel.printInfo.printerModel"
+                          :class="$style.editInput"
+                          type="text"
+                        />
+                      </template>
                     </dd>
                   </div>
-                  <div
-                    v-if="model.printInfo.filamentType"
-                    :class="$style.specItem"
-                  >
+                  <div :class="$style.specItem">
                     <dt :class="$style.specLabel">
                       {{ $t("portfolio.modal.filamentType") }}
                     </dt>
                     <dd :class="$style.specValue">
-                      {{ model.printInfo.filamentType }}
+                      <template v-if="!isEditingSpecs">
+                        {{ localModel.printInfo?.filamentType || "-" }}
+                      </template>
+                      <template v-else-if="localModel.printInfo">
+                        <input
+                          v-model="localModel.printInfo.filamentType"
+                          :class="$style.editInput"
+                          type="text"
+                        />
+                      </template>
                     </dd>
                   </div>
-                  <div
-                    v-if="model.printInfo.filamentColor"
-                    :class="$style.specItem"
-                  >
+                  <div :class="$style.specItem">
                     <dt :class="$style.specLabel">
                       {{ $t("portfolio.modal.filamentColor") }}
                     </dt>
                     <dd :class="$style.specValue">
-                      {{ model.printInfo.filamentColor }}
+                      <template v-if="!isEditingSpecs">
+                        {{ localModel.printInfo?.filamentColor || "-" }}
+                      </template>
+                      <template v-else-if="localModel.printInfo">
+                        <input
+                          v-model="localModel.printInfo.filamentColor"
+                          :class="$style.editInput"
+                          type="text"
+                        />
+                      </template>
                     </dd>
                   </div>
-                  <div
-                    v-if="model.printInfo.supports !== undefined"
-                    :class="$style.specItem"
-                  >
+                  <div :class="$style.specItem">
                     <dt :class="$style.specLabel">
                       {{ $t("portfolio.modal.supports") }}
                     </dt>
                     <dd :class="$style.specValue">
-                      {{ model.printInfo.supports ? "Да" : "Нет" }}
+                      <template v-if="!isEditingSpecs">
+                        {{ localModel.printInfo?.supports !== undefined ? (localModel.printInfo.supports ? "Да" : "Нет") : "-" }}
+                      </template>
+                      <template v-else-if="localModel.printInfo">
+                        <select
+                          v-model="localModel.printInfo.supports"
+                          :class="$style.editSelect"
+                        >
+                          <option :value="undefined">-</option>
+                          <option :value="true">Да</option>
+                          <option :value="false">Нет</option>
+                        </select>
+                      </template>
                     </dd>
                   </div>
-                  <div v-if="model.printInfo.notes" :class="$style.specItem">
+                  <div :class="$style.specItem">
                     <dt :class="$style.specLabel">{{ $t("portfolio.modal.notes") }}</dt>
                     <dd :class="$style.specValue">
-                      {{ model.printInfo.notes }}
+                      <template v-if="!isEditingSpecs">
+                        {{ localModel.printInfo?.notes || "-" }}
+                      </template>
+                      <template v-else-if="localModel.printInfo">
+                        <textarea
+                          v-model="localModel.printInfo.notes"
+                          :class="$style.editTextarea"
+                        />
+                      </template>
                     </dd>
                   </div>
                 </dl>
@@ -269,20 +511,23 @@ onMounted(() => {
   }
 }
 
-.imageGallery {
-  display: flex;
-  flex-direction: column;
-  gap: rem(16);
-  padding: rem(20);
-
-  @include desktop {
-    padding: rem(32);
-  }
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--a-borderR--card);
 }
 
-.galleryImage {
+.imagePlaceholder {
   width: 100%;
-  border-radius: var(--a-borderR--card);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--a-lightBg);
+  color: var(--a-text-dark);
+  opacity: 0.5;
+  font-size: rem(16);
 }
 
 .infoSection {
@@ -350,6 +595,125 @@ onMounted(() => {
   font-size: rem(14);
   font-weight: 600;
   color: var(--a-text-dark);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: rem(16);
+}
+
+.editButton {
+  padding: rem(6) rem(12);
+  background-color: var(--a-primaryBg);
+  color: var(--a-text-white);
+  border: none;
+  border-radius: var(--a-borderR--btn);
+  font-size: rem(12);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--a-accentBg);
+  }
+}
+
+.editInputs {
+  display: flex;
+  align-items: center;
+  gap: rem(8);
+  flex-wrap: wrap;
+}
+
+.editInput {
+  flex: 1;
+  min-width: rem(60);
+  padding: rem(6) rem(10);
+  border: 1px solid var(--a-border);
+  border-radius: rem(4);
+  font-size: rem(14);
+  color: var(--a-text-dark);
+  background-color: var(--a-whiteBg);
+  outline: none;
+
+  &:focus {
+    border-color: var(--a-primary);
+    box-shadow: 0 0 0 rem(2) rgba(59, 130, 246, 0.1);
+  }
+}
+
+.editSelect {
+  padding: rem(6) rem(10);
+  border: 1px solid var(--a-border);
+  border-radius: rem(4);
+  font-size: rem(14);
+  color: var(--a-text-dark);
+  background-color: var(--a-whiteBg);
+  outline: none;
+  cursor: pointer;
+
+  &:focus {
+    border-color: var(--a-primary);
+    box-shadow: 0 0 0 rem(2) rgba(59, 130, 246, 0.1);
+  }
+}
+
+.editTextarea {
+  width: 100%;
+  min-height: rem(60);
+  padding: rem(6) rem(10);
+  border: 1px solid var(--a-border);
+  border-radius: rem(4);
+  font-size: rem(14);
+  color: var(--a-text-dark);
+  background-color: var(--a-whiteBg);
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+
+  &:focus {
+    border-color: var(--a-primary);
+    box-shadow: 0 0 0 rem(2) rgba(59, 130, 246, 0.1);
+  }
+}
+
+.editActions {
+  display: flex;
+  gap: rem(12);
+  margin-top: rem(16);
+  padding-top: rem(16);
+  border-top: 1px solid var(--a-border);
+}
+
+.saveButton,
+.cancelButton {
+  padding: rem(8) rem(16);
+  border: none;
+  border-radius: var(--a-borderR--btn);
+  font-size: rem(14);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.saveButton {
+  background-color: var(--a-primaryBg);
+  color: var(--a-text-white);
+
+  &:hover {
+    background-color: var(--a-accentBg);
+  }
+}
+
+.cancelButton {
+  background-color: var(--a-lightBg);
+  color: var(--a-text-dark);
+
+  &:hover {
+    background-color: var(--a-border);
+  }
 }
 
 .fade-enter-active,

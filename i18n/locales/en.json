@@ -45,7 +45,11 @@
       "infill": "Infill",
       "printTime": "Print Time",
       "supports": "Supports",
-      "notes": "Notes"
+      "notes": "Notes",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "noImage": "No image available"
     }
   },
   "workshop": {
