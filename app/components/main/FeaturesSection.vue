@@ -4,6 +4,7 @@ import { useFeatures } from "~/composables/useFeatures";
 import { useImageManager } from "~/composables/useImageManager";
 import EditIcon from "~/assets/icons/Edit.svg";
 import CloseIcon from "~/assets/icons/Close.svg";
+import featuresData from "~/data/features.json";
 
 const isDev = import.meta.dev;
 const { saveFeaturesJSON, loadFeaturesJSON } = useFeatures();
@@ -30,11 +31,28 @@ const loadFeaturesData = async () => {
   isLoading.value = true;
 
   try {
-    // Загружаем данные через API
-    const result = await loadFeaturesJSON();
+    let data: FeatureData[] = [];
 
-    if (result.success && result.data && result.data.length > 0) {
-      features.value = result.data.map((feature) => ({
+    if (isDev) {
+      // В dev режиме загружаем через API (для возможности редактирования)
+      const result = await loadFeaturesJSON();
+      if (result.success && result.data && result.data.length > 0) {
+        data = result.data.map((feature) => ({
+          backgroundImage: feature.backgroundImage,
+          text: feature.text,
+          textColor: feature.textColor,
+        }));
+      }
+    } else {
+      // В production режиме используем прямой импорт JSON файла
+      // Vite/Nuxt обработает JSON файл при сборке
+      if (featuresData && Array.isArray(featuresData)) {
+        data = featuresData as FeatureData[];
+      }
+    }
+
+    if (data && data.length > 0) {
+      features.value = data.map((feature) => ({
         backgroundImage: getImageSrc(feature.backgroundImage),
         text: feature.text || "Для дома",
         textColor: feature.textColor || "#ffffff",
@@ -49,8 +67,8 @@ const loadFeaturesData = async () => {
         },
       ];
     }
-  } catch {
-    console.error("Ошибка при загрузке данных из JSON");
+  } catch (error) {
+    console.error("Ошибка при загрузке данных из JSON:", error);
     // В случае ошибки создаем один блок по умолчанию
     features.value = [
       {
