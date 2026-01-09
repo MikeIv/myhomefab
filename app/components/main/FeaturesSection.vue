@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import featuresData from "~/data/features.json";
 import { useFeatures } from "~/composables/useFeatures";
 
@@ -12,18 +12,49 @@ interface FeatureData {
   textColor: string;
 }
 
-// Синхронная версия для использования в template
-const getImageUrlSync = (imageKey: string): string => {
-  // В Nuxt изображения из app/assets/images обрабатываются через Vite
-  // и получают путь через /_nuxt/assets/images/
-  return `/_nuxt/assets/images/${imageKey}`;
+// Импорт всех изображений из app/assets/images через import.meta.glob
+// Это позволяет Vite/Nuxt правильно обработать пути в dev и production
+const imageModules = import.meta.glob<{ default: string }>(
+  "~/assets/images/**/*.{jpg,jpeg,png,gif,webp,svg}",
+  { eager: true },
+);
+
+// Создаем мапу для сопоставления путей (ключей) с импортированными URL
+// Используем обычную мапу, так как imageModules загружается с eager: true
+const staticImageMap = new Map<string, string>();
+
+Object.entries(imageModules).forEach(([path, module]) => {
+  // Преобразуем путь модуля в ключ (например, ~/assets/images/main-page/main-page-01.jpg -> main-page/main-page-01.jpg)
+  const key = path
+    .replace(/^.*assets\/images\//, "")
+    .replace(/^\//, "");
+  
+  if (module.default) {
+    staticImageMap.set(key, module.default);
+  }
+});
+
+// Функция для получения правильного URL изображения
+const getImageUrl = (imageKey: string): string | null => {
+  // Сначала проверяем в статической мапе (изображения из app/assets/images)
+  const staticUrl = staticImageMap.get(imageKey);
+  if (staticUrl) {
+    return staticUrl;
+  }
+  
+  // Если не найдено в статической мапе, возвращаем null
+  // (изображение может быть из других источников или еще не загружено)
+  return null;
 };
 
 // Мапа для быстрого доступа к изображениям по ключу
 const imageMap = computed(() => {
   const map = new Map<string, string>();
   availableImages.value.forEach((imgPath) => {
-    map.set(imgPath, getImageUrlSync(imgPath));
+    const url = getImageUrl(imgPath);
+    if (url) {
+      map.set(imgPath, url);
+    }
   });
   return map;
 });
@@ -104,10 +135,19 @@ const loadFeaturesData = () => {
           };
         }
 
-        // Если это ключ из проекта (путь к изображению в app/assets/images), преобразуем в путь
-        // Используем правильный путь через /_nuxt/assets/images/
+        // Если это ключ из проекта (путь к изображению в app/assets/images), получаем правильный URL
+        const imageUrl = getImageUrl(bgImage);
+        if (imageUrl) {
+          return {
+            backgroundImage: imageUrl,
+            text: feature.text || "Для дома",
+            textColor: feature.textColor || "#ffffff",
+          };
+        }
+
+        // Если изображение не найдено, возвращаем null
         return {
-          backgroundImage: `/_nuxt/assets/images/${bgImage}`,
+          backgroundImage: null,
           text: feature.text || "Для дома",
           textColor: feature.textColor || "#ffffff",
         };
@@ -138,15 +178,25 @@ const saveFeaturesData = async () => {
           };
         }
 
-        // Находим ключ изображения по пути
-        for (const [key, path] of imageMap.value.entries()) {
+        // Находим ключ изображения по пути (URL) - проверяем в staticImageMap
+        for (const [key, path] of staticImageMap.entries()) {
           if (path === feature.backgroundImage) {
             backgroundImageKey = key;
             break;
           }
         }
 
-        // Если не нашли в мапе, возможно это уже ключ
+        // Если не нашли в staticImageMap, проверяем в imageMap
+        if (!backgroundImageKey) {
+          for (const [key, path] of imageMap.value.entries()) {
+            if (path === feature.backgroundImage) {
+              backgroundImageKey = key;
+              break;
+            }
+          }
+        }
+
+        // Если не нашли в мапах, возможно это уже ключ
         if (!backgroundImageKey) {
           // Проверяем, является ли это ключом из списка доступных изображений
           if (availableImages.value.includes(feature.backgroundImage)) {
@@ -453,7 +503,7 @@ const colorOptions = [
                 @click="selectImage(imageKey)"
               >
                 <img
-                  :src="imageMap.get(imageKey) || getImageUrlSync(imageKey)"
+                  :src="imageMap.get(imageKey) || getImageUrl(imageKey) || ''"
                   :alt="imageKey"
                   :class="$style.imagePreview"
                   @error="
