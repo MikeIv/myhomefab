@@ -52,6 +52,15 @@ watch(() => route.path, () => {
         >
           {{ $t("nav.portfolio") }}
         </NuxtLink>
+        <NuxtLink
+          to="/workshop"
+          :class="[
+            $style.navLink,
+            { [$style.active]: route.path === '/workshop' },
+          ]"
+        >
+          {{ $t("nav.workshop") }}
+        </NuxtLink>
         <div :class="$style.langSwitcher">
           <button
             :class="[$style.langButton, { [$style.active]: locale === 'ru' }]"
@@ -111,6 +120,16 @@ watch(() => route.path, () => {
           @click="closeMenu"
         >
           {{ $t("nav.portfolio") }}
+        </NuxtLink>
+        <NuxtLink
+          to="/workshop"
+          :class="[
+            $style.sideNavLink,
+            { [$style.active]: route.path === '/workshop' },
+          ]"
+          @click="closeMenu"
+        >
+          {{ $t("nav.workshop") }}
         </NuxtLink>
       </nav>
     </aside>

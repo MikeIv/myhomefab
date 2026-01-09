@@ -1,7 +1,8 @@
 {
   "nav": {
     "home": "Home",
-    "portfolio": "Collections"
+    "portfolio": "Collections",
+    "workshop": "Workshop"
   },
   "home": {
     "title": "3D Workshop",
@@ -45,6 +46,22 @@
       "printTime": "Print Time",
       "supports": "Supports",
       "notes": "Notes"
+    }
+  },
+  "workshop": {
+    "title": "Workshop",
+    "subtitle": "Experimental models, notes and files",
+    "experimentalModels": {
+      "title": "Experimental Models",
+      "empty": "Experimental models coming soon"
+    },
+    "notes": {
+      "title": "Fusion 360 Notes",
+      "empty": "Notes coming soon"
+    },
+    "files": {
+      "title": "Model Files",
+      "empty": "Files coming soon"
     }
   }
 }

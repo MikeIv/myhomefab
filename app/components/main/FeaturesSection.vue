@@ -1,10 +1,19 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, shallowRef } from "vue";
 import featuresData from "~/data/features.json";
 import { useFeatures } from "~/composables/useFeatures";
+import { useImageManager } from "~/composables/useImageManager";
+import EditIcon from "~/assets/icons/Edit.svg";
+import CloseIcon from "~/assets/icons/Close.svg";
 
 const isDev = import.meta.dev;
-const { saveFeaturesJSON, getAvailableImages } = useFeatures();
+const { saveFeaturesJSON } = useFeatures();
+const {
+  normalizeBackgroundImage,
+  getImageKeyByUrl,
+  imageMap,
+  getImageUrl,
+} = useImageManager();
 
 interface FeatureData {
   backgroundImage: string | null;
@@ -12,221 +21,70 @@ interface FeatureData {
   textColor: string;
 }
 
-// Импорт всех изображений из app/assets/images через import.meta.glob
-// Это позволяет Vite/Nuxt правильно обработать пути в dev и production
-const imageModules = import.meta.glob<{ default: string }>(
-  "~/assets/images/**/*.{jpg,jpeg,png,gif,webp,svg}",
-  { eager: true },
-);
-
-// Создаем мапу для сопоставления путей (ключей) с импортированными URL
-// Используем обычную мапу, так как imageModules загружается с eager: true
-const staticImageMap = new Map<string, string>();
-
-Object.entries(imageModules).forEach(([path, module]) => {
-  // Преобразуем путь модуля в ключ (например, ~/assets/images/main-page/main-page-01.jpg -> main-page/main-page-01.jpg)
-  const key = path
-    .replace(/^.*assets\/images\//, "")
-    .replace(/^\//, "");
-  
-  if (module.default) {
-    staticImageMap.set(key, module.default);
-  }
-});
-
-// Функция для получения правильного URL изображения
-const getImageUrl = (imageKey: string): string | null => {
-  // Сначала проверяем в статической мапе (изображения из app/assets/images)
-  const staticUrl = staticImageMap.get(imageKey);
-  if (staticUrl) {
-    return staticUrl;
-  }
-  
-  // Если не найдено в статической мапе, возвращаем null
-  // (изображение может быть из других источников или еще не загружено)
-  return null;
-};
-
-// Мапа для быстрого доступа к изображениям по ключу
-const imageMap = computed(() => {
-  const map = new Map<string, string>();
-  availableImages.value.forEach((imgPath) => {
-    const url = getImageUrl(imgPath);
-    if (url) {
-      map.set(imgPath, url);
-    }
-  });
-  return map;
-});
-
-const availableImages = ref<string[]>([]);
-const isLoadingImages = ref(false);
-
-const features = ref<FeatureData[]>([
-  {
-    backgroundImage: null,
-    text: "Для дома",
-    textColor: "#ffffff",
-  },
-  {
-    backgroundImage: null,
-    text: "Для дома",
-    textColor: "#ffffff",
-  },
-  {
-    backgroundImage: null,
-    text: "Для дома",
-    textColor: "#ffffff",
-  },
-]);
+const features = shallowRef<FeatureData[]>([]);
 
 const isLoading = ref(false);
 
-const loadAvailableImages = async () => {
-  if (typeof window === "undefined") return;
-
-  isLoadingImages.value = true;
-  try {
-    const result = await getAvailableImages();
-    if (result.success && result.images) {
-      availableImages.value = result.images;
-    }
-  } catch (error) {
-    console.error("Ошибка при загрузке списка изображений:", error);
-  } finally {
-    isLoadingImages.value = false;
-  }
-};
-
 const loadFeaturesData = () => {
-  if (typeof window === "undefined") return;
+  if (!import.meta.client) return;
 
   isLoading.value = true;
 
   try {
     // Загружаем данные из статического JSON файла
-    if (Array.isArray(featuresData) && featuresData.length === 3) {
-      features.value = (featuresData as FeatureData[]).map((feature) => {
-        const bgImage = feature.backgroundImage;
-
-        if (!bgImage) {
-          return {
-            backgroundImage: null,
-            text: feature.text || "Для дома",
-            textColor: feature.textColor || "#ffffff",
-          };
-        }
-
-        // Если это base64 (старые данные), используем как есть (для обратной совместимости)
-        if (bgImage.startsWith("data:")) {
-          return {
-            backgroundImage: bgImage,
-            text: feature.text || "Для дома",
-            textColor: feature.textColor || "#ffffff",
-          };
-        }
-
-        // Если это уже путь (начинается с /_nuxt/ или /), используем как есть
-        if (bgImage.startsWith("/_nuxt/") || bgImage.startsWith("/")) {
-          return {
-            backgroundImage: bgImage,
-            text: feature.text || "Для дома",
-            textColor: feature.textColor || "#ffffff",
-          };
-        }
-
-        // Если это ключ из проекта (путь к изображению в app/assets/images), получаем правильный URL
-        const imageUrl = getImageUrl(bgImage);
-        if (imageUrl) {
-          return {
-            backgroundImage: imageUrl,
-            text: feature.text || "Для дома",
-            textColor: feature.textColor || "#ffffff",
-          };
-        }
-
-        // Если изображение не найдено, возвращаем null
-        return {
+    if (Array.isArray(featuresData) && featuresData.length > 0) {
+      features.value = (featuresData as FeatureData[]).map((feature) => ({
+        backgroundImage: normalizeBackgroundImage(feature.backgroundImage),
+        text: feature.text || "Для дома",
+        textColor: feature.textColor || "#ffffff",
+      }));
+    } else {
+      // Если данных нет, создаем один блок по умолчанию
+      features.value = [
+        {
           backgroundImage: null,
-          text: feature.text || "Для дома",
-          textColor: feature.textColor || "#ffffff",
-        };
-      });
+          text: "Для дома",
+          textColor: "#ffffff",
+        },
+      ];
     }
-  } catch (error) {
-    console.error("Ошибка при загрузке данных из JSON:", error);
+  } catch {
+    console.error("Ошибка при загрузке данных из JSON");
+    // В случае ошибки создаем один блок по умолчанию
+    features.value = [
+      {
+        backgroundImage: null,
+        text: "Для дома",
+        textColor: "#ffffff",
+      },
+    ];
+  } finally {
+    isLoading.value = false;
   }
-
-  isLoading.value = false;
 };
 
 const saveFeaturesData = async () => {
-  if (typeof window === "undefined") return;
+  if (!import.meta.client) return;
 
   try {
     // Подготавливаем данные для сохранения
-    const dataToSave = features.value.map((feature) => {
-      let backgroundImageKey: string | null = null;
-
-      if (feature.backgroundImage) {
-        // Если это base64, не сохраняем
-        if (feature.backgroundImage.startsWith("data:")) {
-          return {
-            backgroundImage: null,
-            text: feature.text || "Для дома",
-            textColor: feature.textColor || "#ffffff",
-          };
-        }
-
-        // Находим ключ изображения по пути (URL) - проверяем в staticImageMap
-        for (const [key, path] of staticImageMap.entries()) {
-          if (path === feature.backgroundImage) {
-            backgroundImageKey = key;
-            break;
-          }
-        }
-
-        // Если не нашли в staticImageMap, проверяем в imageMap
-        if (!backgroundImageKey) {
-          for (const [key, path] of imageMap.value.entries()) {
-            if (path === feature.backgroundImage) {
-              backgroundImageKey = key;
-              break;
-            }
-          }
-        }
-
-        // Если не нашли в мапах, возможно это уже ключ
-        if (!backgroundImageKey) {
-          // Проверяем, является ли это ключом из списка доступных изображений
-          if (availableImages.value.includes(feature.backgroundImage)) {
-            backgroundImageKey = feature.backgroundImage;
-          }
-        }
-      }
-
-      return {
-        backgroundImage: backgroundImageKey,
-        text: feature.text || "Для дома",
-        textColor: feature.textColor || "#ffffff",
-      };
-    });
+    const dataToSave = features.value.map((feature, index) => ({
+      featureIndex: index,
+      backgroundImage: feature.backgroundImage
+        ? getImageKeyByUrl(feature.backgroundImage)
+        : null,
+      text: feature.text || "Для дома",
+      textColor: feature.textColor || "#ffffff",
+    }));
 
     // Сохраняем через API
-    const saveResult = await saveFeaturesJSON(
-      dataToSave.map((feature, index) => ({
-        featureIndex: index,
-        backgroundImage: feature.backgroundImage,
-        text: feature.text,
-        textColor: feature.textColor,
-      })),
-    );
+    const saveResult = await saveFeaturesJSON(dataToSave);
 
     if (!saveResult.success) {
       console.error("Ошибка при сохранении:", saveResult.error);
     }
-  } catch (error) {
-    console.error("Ошибка при сохранении данных секции Features:", error);
+  } catch {
+    console.error("Ошибка при сохранении данных секции Features");
   }
 };
 
@@ -253,9 +111,9 @@ const selectImage = async (imageKey: string) => {
   }
 
   const index = selectedFeatureIndex.value;
-  const imagePath = imageMap.value.get(imageKey);
+  const imagePath = imageMap.value.get(imageKey) || getImageUrl(imageKey);
   const feature = features.value[index];
-  
+
   if (imagePath && feature) {
     feature.backgroundImage = imagePath;
     closeImageModal();
@@ -263,73 +121,70 @@ const selectImage = async (imageKey: string) => {
   }
 };
 
-onMounted(async () => {
-  await loadAvailableImages();
-  loadFeaturesData();
-});
-
-// Локальное состояние для редактирования текста
-const editingTextValue = ref<string>("");
-
-const updateText = async (index: number, newText: string) => {
+const updateText = (index: number, newText: string) => {
   if (!isDev || !features.value[index]) return;
-
-  // Обновляем значение только локально, без сохранения
   features.value[index].text = newText;
 };
 
 const saveText = async (index: number) => {
   if (!isDev || !features.value[index]) return;
-  
-  // Сохраняем только при завершении редактирования
   await saveFeaturesData();
 };
 
 const updateTextColor = async (index: number, newColor: string) => {
   if (!isDev || !features.value[index]) return;
-
   features.value[index].textColor = newColor;
   await saveFeaturesData();
 };
 
 const isEditingText = ref<number | null>(null);
-const isEditingColor = ref<number | null>(null);
 
 const startEditingText = (index: number) => {
   if (!isDev) return;
   isEditingText.value = index;
-  // Сохраняем текущее значение для редактирования
-  editingTextValue.value = features.value[index]?.text || "";
 };
 
 const finishEditingText = async (index: number) => {
   if (isEditingText.value === index) {
-    // Сохраняем изменения при завершении редактирования
     await saveText(index);
     isEditingText.value = null;
-    editingTextValue.value = "";
   }
 };
 
-const startEditingColor = (index: number) => {
+const addFeature = async () => {
   if (!isDev) return;
-  isEditingColor.value = index;
+  features.value.push({
+    backgroundImage: null,
+    text: "Для дома",
+    textColor: "#ffffff",
+  });
+  await saveFeaturesData();
 };
 
-const finishEditingColor = (_index: number) => {
-  isEditingColor.value = null;
+const removeFeature = async (index: number) => {
+  if (!isDev || features.value.length <= 1) return;
+  features.value.splice(index, 1);
+  // Если удаляемый блок был в режиме редактирования, сбрасываем состояние
+  if (isEditingText.value === index) {
+    isEditingText.value = null;
+  } else if (isEditingText.value !== null && isEditingText.value > index) {
+    // Корректируем индекс редактирования, если удалили блок до текущего
+    isEditingText.value -= 1;
+  }
+  // Корректируем индекс выбранного блока для модального окна
+  if (selectedFeatureIndex.value !== null) {
+    if (selectedFeatureIndex.value === index) {
+      selectedFeatureIndex.value = null;
+    } else if (selectedFeatureIndex.value > index) {
+      selectedFeatureIndex.value -= 1;
+    }
+  }
+  await saveFeaturesData();
 };
 
-const colorOptions = [
-  "#ffffff",
-  "#000000",
-  "#3b82f6",
-  "#10b981",
-  "#f59e0b",
-  "#ef4444",
-  "#8b5cf6",
-  "#ec4899",
-];
+onMounted(() => {
+  loadFeaturesData();
+});
 </script>
 
 <template>
@@ -349,36 +204,27 @@ const colorOptions = [
             backgroundRepeat: 'no-repeat',
           }"
         >
-          <button
-            v-if="isDev && feature.backgroundImage"
-            :class="$style.editButton"
-            type="button"
-            aria-label="Изменить изображение"
-            @click="openImageModal(index)"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+          <div v-if="isDev" :class="$style.actions">
+            <button
+              v-if="feature.backgroundImage"
+              :class="$style.editButton"
+              type="button"
+              aria-label="Изменить изображение"
+              @click="openImageModal(index)"
             >
-              <path
-                d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M18.5 2.50023C18.8978 2.10243 19.4374 1.87891 20 1.87891C20.5626 1.87891 21.1022 2.10243 21.5 2.50023C21.8978 2.89804 22.1213 3.43762 22.1213 4.00023C22.1213 4.56284 21.8978 5.10243 21.5 5.50023L12 15.0002L8 16.0002L9 12.0002L18.5 2.50023Z"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
+              <EditIcon />
+            </button>
+
+            <button
+              v-if="features.length > 1"
+              :class="$style.removeButton"
+              type="button"
+              aria-label="Удалить блок"
+              @click="removeFeature(index)"
+            >
+              <CloseIcon />
+            </button>
+          </div>
 
           <div :class="$style.content">
             <div
@@ -389,136 +235,37 @@ const colorOptions = [
               Добавить
             </div>
 
-            <div
-              v-if="isEditingText !== index"
-              :class="[$style.textContainer, { [$style.textContainerEditable]: isDev }]"
-              @click="() => isDev && startEditingText(index)"
-            >
-              <span
-                :class="$style.featureText"
-                :style="{ color: feature.textColor }"
-              >
-                {{ feature.text || "Для дома" }}
-              </span>
-            </div>
-
-            <div v-else-if="isDev" :class="$style.textEditContainer">
-              <input
-                v-model="editingTextValue"
-                :class="$style.textInput"
-                autofocus
-                @blur="finishEditingText(index)"
-                @keyup.enter="finishEditingText(index)"
-                @input="updateText(index, ($event.target as HTMLInputElement).value)"
-              />
-              <div :class="$style.colorPickerContainer">
-                <button
-                  :class="$style.colorPickerButton"
-                  type="button"
-                  aria-label="Выбрать цвет"
-                  @click.stop="startEditingColor(index)"
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z"
-                      fill="currentColor"
-                    />
-                    <circle cx="12" cy="12" r="6" :fill="feature.textColor" />
-                  </svg>
-                </button>
-                <div
-                  v-if="isEditingColor === index"
-                  :class="$style.colorPicker"
-                  @click.stop
-                >
-                  <button
-                    v-for="color in colorOptions"
-                    :key="color"
-                    :class="$style.colorOption"
-                    :style="{ backgroundColor: color }"
-                    type="button"
-                    :aria-label="`Выбрать цвет ${color}`"
-                    @click="
-                      updateTextColor(index, color);
-                      finishEditingColor(index);
-                    "
-                  />
-                </div>
-              </div>
-            </div>
+            <MainFeatureEditor
+              :text="feature.text"
+              :text-color="feature.textColor"
+              :is-editing="isEditingText === index"
+              :is-dev="isDev"
+              @update:text="updateText(index, $event)"
+              @update:text-color="updateTextColor(index, $event)"
+              @finish-edit="finishEditingText(index)"
+              @start-edit="startEditingText(index)"
+            />
           </div>
         </div>
+
+        <button
+          v-if="isDev"
+          :class="$style.addFeatureButton"
+          type="button"
+          aria-label="Добавить новый блок"
+          @click="addFeature"
+        >
+          <span :class="$style.addFeatureIcon">+</span>
+          <span :class="$style.addFeatureText">Добавить блок</span>
+        </button>
       </div>
     </div>
 
-    <!-- Модальное окно для выбора изображения -->
-    <Teleport to="body">
-      <div
-        v-if="isImageModalOpen"
-        :class="$style.modalOverlay"
-        @click="closeImageModal"
-      >
-        <div :class="$style.modalContent" @click.stop>
-          <div :class="$style.modalHeader">
-            <h3 :class="$style.modalTitle">Выберите изображение</h3>
-            <button
-              :class="$style.modalClose"
-              type="button"
-              aria-label="Закрыть"
-              @click="closeImageModal"
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M18 6L6 18M6 6L18 18"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
-          <div :class="$style.modalBody">
-            <div v-if="isLoadingImages" :class="$style.loading">
-              Загрузка изображений...
-            </div>
-            <div v-else :class="$style.imageGrid">
-              <button
-                v-for="imageKey in availableImages"
-                :key="imageKey"
-                :class="$style.imageItem"
-                type="button"
-                @click="selectImage(imageKey)"
-              >
-                <img
-                  :src="imageMap.get(imageKey) || getImageUrl(imageKey) || ''"
-                  :alt="imageKey"
-                  :class="$style.imagePreview"
-                  @error="
-                    (e) => {
-                      console.error('Ошибка загрузки изображения:', imageKey, 'URL:', (e.target as HTMLImageElement).src);
-                    }
-                  "
-                />
-                <span :class="$style.imageName">{{ imageKey }}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Teleport>
+    <MainImagePickerModal
+      :is-open="isImageModalOpen"
+      @close="closeImageModal"
+      @select="selectImage"
+    />
   </section>
 </template>
 
@@ -547,8 +294,12 @@ const colorOptions = [
   gap: rem(32);
 
   @include tablet {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(rem(280), 1fr));
     gap: rem(40);
+  }
+
+  @include desktop {
+    grid-template-columns: repeat(auto-fit, minmax(rem(320), 1fr));
   }
 }
 
@@ -588,11 +339,17 @@ const colorOptions = [
   }
 }
 
-.editButton {
+.actions {
   position: absolute;
   top: rem(12);
   right: rem(12);
   z-index: 3;
+  display: flex;
+  gap: rem(8);
+  align-items: center;
+}
+
+.editButton {
   background-color: rgba(255, 255, 255, 0.9);
   border: none;
   border-radius: rem(6);
@@ -607,6 +364,34 @@ const colorOptions = [
 
   &:hover {
     background-color: rgba(255, 255, 255, 1);
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: rem(18);
+    height: rem(18);
+  }
+}
+
+.removeButton {
+  background-color: rgba(239, 68, 68, 0.9);
+  border: none;
+  border-radius: rem(6);
+  width: rem(36);
+  height: rem(36);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  color: var(--a-whiteBg);
+
+  &:hover {
+    background-color: rgba(239, 68, 68, 1);
     transform: scale(1.05);
   }
 
@@ -651,230 +436,50 @@ const colorOptions = [
   }
 }
 
-.textContainer {
-  padding: rem(8) rem(16);
-  border-radius: rem(6);
-  transition: background-color 0.2s ease;
-}
-
-.textContainerEditable {
-  cursor: pointer;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-}
-
-.featureText {
-  font-size: rem(24);
-  font-weight: 600;
-  text-shadow: 0 rem(2) rem(8) rgba(0, 0, 0, 0.3);
-  display: inline-block;
-  user-select: none;
-
-  @include tablet {
-    font-size: rem(28);
-  }
-
-  @include desktop {
-    font-size: rem(32);
-  }
-}
-
-.textEditContainer {
-  display: flex;
-  align-items: center;
-  gap: rem(8);
-  background-color: rgba(255, 255, 255, 0.95);
-  padding: rem(8) rem(12);
-  border-radius: rem(8);
-  box-shadow: 0 rem(4) rem(12) rgba(0, 0, 0, 0.15);
-}
-
-.textInput {
-  border: 1px solid var(--a-border);
-  border-radius: rem(6);
-  padding: rem(6) rem(12);
-  font-size: rem(20);
-  font-weight: 600;
-  color: var(--a-text-dark);
-  background-color: var(--a-whiteBg);
-  min-width: rem(120);
-  outline: none;
-
-  &:focus {
-    border-color: var(--a-primary);
-    box-shadow: 0 0 0 rem(3) rgba(59, 130, 246, 0.1);
-  }
-
-  @include tablet {
-    font-size: rem(24);
-  }
-}
-
-.colorPickerContainer {
+.addFeatureButton {
   position: relative;
-}
-
-.colorPickerButton {
-  background: none;
-  border: 1px solid var(--a-border);
-  border-radius: rem(6);
-  width: rem(32);
-  height: rem(32);
+  text-align: center;
+  padding: rem(32);
+  border-radius: var(--a-borderR--card);
+  background-color: var(--a-lightPrimaryBg);
+  border: 2px dashed var(--a-border-primary);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  min-height: rem(216);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: rem(12);
   cursor: pointer;
-  transition: all 0.2s ease;
   color: var(--a-text-dark);
 
   &:hover {
+    transform: translateY(rem(-4));
+    box-shadow: 0 rem(8) rem(24) rgba(0, 0, 0, 0.1);
     border-color: var(--a-primary);
-    background-color: var(--a-lightPrimaryBg);
-  }
-}
-
-.colorPicker {
-  position: absolute;
-  top: calc(100% + rem(8));
-  right: 0;
-  background-color: var(--a-whiteBg);
-  border: 1px solid var(--a-border);
-  border-radius: rem(8);
-  padding: rem(8);
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: rem(8);
-  box-shadow: 0 rem(4) rem(12) rgba(0, 0, 0, 0.15);
-  z-index: 10;
-  min-width: rem(120);
-}
-
-.colorOption {
-  width: rem(24);
-  height: rem(24);
-  border: 2px solid var(--a-border);
-  border-radius: rem(4);
-  cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease;
-
-  &:hover {
-    transform: scale(1.2);
-    border-color: var(--a-primary);
+    background-color: var(--a-whiteBg);
   }
 
   &:active {
+    transform: translateY(rem(-2));
+  }
+}
+
+.addFeatureIcon {
+  font-size: rem(48);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--a-primary);
+  transition: transform 0.2s ease;
+
+  .addFeatureButton:hover & {
     transform: scale(1.1);
   }
 }
 
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: rem(20);
-}
-
-.modalContent {
-  background-color: var(--a-whiteBg);
-  border-radius: rem(12);
-  max-width: rem(800);
-  width: 100%;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 rem(20) rem(60) rgba(0, 0, 0, 0.3);
-}
-
-.modalHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: rem(20) rem(24);
-  border-bottom: 1px solid var(--a-border);
-}
-
-.modalTitle {
-  font-size: rem(20);
-  font-weight: 600;
+.addFeatureText {
+  font-size: rem(18);
+  font-weight: 500;
   color: var(--a-text-dark);
-  margin: 0;
-}
-
-.modalClose {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: rem(4);
-  color: var(--a-text-dark);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: var(--a-primary);
-  }
-}
-
-.modalBody {
-  padding: rem(24);
-  overflow-y: auto;
-  flex: 1;
-}
-
-.loading {
-  text-align: center;
-  padding: rem(40);
-  color: var(--a-text-secondary);
-}
-
-.imageGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(rem(120), 1fr));
-  gap: rem(16);
-}
-
-.imageItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: rem(8);
-  padding: rem(12);
-  border: 2px solid var(--a-border);
-  border-radius: rem(8);
-  background-color: var(--a-whiteBg);
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: var(--a-primary);
-    transform: translateY(rem(-2));
-    box-shadow: 0 rem(4) rem(12) rgba(0, 0, 0, 0.1);
-  }
-}
-
-.imagePreview {
-  width: 100%;
-  height: rem(100);
-  object-fit: cover;
-  border-radius: rem(4);
-}
-
-.imageName {
-  font-size: rem(12);
-  color: var(--a-text-secondary);
-  text-align: center;
-  word-break: break-word;
-  max-width: 100%;
 }
 </style>
-
