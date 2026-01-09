@@ -34,6 +34,7 @@ export default defineNuxtConfig({
       {
         prefix: "",
         dir: "./app/assets/icons",
+        normalizeIconName: false,
       },
     ],
   },
@@ -99,6 +100,9 @@ export default defineNuxtConfig({
   },
 
   vite: {
+    ssr: {
+      noExternal: ["mysql2"],
+    },
     build: {
       target: "esnext",
       minify: "esbuild",
@@ -236,5 +240,23 @@ export default defineNuxtConfig({
 
   optimizeDeps: {
     exclude: ["@nuxt/ui"],
+  },
+
+  runtimeConfig: {
+    dbHost: process.env.DB_HOST || "localhost",
+    dbPort: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
+    dbUser: process.env.DB_USER || "root",
+    dbPassword: process.env.DB_PASSWORD || "",
+    dbDatabase: process.env.DB_DATABASE || "my3d",
+    adminPassword: process.env.ADMIN_PASSWORD || "",
+    public: {
+      // Может быть переопределена через NUXT_PUBLIC_API_BASE в .env
+      // Если не указана, будет использован текущий хост из браузера
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || "",
+    },
+  },
+
+  nitro: {
+    nodeModules: ["mysql2"],
   },
 });

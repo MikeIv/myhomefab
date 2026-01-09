@@ -44,10 +44,10 @@ watch(() => route.path, () => {
           {{ $t("nav.home") }}
         </NuxtLink>
         <NuxtLink
-          to="/portfolio"
+          to="/collections"
           :class="[
             $style.navLink,
-            { [$style.active]: route.path === '/portfolio' },
+            { [$style.active]: route.path === '/collections' },
           ]"
         >
           {{ $t("nav.portfolio") }}
@@ -103,10 +103,10 @@ watch(() => route.path, () => {
           {{ $t("nav.home") }}
         </NuxtLink>
         <NuxtLink
-          to="/portfolio"
+          to="/collections"
           :class="[
             $style.sideNavLink,
-            { [$style.active]: route.path === '/portfolio' },
+            { [$style.active]: route.path === '/collections' },
           ]"
           @click="closeMenu"
         >

@@ -1,13 +1,13 @@
 <script setup lang="ts">
+// Импорт изображения из assets
+import coverBg from "~/assets/images/cover-bg.jpg";
+
 definePageMeta({
   layout: "default",
 });
 
 // Локальная модель рождественской ёлки
 const defaultModelPath = "/models/Christmastree.glb";
-
-// Импорт изображения из assets
-import coverBg from "~/assets/images/cover-bg.jpg";
 </script>
 
 <template>

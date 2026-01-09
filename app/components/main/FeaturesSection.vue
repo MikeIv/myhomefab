@@ -3,7 +3,6 @@
 <template>
   <section :class="$style.features">
     <div :class="$style.container">
-      <h2 :class="$style.title">{{ $t("home.features.title") }}</h2>
       <div :class="$style.grid">
         <div :class="$style.feature">
           <div :class="$style.icon">✨</div>
@@ -50,23 +49,6 @@
 .container {
   max-width: 1280px;
   margin: 0 auto;
-}
-
-.title {
-  font-size: rem(32);
-  font-weight: 700;
-  color: var(--a-text-dark);
-  text-align: center;
-  margin-bottom: rem(48);
-
-  @include tablet {
-    font-size: rem(40);
-    margin-bottom: rem(60);
-  }
-
-  @include desktop {
-    font-size: rem(48);
-  }
 }
 
 .grid {

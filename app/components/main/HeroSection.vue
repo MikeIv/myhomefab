@@ -8,8 +8,8 @@ import LogoIcon from "~/assets/icons/Logo.svg";
     <div :class="$style.container">
       <div :class="$style.content">
         <h1 :class="$style.title">{{ $t("home.title") }}</h1>
-        <p :class="$style.description">Создание 3D моделей с описанием и печатью</p>
-        <NuxtLink to="/portfolio" :class="$style.cta">
+        <p :class="$style.description">Создание и печать 3D моделей</p>
+        <NuxtLink to="/collections" :class="$style.cta">
           {{ $t("home.cta") }}
         </NuxtLink>
       </div>

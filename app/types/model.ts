@@ -30,6 +30,8 @@ export interface Model {
   printInfo?: PrintInfo;
   images: string[];
   previewImage: string;
+  previewImageId?: number;
+  imageIds?: number[];
   modelPath?: string;
   modelFormat?: "glb" | "gltf" | "obj" | "stl";
   tags?: string[];
