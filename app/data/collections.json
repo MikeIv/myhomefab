@@ -104,6 +104,25 @@
             "material": "PLA",
             "printTime": "50 минут "
           }
+        },
+        {
+          "id": "model-1768043833047",
+          "title": "Зажимы для упаковки",
+          "description": "Описание модели",
+          "shortDescription": "Маленькие зажимы для упаковки — компактные помощники на кухне, которые сохраняют свежесть продуктов в любых пакетах. \nНебольшие клипы плотно закрывают пакеты с чипсами, мукой или крупами, не давая воздуху попасть внутрь и продлевая срок хранения.\n",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-007.png",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 35,
+              "height": 15,
+              "depth": 10,
+              "unit": "mm"
+            },
+            "weight": 5,
+            "material": "PLA",
+            "printTime": "40 минут (4 штуки)"
+          }
         }
       ]
     },
