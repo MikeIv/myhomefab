@@ -170,22 +170,6 @@
             "material": "PLA",
             "printTime": "1 час 20 минут"
           }
-        },
-        {
-          "id": "5",
-          "title": "Арт-объект",
-          "description": "Уникальный арт-объект для современного интерьера.",
-          "shortDescription": "Уникальный арт-объект",
-          "previewImage": null,
-          "previewImageKey": null
-        },
-        {
-          "id": "6",
-          "title": "Декоративная композиция",
-          "description": "Декоративная композиция для украшения пространства.",
-          "shortDescription": "Декоративная композиция",
-          "previewImage": null,
-          "previewImageKey": null
         }
       ]
     },
@@ -195,27 +179,22 @@
       "models": [
         {
           "id": "7",
-          "title": "Игрушечная фигурка",
+          "title": "Гибкая собака",
           "description": "Забавная игрушечная фигурка для детей.",
-          "shortDescription": "Забавная игрушечная фигурка",
+          "shortDescription": "Гибкая собака — забавная 3D-печатная игрушка в виде таксы, которая пружинит и извивается благодаря особой форме тела-пружины.",
           "previewImage": null,
-          "previewImageKey": null
-        },
-        {
-          "id": "8",
-          "title": "Конструктор",
-          "description": "Развивающий конструктор для детей.",
-          "shortDescription": "Развивающий конструктор",
-          "previewImage": null,
-          "previewImageKey": null
-        },
-        {
-          "id": "9",
-          "title": "Игровая фигурка",
-          "description": "Игровая фигурка для развлечений.",
-          "shortDescription": "Игровая фигурка",
-          "previewImage": null,
-          "previewImageKey": null
+          "previewImageKey": "collections/toys/toys-001.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 112,
+              "height": 35,
+              "depth": 49,
+              "unit": "mm"
+            },
+            "weight": 45,
+            "material": "PLA",
+            "printTime": "2 часа "
+          }
         }
       ]
     },

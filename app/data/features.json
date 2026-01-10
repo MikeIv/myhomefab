@@ -5,7 +5,7 @@
     "textColor": "#ffffff"
   },
   {
-    "backgroundImage": "main-page/main-page-02.png",
+    "backgroundImage": "main-page/main-page-02.jpg",
     "text": "Для дома",
     "textColor": "#ffffff"
   },
@@ -20,8 +20,13 @@
     "textColor": "#ffffff"
   },
   {
-    "backgroundImage": "main-page/main-page-06.png",
+    "backgroundImage": "main-page/main-page-06.jpg",
     "text": "Праздники",
+    "textColor": "#ffffff"
+  },
+  {
+    "backgroundImage": "main-page/main-page-03.jpg",
+    "text": "Мастерская",
     "textColor": "#ffffff"
   }
 ]
