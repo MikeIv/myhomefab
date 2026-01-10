@@ -84,6 +84,26 @@
             "weightText": "от ~ 54 г",
             "printTime": "~ от часа"
           }
+        },
+        {
+          "id": "model-1768043291496",
+          "title": "Крючок / Вешалка",
+          "description": "Описание модели",
+          "shortDescription": "Стильные крючки для одежды и сумок — это простое решение для порядка в доме, крепко держат вещи на любой вешалке.\nЭргономичные крючки надежно фиксируют сумки, полотенца или одежду. Не скользят и выдерживают вес до нескольких килограммов.\n\n",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-006.png",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 100,
+              "height": 100,
+              "depth": 100,
+              "unit": "mm"
+            },
+            "dimensionsText": "размеры | S, M, L, XL",
+            "weight": 25,
+            "material": "PLA",
+            "printTime": "50 минут "
+          }
         }
       ]
     },
