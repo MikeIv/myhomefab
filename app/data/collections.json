@@ -6,11 +6,28 @@
       "models": [
         {
           "id": "1",
-          "title": "Декоративная ваза",
+          "title": "Складная подставка для телефона",
           "description": "Элегантная декоративная ваза с уникальным геометрическим узором. Идеально подходит для интерьера в современном стиле.",
-          "shortDescription": "Элегантная декоративная ваза с геометрическим узором",
+          "shortDescription": "Удобная складная подставка для телефона станет незаменимым помощником дома. На ней удобно смотреть видео, разговаривать по видеосвязи или просто поставить телефон во время зарядки. Компактная, аккуратная и приятная на ощупь — она легко складывается и занимает совсем немного места.",
           "previewImage": null,
-          "previewImageKey": "collections/household/house-002.jpeg"
+          "previewImageKey": "collections/household/house-002.jpeg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 124,
+              "height": 60,
+              "depth": 69,
+              "unit": "mm"
+            },
+            "weight": 65,
+            "material": "PLA",
+            "printTime": "1 час 60 минут"
+          },
+          "printInfo": {
+            "printerModel": "А1",
+            "filamentType": "PLA",
+            "filamentColor": "Любой",
+            "supports": false
+          }
         },
         {
           "id": "2",
@@ -93,6 +110,20 @@
           "title": "Игровая фигурка",
           "description": "Игровая фигурка для развлечений.",
           "shortDescription": "Игровая фигурка",
+          "previewImage": null,
+          "previewImageKey": null
+        }
+      ]
+    },
+    {
+      "id": "tools",
+      "title": "Инструменты",
+      "models": [
+        {
+          "id": "10",
+          "title": "Инструмент",
+          "description": "Полезный инструмент для работы.",
+          "shortDescription": "Полезный инструмент",
           "previewImage": null,
           "previewImageKey": null
         }

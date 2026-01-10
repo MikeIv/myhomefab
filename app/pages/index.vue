@@ -8,6 +8,31 @@ definePageMeta({
 
 // Локальная модель рождественской ёлки
 const defaultModelPath = "/models/Christmastree.glb";
+
+// SEO метатеги для главной страницы
+const siteUrl = "https://myhomefab.ru";
+const pageTitle = "3D Мастерская - Профессиональные модели для 3D печати";
+const pageDescription =
+  "Создаю качественные 3D модели с детальным описанием и техническими характеристиками для успешной печати. Профессиональные модели для 3D принтеров.";
+
+useSeoMeta({
+  title: pageTitle,
+  description: pageDescription,
+  ogTitle: pageTitle,
+  ogDescription: pageDescription,
+  ogImage: `${siteUrl}/og-image.jpg`,
+  ogImageAlt: "3D Мастерская - Профессиональные модели для 3D печати",
+  ogUrl: siteUrl,
+  ogType: "website",
+  ogSiteName: "MyHomeFab",
+  ogLocale: "ru_RU",
+  ogImageSecureUrl: `${siteUrl}/og-image.jpg`,
+  twitterCard: "summary_large_image",
+  twitterTitle: pageTitle,
+  twitterDescription: pageDescription,
+  twitterImage: `${siteUrl}/og-image.jpg`,
+  twitterImageAlt: "3D Мастерская - Профессиональные модели для 3D печати",
+});
 </script>
 
 <template>

@@ -1,144 +1,59 @@
 <script setup lang="ts">
-import { ref, onMounted, shallowRef, computed } from "vue";
-import collectionsData from "~/data/collections.json";
-import { useCollections } from "~/composables/useCollections";
+import { ref, onMounted } from "vue";
+import type { Model } from "~/types/model";
+import { useCollectionsData } from "~/composables/useCollectionsData";
+import { useCollectionEditor } from "~/composables/useCollectionEditor";
+import { useModalManager } from "~/composables/useModalManager";
 import { useImageManager } from "~/composables/useImageManager";
-import EditIcon from "~/assets/icons/Edit.svg";
-import CloseIcon from "~/assets/icons/Close.svg";
-import type { Model, TechnicalSpecs, PrintInfo } from "~/types/model";
 
 definePageMeta({
   layout: "default",
 });
 
-interface CollectionModel {
-  id: string;
-  title: string;
-  description: string;
-  shortDescription: string;
-  previewImage: string | null;
-  previewImageKey: string | null;
-  technicalSpecs?: TechnicalSpecs;
-  printInfo?: PrintInfo;
-}
-
-interface CollectionSection {
-  id: string;
-  title: string;
-  models: CollectionModel[];
-}
-
-interface CollectionsData {
-  sections: CollectionSection[];
-}
-
 const isDev = import.meta.dev;
-const { saveCollectionsJSON } = useCollections();
+
 const {
-  getImageSrc,
-  getImageKeyByUrl,
-  imageMap,
-  getImageUrl,
-} = useImageManager();
+  collections,
+  selectedSectionId,
+  currentSection,
+  currentModels,
+  loadCollectionsData,
+  saveCollectionsData,
+  selectSection: selectSectionData,
+  updateModelField,
+  addModel: addModelData,
+  removeModel: removeModelData,
+  convertToModel,
+  updateModelFromModel,
+} = useCollectionsData();
 
-const collections = shallowRef<CollectionsData>({ sections: [] });
-const selectedSectionId = ref<string | null>(null);
+const {
+  isEditingTitle,
+  isEditingDescription,
+  startEditingTitle,
+  finishEditingTitle,
+  startEditingDescription,
+  finishEditingDescription,
+} = useCollectionEditor();
+
+const {
+  isModalOpen,
+  isImageModalOpen,
+  selectedModelIndex,
+  openModal,
+  closeModal,
+  openImageModal,
+  closeImageModal,
+} = useModalManager();
+
+const { getImageSrc, imageMap, getImageUrl } = useImageManager();
+
 const selectedModel = ref<Model | null>(null);
-const isModalOpen = ref(false);
-const isImageModalOpen = ref(false);
-const selectedModelIndex = ref<number | null>(null);
-const isEditingTitle = ref<number | null>(null);
-const isEditingDescription = ref<number | null>(null);
-
-const currentSection = computed(() => {
-  if (!selectedSectionId.value) return null;
-  return collections.value.sections.find(
-    (section) => section.id === selectedSectionId.value,
-  );
-});
-
-const currentModels = computed(() => {
-  if (!currentSection.value) return [];
-  return currentSection.value.models;
-});
-
-const loadCollectionsData = () => {
-  if (!import.meta.client) return;
-
-  try {
-    if (
-      collectionsData &&
-      typeof collectionsData === "object" &&
-      "sections" in collectionsData &&
-      Array.isArray(collectionsData.sections)
-    ) {
-      collections.value = {
-        sections: (collectionsData as CollectionsData).sections.map(
-          (section) => ({
-            ...section,
-            models: section.models.map((model) => ({
-              ...model,
-              previewImage: getImageSrc(model.previewImageKey),
-            })),
-          }),
-        ),
-      };
-    } else {
-      collections.value = { sections: [] };
-    }
-
-    // Устанавливаем первый раздел по умолчанию
-    if (
-      collections.value.sections.length > 0 &&
-      !selectedSectionId.value
-    ) {
-      const firstSection = collections.value.sections[0];
-      if (firstSection) {
-        selectedSectionId.value = firstSection.id;
-      }
-    }
-  } catch {
-    console.error("Ошибка при загрузке данных из JSON");
-    collections.value = { sections: [] };
-  }
-};
-
-const saveCollectionsData = async () => {
-  if (!import.meta.client) return;
-
-  try {
-    const dataToSave: CollectionsData = {
-      sections: collections.value.sections.map((section) => ({
-        ...section,
-        models: section.models.map((model) => ({
-          id: model.id,
-          title: model.title,
-          description: model.description,
-          shortDescription: model.shortDescription,
-          previewImage: null,
-          previewImageKey: model.previewImage
-            ? getImageKeyByUrl(model.previewImage)
-            : null,
-          technicalSpecs: model.technicalSpecs,
-          printInfo: model.printInfo,
-        })),
-      })),
-    };
-
-    const saveResult = await saveCollectionsJSON(dataToSave);
-
-    if (!saveResult.success) {
-      console.error("Ошибка при сохранении:", saveResult.error);
-    }
-  } catch {
-    console.error("Ошибка при сохранении данных коллекций");
-  }
-};
 
 const selectSection = (sectionId: string) => {
-  selectedSectionId.value = sectionId;
+  selectSectionData(sectionId);
   selectedModel.value = null;
-  isModalOpen.value = false;
+  closeModal();
 };
 
 const handleModelSelect = (modelIndex: number) => {
@@ -147,71 +62,25 @@ const handleModelSelect = (modelIndex: number) => {
   const model = currentSection.value.models[modelIndex];
   if (!model) return;
 
-  // Преобразуем CollectionModel в Model для модального окна
-  const modelForModal: Model = {
-    id: model.id,
-    title: model.title,
-    description: model.description,
-    shortDescription: model.shortDescription,
-    technicalSpecs: model.technicalSpecs || {
-      dimensions: {
-        width: 100,
-        height: 100,
-        depth: 100,
-        unit: "mm",
-      },
-    },
-    printInfo: model.printInfo,
-    images: model.previewImage ? [model.previewImage] : [],
-    previewImage: model.previewImage || "",
-  };
-
-  selectedModel.value = modelForModal;
-  selectedModelIndex.value = modelIndex;
-  isModalOpen.value = true;
-  document.body.style.overflow = "hidden";
+  selectedModel.value = convertToModel(model);
+  openModal(modelIndex);
 };
 
 const handleCloseModal = () => {
-  isModalOpen.value = false;
+  closeModal();
   selectedModel.value = null;
-  selectedModelIndex.value = null;
-  document.body.style.overflow = "";
 };
 
 const handleModelUpdate = async (updatedModel: Model) => {
   if (!isDev || selectedModelIndex.value === null || !currentSection.value) return;
 
   const modelIndex = selectedModelIndex.value;
-  const model = currentSection.value.models[modelIndex];
-  if (!model) return;
-
-  // Обновляем модель в коллекции
-  model.title = updatedModel.title;
-  model.description = updatedModel.description;
-  model.shortDescription = updatedModel.shortDescription || "";
-  model.technicalSpecs = updatedModel.technicalSpecs;
-  model.printInfo = updatedModel.printInfo;
-
-  // Обновляем selectedModel для отображения
+  updateModelFromModel(modelIndex, updatedModel);
   selectedModel.value = updatedModel;
-
-  // Сохраняем изменения
   await saveCollectionsData();
 };
 
-const openImageModal = (modelIndex: number) => {
-  if (!isDev) return;
-  selectedModelIndex.value = modelIndex;
-  isImageModalOpen.value = true;
-};
-
-const closeImageModal = () => {
-  isImageModalOpen.value = false;
-  selectedModelIndex.value = null;
-};
-
-const selectImage = async (imageKey: string) => {
+const handleSelectImage = async (imageKey: string) => {
   if (
     selectedModelIndex.value === null ||
     !currentSection.value ||
@@ -225,90 +94,57 @@ const selectImage = async (imageKey: string) => {
   const model = currentSection.value.models[index];
 
   if (imagePath && model) {
-    model.previewImage = getImageSrc(imagePath);
+    updateModelField(index, "previewImage", getImageSrc(imagePath));
     closeImageModal();
     await saveCollectionsData();
   }
 };
 
-const updateTitle = (index: number, newTitle: string) => {
+const handleUpdateTitle = (index: number, newTitle: string) => {
   if (!isDev || !currentSection.value || !currentSection.value.models[index])
     return;
-  currentSection.value.models[index].title = newTitle;
+  updateModelField(index, "title", newTitle);
 };
 
-const saveTitle = async (index: number) => {
-  if (!isDev || !currentSection.value || !currentSection.value.models[index])
-    return;
-  await saveCollectionsData();
-};
-
-const updateDescription = (index: number, newDescription: string) => {
-  if (!isDev || !currentSection.value || !currentSection.value.models[index])
-    return;
-  currentSection.value.models[index].shortDescription = newDescription;
-};
-
-const saveDescription = async (index: number) => {
-  if (!isDev || !currentSection.value || !currentSection.value.models[index])
-    return;
-  await saveCollectionsData();
-};
-
-const startEditingTitle = (index: number) => {
-  if (!isDev) return;
-  isEditingTitle.value = index;
-};
-
-const finishEditingTitle = async (index: number) => {
+const handleFinishEditingTitle = async (index: number) => {
   if (isEditingTitle.value === index) {
-    await saveTitle(index);
-    isEditingTitle.value = null;
+    await saveCollectionsData();
+    finishEditingTitle();
   }
 };
 
-const startEditingDescription = (index: number) => {
-  if (!isDev) return;
-  isEditingDescription.value = index;
+const handleUpdateDescription = (index: number, newDescription: string) => {
+  if (!isDev || !currentSection.value || !currentSection.value.models[index])
+    return;
+  updateModelField(index, "shortDescription", newDescription);
 };
 
-const finishEditingDescription = async (index: number) => {
+const handleFinishEditingDescription = async (index: number) => {
   if (isEditingDescription.value === index) {
-    await saveDescription(index);
-    isEditingDescription.value = null;
+    await saveCollectionsData();
+    finishEditingDescription();
   }
 };
 
-const addModel = async () => {
+const handleAddModel = async () => {
   if (!isDev || !currentSection.value) return;
-
-  const newId = `model-${Date.now()}`;
-  currentSection.value.models.push({
-    id: newId,
-    title: "Новая модель",
-    description: "Описание модели",
-    shortDescription: "Краткое описание",
-    previewImage: null,
-    previewImageKey: null,
-  });
-  await saveCollectionsData();
+  await addModelData();
 };
 
-const removeModel = async (index: number) => {
+const handleRemoveModel = async (index: number) => {
   if (!isDev || !currentSection.value || currentSection.value.models.length <= 1)
     return;
 
-  currentSection.value.models.splice(index, 1);
+  const wasRemoved = await removeModelData(index);
 
-  if (selectedModelIndex.value !== null) {
+  if (wasRemoved && selectedModelIndex.value !== null) {
     if (selectedModelIndex.value === index) {
-      selectedModelIndex.value = null;
+      closeModal();
     } else if (selectedModelIndex.value > index) {
-      selectedModelIndex.value -= 1;
+      // Индекс корректируется автоматически в composable
+      closeModal();
     }
   }
-
-  await saveCollectionsData();
 };
 
 onMounted(() => {
@@ -346,123 +182,32 @@ onMounted(() => {
     <section :class="$style.content">
       <div :class="$style.container">
         <div v-if="currentModels.length > 0" :class="$style.grid">
-          <article
+          <CollectionsCard
             v-for="(model, index) in currentModels"
             :key="model.id"
-            :class="$style.card"
-            @click="handleModelSelect(index)"
-          >
-            <div v-if="isDev" :class="$style.actions">
-              <button
-                v-if="model.previewImage"
-                :class="$style.editButton"
-                type="button"
-                aria-label="Изменить изображение"
-                @click.stop="openImageModal(index)"
-              >
-                <EditIcon />
-              </button>
-
-              <button
-                v-if="currentModels.length > 1"
-                :class="$style.removeButton"
-                type="button"
-                aria-label="Удалить карточку"
-                @click.stop="removeModel(index)"
-              >
-                <CloseIcon />
-              </button>
-            </div>
-
-            <div :class="$style.imageWrapper">
-              <img
-                v-if="model.previewImage"
-                :src="model.previewImage"
-                :alt="model.title"
-                :class="$style.image"
-                loading="lazy"
-              />
-              <div
-                v-else-if="isDev"
-                :class="$style.addImageButton"
-                @click.stop="openImageModal(index)"
-              >
-                Добавить изображение
-              </div>
-              <div v-else :class="$style.imagePlaceholder" />
-              <button
-                v-if="isDev && !model.previewImage"
-                :class="$style.addImageButtonBottom"
-                type="button"
-                aria-label="Добавить изображение"
-                @click.stop="openImageModal(index)"
-              >
-                Добавить
-              </button>
-            </div>
-            <div :class="$style.cardContent">
-              <div
-                v-if="isEditingTitle === index && isDev"
-                :class="$style.editContainer"
-                @click.stop
-              >
-                <input
-                  :value="model.title"
-                  :class="$style.editInput"
-                  autofocus
-                  @blur="finishEditingTitle(index)"
-                  @keyup.enter="finishEditingTitle(index)"
-                  @input="
-                    updateTitle(index, ($event.target as HTMLInputElement).value)
-                  "
-                />
-              </div>
-              <h3
-                v-else
-                :class="[$style.cardTitle, { [$style.cardTitleEditable]: isDev }]"
-                @click.stop="isDev && startEditingTitle(index)"
-              >
-                {{ model.title }}
-              </h3>
-
-              <div
-                v-if="isEditingDescription === index && isDev"
-                :class="$style.editContainer"
-                @click.stop
-              >
-                <textarea
-                  :value="model.shortDescription"
-                  :class="$style.editTextarea"
-                  autofocus
-                  @blur="finishEditingDescription(index)"
-                  @keyup.enter.exact="finishEditingDescription(index)"
-                  @input="
-                    updateDescription(
-                      index,
-                      ($event.target as HTMLTextAreaElement).value,
-                    )
-                  "
-                />
-              </div>
-              <p
-                v-else-if="model.shortDescription"
-                :class="[
-                  $style.cardDescription,
-                  { [$style.cardDescriptionEditable]: isDev },
-                ]"
-                @click.stop="isDev && startEditingDescription(index)"
-              >
-                {{ model.shortDescription }}
-              </p>
-            </div>
-          </article>
+            :model="model"
+            :index="index"
+            :is-dev="isDev"
+            :is-editing-title="isEditingTitle === index"
+            :is-editing-description="isEditingDescription === index"
+            :can-remove="currentModels.length > 1"
+            @select="handleModelSelect"
+            @edit-image="openImageModal"
+            @remove="handleRemoveModel"
+            @update-title="handleUpdateTitle"
+            @update-description="handleUpdateDescription"
+            @finish-editing-title="handleFinishEditingTitle"
+            @finish-editing-description="handleFinishEditingDescription"
+            @start-editing-title="startEditingTitle"
+            @start-editing-description="startEditingDescription"
+          />
 
           <button
             v-if="isDev"
             :class="$style.addCardButton"
             type="button"
             aria-label="Добавить новую карточку"
-            @click="addModel"
+            @click="handleAddModel"
           >
             <span :class="$style.addCardIcon">+</span>
             <span :class="$style.addCardText">Добавить карточку</span>
@@ -474,7 +219,7 @@ onMounted(() => {
       </div>
     </section>
 
-    <PortfolioModelModal
+    <CollectionsModelModal
       :model="selectedModel"
       :is-open="isModalOpen"
       @close="handleCloseModal"
@@ -484,7 +229,7 @@ onMounted(() => {
     <MainImagePickerModal
       :is-open="isImageModalOpen"
       @close="closeImageModal"
-      @select="selectImage"
+      @select="handleSelectImage"
     />
   </div>
 </template>
@@ -507,21 +252,6 @@ onMounted(() => {
 .container {
   max-width: 1280px;
   margin: 0 auto;
-}
-
-.title {
-  font-size: rem(36);
-  font-weight: 700;
-  color: var(--a-text-dark);
-  margin-bottom: rem(16);
-
-  @include tablet {
-    font-size: rem(48);
-  }
-
-  @include desktop {
-    font-size: rem(56);
-  }
 }
 
 .subtitle {
@@ -612,244 +342,6 @@ onMounted(() => {
   @include desktop {
     grid-template-columns: repeat(3, 1fr);
     gap: rem(40);
-  }
-}
-
-.card {
-  position: relative;
-  background-color: var(--a-whiteBg);
-  border-radius: var(--a-borderR--card);
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 rem(2) rem(8) rgba(0, 0, 0, 0.1);
-
-  &:hover {
-    transform: translateY(rem(-4));
-    box-shadow: 0 rem(8) rem(24) rgba(0, 0, 0, 0.15);
-  }
-}
-
-.actions {
-  position: absolute;
-  top: rem(12);
-  right: rem(12);
-  z-index: 3;
-  display: flex;
-  gap: rem(8);
-  align-items: center;
-}
-
-.editButton {
-  background-color: rgba(255, 255, 255, 0.9);
-  border: none;
-  border-radius: rem(6);
-  width: rem(36);
-  height: rem(36);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  color: var(--a-text-dark);
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 1);
-    transform: scale(1.05);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  svg {
-    width: rem(18);
-    height: rem(18);
-  }
-}
-
-.removeButton {
-  background-color: rgba(239, 68, 68, 0.9);
-  border: none;
-  border-radius: rem(6);
-  width: rem(36);
-  height: rem(36);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  color: var(--a-whiteBg);
-
-  &:hover {
-    background-color: rgba(239, 68, 68, 1);
-    transform: scale(1.05);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  svg {
-    width: rem(18);
-    height: rem(18);
-  }
-}
-
-.imageWrapper {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background-color: var(--a-lightBg);
-}
-
-.image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.card:hover .image {
-  transform: scale(1.05);
-}
-
-.imagePlaceholder {
-  width: 100%;
-  height: 100%;
-  background-color: var(--a-lightPrimaryBg);
-}
-
-.addImageButton {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--a-lightPrimaryBg);
-  border: 2px dashed var(--a-border-primary);
-  color: var(--a-text-dark);
-  font-size: rem(16);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: var(--a-whiteBg);
-    border-color: var(--a-primary);
-  }
-}
-
-.addImageButtonBottom {
-  position: absolute;
-  bottom: rem(12);
-  left: 50%;
-  transform: translateX(-50%);
-  padding: rem(8) rem(16);
-  background-color: var(--a-primaryBg);
-  border: none;
-  border-radius: var(--a-borderR--btn);
-  color: var(--a-text-white);
-  font-size: rem(14);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 2;
-
-  &:hover {
-    background-color: var(--a-accentBg);
-    transform: translateX(-50%) scale(1.05);
-  }
-
-  &:active {
-    transform: translateX(-50%) scale(0.95);
-  }
-}
-
-.cardContent {
-  padding: rem(20);
-}
-
-.cardTitle {
-  font-size: rem(18);
-  font-weight: 600;
-  color: var(--a-text-dark);
-  margin-bottom: rem(8);
-  line-height: 1.3;
-}
-
-.cardTitleEditable {
-  cursor: pointer;
-  padding: rem(4) rem(8);
-  border-radius: rem(4);
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: var(--a-lightPrimaryBg);
-  }
-}
-
-.cardDescription {
-  font-size: rem(14);
-  color: var(--a-text-dark);
-  line-height: 1.5;
-  opacity: 0.7;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.cardDescriptionEditable {
-  cursor: pointer;
-  padding: rem(4) rem(8);
-  border-radius: rem(4);
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: var(--a-lightPrimaryBg);
-  }
-}
-
-.editContainer {
-  margin-bottom: rem(8);
-}
-
-.editInput {
-  width: 100%;
-  border: 1px solid var(--a-border);
-  border-radius: rem(6);
-  padding: rem(8) rem(12);
-  font-size: rem(18);
-  font-weight: 600;
-  color: var(--a-text-dark);
-  background-color: var(--a-whiteBg);
-  outline: none;
-
-  &:focus {
-    border-color: var(--a-primary);
-    box-shadow: 0 0 0 rem(3) rgba(59, 130, 246, 0.1);
-  }
-}
-
-.editTextarea {
-  width: 100%;
-  min-height: rem(60);
-  border: 1px solid var(--a-border);
-  border-radius: rem(6);
-  padding: rem(8) rem(12);
-  font-size: rem(14);
-  color: var(--a-text-dark);
-  background-color: var(--a-whiteBg);
-  outline: none;
-  resize: vertical;
-  font-family: inherit;
-
-  &:focus {
-    border-color: var(--a-primary);
-    box-shadow: 0 0 0 rem(3) rgba(59, 130, 246, 0.1);
   }
 }
 
