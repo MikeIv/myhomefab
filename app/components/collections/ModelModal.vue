@@ -20,6 +20,8 @@ const canEdit = computed(() => isAuthenticated.value || isDev);
 
 const localModel = ref<Model | null>(null);
 const isEditingSpecs = ref(false);
+const dimensionsMode = ref<"structured" | "text">("structured");
+const weightMode = ref<"structured" | "text">("structured");
 
 watch(
   () => props.model,
@@ -32,9 +34,14 @@ watch(
           dimensions: {
             ...newModel.technicalSpecs.dimensions,
           },
+          dimensionsText: newModel.technicalSpecs.dimensionsText || undefined,
+          weightText: newModel.technicalSpecs.weightText || undefined,
         },
         printInfo: newModel.printInfo ? { ...newModel.printInfo } : undefined,
       };
+      // Определяем режимы на основе данных
+      dimensionsMode.value = newModel.technicalSpecs.dimensionsText?.trim() ? "text" : "structured";
+      weightMode.value = newModel.technicalSpecs.weightText?.trim() ? "text" : "structured";
     } else {
       localModel.value = null;
     }
@@ -55,9 +62,27 @@ const handleOverlayClick = () => {
 const handleSave = () => {
   if (!localModel.value) return;
 
+  // Подготавливаем данные для сохранения в зависимости от режимов
+  const technicalSpecs = { ...localModel.value.technicalSpecs };
+  
+  // Если выбран текстовый режим для размеров, очищаем структурированные данные
+  if (dimensionsMode.value === "text") {
+    technicalSpecs.dimensionsText = technicalSpecs.dimensionsText?.trim() || undefined;
+  } else {
+    technicalSpecs.dimensionsText = undefined;
+  }
+  
+  // Если выбран текстовый режим для веса, очищаем структурированные данные
+  if (weightMode.value === "text") {
+    technicalSpecs.weightText = technicalSpecs.weightText?.trim() || undefined;
+  } else {
+    technicalSpecs.weightText = undefined;
+  }
+
   // Очищаем пустые поля printInfo перед сохранением
   const modelToSave: Model = {
     ...localModel.value,
+    technicalSpecs,
     printInfo: localModel.value.printInfo &&
       (localModel.value.printInfo.printerModel ||
         localModel.value.printInfo.filamentType ||
@@ -87,9 +112,13 @@ const handleCancel = () => {
         dimensions: {
           ...props.model.technicalSpecs.dimensions,
         },
+        dimensionsText: props.model.technicalSpecs.dimensionsText || undefined,
+        weightText: props.model.technicalSpecs.weightText || undefined,
       },
       printInfo: props.model.printInfo ? { ...props.model.printInfo } : undefined,
     };
+    dimensionsMode.value = props.model.technicalSpecs.dimensionsText?.trim() ? "text" : "structured";
+    weightMode.value = props.model.technicalSpecs.weightText?.trim() ? "text" : "structured";
   }
   isEditingSpecs.value = false;
 };
@@ -108,7 +137,37 @@ const startEditing = () => {
     };
   }
   
+  // Инициализируем текстовые поля, если их нет
+  if (!localModel.value.technicalSpecs.dimensionsText) {
+    localModel.value.technicalSpecs.dimensionsText = "";
+  }
+  if (!localModel.value.technicalSpecs.weightText) {
+    localModel.value.technicalSpecs.weightText = "";
+  }
+  
   isEditingSpecs.value = true;
+};
+
+const toggleDimensionsMode = () => {
+  if (!localModel.value) return;
+  
+  dimensionsMode.value = dimensionsMode.value === "structured" ? "text" : "structured";
+  
+  // Инициализируем текстовое поле, если его нет
+  if (dimensionsMode.value === "text" && !localModel.value.technicalSpecs.dimensionsText) {
+    localModel.value.technicalSpecs.dimensionsText = "";
+  }
+};
+
+const toggleWeightMode = () => {
+  if (!localModel.value) return;
+  
+  weightMode.value = weightMode.value === "structured" ? "text" : "structured";
+  
+  // Инициализируем текстовое поле, если его нет
+  if (weightMode.value === "text" && !localModel.value.technicalSpecs.weightText) {
+    localModel.value.technicalSpecs.weightText = "";
+  }
 };
 
 // Закрытие по Escape
@@ -212,44 +271,77 @@ onUnmounted(() => {
                     <dt :class="$style.specLabel">{{ $t("portfolio.modal.dimensions") }}</dt>
                     <dd :class="$style.specValue">
                       <template v-if="!isEditingSpecs">
-                        {{ localModel.technicalSpecs.dimensions.width }} ×
-                        {{ localModel.technicalSpecs.dimensions.height }} ×
-                        {{ localModel.technicalSpecs.dimensions.depth }}
-                        {{ localModel.technicalSpecs.dimensions.unit }}
+                        <template v-if="localModel.technicalSpecs.dimensionsText?.trim()">
+                          {{ localModel.technicalSpecs.dimensionsText }}
+                        </template>
+                        <template v-else>
+                          {{ localModel.technicalSpecs.dimensions.width }} ×
+                          {{ localModel.technicalSpecs.dimensions.height }} ×
+                          {{ localModel.technicalSpecs.dimensions.depth }}
+                          {{ localModel.technicalSpecs.dimensions.unit }}
+                        </template>
                       </template>
-                      <div v-else :class="$style.editInputs" role="group" aria-label="Размеры модели">
+                      <div v-else :class="$style.editContainer">
+                        <div :class="$style.modeToggle" role="group" aria-label="Режим ввода размеров">
+                          <button
+                            :class="[$style.toggleButton, dimensionsMode === 'structured' && $style.toggleButtonActive]"
+                            type="button"
+                            aria-label="Структурированный режим"
+                            @click="toggleDimensionsMode"
+                          >
+                            Структурированный
+                          </button>
+                          <button
+                            :class="[$style.toggleButton, dimensionsMode === 'text' && $style.toggleButtonActive]"
+                            type="button"
+                            aria-label="Текстовый режим"
+                            @click="toggleDimensionsMode"
+                          >
+                            Текстовый
+                          </button>
+                        </div>
+                        <div v-if="dimensionsMode === 'structured'" :class="$style.editInputs" role="group" aria-label="Размеры модели">
+                          <input
+                            v-model.number="localModel.technicalSpecs.dimensions.width"
+                            :class="$style.editInput"
+                            type="number"
+                            step="0.1"
+                            aria-label="Ширина"
+                          />
+                          <span aria-hidden="true">×</span>
+                          <input
+                            v-model.number="localModel.technicalSpecs.dimensions.height"
+                            :class="$style.editInput"
+                            type="number"
+                            step="0.1"
+                            aria-label="Высота"
+                          />
+                          <span aria-hidden="true">×</span>
+                          <input
+                            v-model.number="localModel.technicalSpecs.dimensions.depth"
+                            :class="$style.editInput"
+                            type="number"
+                            step="0.1"
+                            aria-label="Глубина"
+                          />
+                          <select
+                            v-model="localModel.technicalSpecs.dimensions.unit"
+                            :class="$style.editSelect"
+                            aria-label="Единица измерения"
+                          >
+                            <option value="mm">мм</option>
+                            <option value="cm">см</option>
+                            <option value="m">м</option>
+                          </select>
+                        </div>
                         <input
-                          v-model.number="localModel.technicalSpecs.dimensions.width"
+                          v-else
+                          v-model="localModel.technicalSpecs.dimensionsText"
                           :class="$style.editInput"
-                          type="number"
-                          step="0.1"
-                          aria-label="Ширина"
+                          type="text"
+                          placeholder="например: 100 × 200 × 50 мм"
+                          aria-label="Размеры модели (текстовый режим)"
                         />
-                        <span aria-hidden="true">×</span>
-                        <input
-                          v-model.number="localModel.technicalSpecs.dimensions.height"
-                          :class="$style.editInput"
-                          type="number"
-                          step="0.1"
-                          aria-label="Высота"
-                        />
-                        <span aria-hidden="true">×</span>
-                        <input
-                          v-model.number="localModel.technicalSpecs.dimensions.depth"
-                          :class="$style.editInput"
-                          type="number"
-                          step="0.1"
-                          aria-label="Глубина"
-                        />
-                        <select
-                          v-model="localModel.technicalSpecs.dimensions.unit"
-                          :class="$style.editSelect"
-                          aria-label="Единица измерения"
-                        >
-                          <option value="mm">мм</option>
-                          <option value="cm">см</option>
-                          <option value="m">м</option>
-                        </select>
                       </div>
                     </dd>
                   </div>
@@ -257,17 +349,50 @@ onUnmounted(() => {
                     <dt :class="$style.specLabel">{{ $t("portfolio.modal.weight") }}</dt>
                     <dd :class="$style.specValue">
                       <template v-if="!isEditingSpecs">
-                        {{ localModel.technicalSpecs.weight || "-" }} г
+                        <template v-if="localModel.technicalSpecs.weightText?.trim()">
+                          {{ localModel.technicalSpecs.weightText }}
+                        </template>
+                        <template v-else>
+                          {{ localModel.technicalSpecs.weight || "-" }} г
+                        </template>
                       </template>
-                      <div v-else :class="$style.editInputs">
+                      <div v-else :class="$style.editContainer">
+                        <div :class="$style.modeToggle" role="group" aria-label="Режим ввода веса">
+                          <button
+                            :class="[$style.toggleButton, weightMode === 'structured' && $style.toggleButtonActive]"
+                            type="button"
+                            aria-label="Структурированный режим"
+                            @click="toggleWeightMode"
+                          >
+                            Структурированный
+                          </button>
+                          <button
+                            :class="[$style.toggleButton, weightMode === 'text' && $style.toggleButtonActive]"
+                            type="button"
+                            aria-label="Текстовый режим"
+                            @click="toggleWeightMode"
+                          >
+                            Текстовый
+                          </button>
+                        </div>
+                        <div v-if="weightMode === 'structured'" :class="$style.editInputs">
+                          <input
+                            v-model.number="localModel.technicalSpecs.weight"
+                            :class="$style.editInput"
+                            type="number"
+                            step="0.1"
+                            :aria-label="$t('portfolio.modal.weight')"
+                          />
+                          <span aria-hidden="true">г</span>
+                        </div>
                         <input
-                          v-model.number="localModel.technicalSpecs.weight"
+                          v-else
+                          v-model="localModel.technicalSpecs.weightText"
                           :class="$style.editInput"
-                          type="number"
-                          step="0.1"
-                          :aria-label="$t('portfolio.modal.weight')"
+                          type="text"
+                          placeholder="например: 150 г"
+                          :aria-label="$t('portfolio.modal.weight') + ' (текстовый режим)'"
                         />
-                        <span aria-hidden="true">г</span>
                       </div>
                     </dd>
                   </div>
@@ -626,11 +751,51 @@ onUnmounted(() => {
   }
 }
 
+.editContainer {
+  display: flex;
+  flex-direction: column;
+  gap: rem(8);
+}
+
 .editInputs {
   display: flex;
   align-items: center;
   gap: rem(8);
   flex-wrap: wrap;
+}
+
+.modeToggle {
+  display: flex;
+  gap: rem(4);
+  border: 1px solid var(--a-border);
+  border-radius: rem(4);
+  padding: rem(2);
+  background-color: var(--a-lightBg);
+}
+
+.toggleButton {
+  flex: 1;
+  padding: rem(4) rem(8);
+  border: none;
+  border-radius: rem(2);
+  background-color: transparent;
+  color: var(--a-text-dark);
+  font-size: rem(12);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.toggleButtonActive {
+  background-color: var(--a-whiteBg);
+  color: var(--a-primary);
+  opacity: 1;
+  box-shadow: 0 rem(1) rem(3) rgba(0, 0, 0, 0.1);
 }
 
 .editInput {

@@ -5,8 +5,10 @@ export interface TechnicalSpecs {
     depth: number;
     unit: "mm" | "cm" | "m";
   };
+  dimensionsText?: string;
   volume?: number;
   weight?: number;
+  weightText?: string;
   material?: string;
   layerHeight?: number;
   infill?: number;
