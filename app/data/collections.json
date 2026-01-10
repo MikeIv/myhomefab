@@ -123,6 +123,25 @@
             "material": "PLA",
             "printTime": "40 минут (4 штуки)"
           }
+        },
+        {
+          "id": "model-1768044549577",
+          "title": "Зажим для пакетов \"Крокодил\"",
+          "description": "Описание модели",
+          "shortDescription": "Зажим для пакетов \"Крокодил\" — забавный и надежный страж свежести на вашей кухне, с зубастым дизайном в форме крокодила.\nМилый \"Крокодил\" крепко кусает пакет чипсов, конфет или муки, не давая продуктам выветриваться и черстветь.\n",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-008.png",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 53,
+              "height": 25,
+              "depth": 10,
+              "unit": "mm"
+            },
+            "weight": 10,
+            "material": "PLA",
+            "printTime": "23 минуты "
+          }
         }
       ]
     },
