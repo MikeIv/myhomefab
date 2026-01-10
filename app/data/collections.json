@@ -151,11 +151,22 @@
       "models": [
         {
           "id": "4",
-          "title": "Скульптура",
+          "title": "\"Рингозавурус\" держатель для колец",
           "description": "Художественная скульптура для декора интерьера.",
-          "shortDescription": "Художественная скульптура для декора",
+          "shortDescription": "\"Рингозавурус\" — милый держатель для колец в форме забавного динозаврика, который бережно хранит ваши украшения.",
           "previewImage": null,
-          "previewImageKey": null
+          "previewImageKey": "collections/art/art-001.png",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 31,
+              "height": 52,
+              "depth": 84,
+              "unit": "mm"
+            },
+            "weight": 13,
+            "material": "PLA",
+            "printTime": "1 час 20 минут"
+          }
         },
         {
           "id": "5",
@@ -211,11 +222,41 @@
       "models": [
         {
           "id": "10",
-          "title": "Инструмент",
+          "title": "Кронштейн для полок",
           "description": "Полезный инструмент для работы.",
-          "shortDescription": "Полезный инструмент",
+          "shortDescription": "Кронштейн для полок — прочный и легкий держатель с сотовидной структурой, идеальный для организации пространства дома.",
           "previewImage": null,
-          "previewImageKey": null
+          "previewImageKey": "collections/tools/tools-001.png",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 240,
+              "height": 200,
+              "depth": 25,
+              "unit": "mm"
+            },
+            "weight": 115,
+            "material": "PLA",
+            "printTime": "3 часа 20 минут"
+          }
+        },
+        {
+          "id": "model-1768051083714",
+          "title": "Коробка для хранения мелких деталей ",
+          "description": "Описание модели",
+          "shortDescription": "Коробка для хранения мелких деталей — яркий и удобный органайзер для винтиков, шурупов и инструментов с самоскладывающейся крышкой.",
+          "previewImage": null,
+          "previewImageKey": "collections/tools/tools-002.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 74,
+              "height": 74,
+              "depth": 27,
+              "unit": "mm"
+            },
+            "weight": 43,
+            "material": "PLA",
+            "printTime": "1 час 42 минуты"
+          }
         }
       ]
     }

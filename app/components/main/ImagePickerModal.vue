@@ -43,6 +43,12 @@ const handleClose = () => {
   emit("close");
 };
 
+// Функция для получения имени файла из пути
+const getFileName = (path: string): string => {
+  const parts = path.split("/");
+  return parts[parts.length - 1] || path;
+};
+
 // Загружаем изображения при открытии модального окна
 watch(
   () => props.isOpen,
@@ -95,7 +101,7 @@ watch(
                   }
                 "
               />
-              <span :class="$style.imageName">{{ imageKey }}</span>
+              <span :class="$style.imageName">{{ getFileName(imageKey) }}</span>
             </button>
           </div>
         </div>
@@ -175,7 +181,7 @@ watch(
 
 .imageGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(rem(120), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(rem(96), 1fr));
   gap: rem(16);
 }
 
@@ -184,7 +190,7 @@ watch(
   flex-direction: column;
   align-items: center;
   gap: rem(8);
-  padding: rem(12);
+  padding: rem(10);
   border: 2px solid var(--a-border);
   border-radius: rem(8);
   background-color: var(--a-whiteBg);
@@ -200,17 +206,19 @@ watch(
 
 .imagePreview {
   width: 100%;
-  height: rem(100);
+  height: rem(80);
   object-fit: cover;
   border-radius: rem(4);
 }
 
 .imageName {
-  font-size: rem(12);
-  color: var(--a-text-secondary);
+  font-size: rem(11);
+  color: var(--a-text-dark);
   text-align: center;
   word-break: break-word;
   max-width: 100%;
+  font-weight: 500;
+  line-height: 1.3;
 }
 </style>
 
