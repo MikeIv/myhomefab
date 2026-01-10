@@ -59,11 +59,14 @@
           "previewImageKey": "collections/household/house-001.png",
           "technicalSpecs": {
             "dimensions": {
-              "width": 100,
-              "height": 100,
-              "depth": 100,
+              "width": 62,
+              "height": 12,
+              "depth": 24,
               "unit": "mm"
-            }
+            },
+            "weight": 12,
+            "material": "PLA",
+            "printTime": "32 мин "
           }
         },
         {
