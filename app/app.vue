@@ -1,8 +1,38 @@
 <script setup lang="ts">
+// Импорты
+const { reloadIfNewVersion } = useAppVersion();
+
 const siteUrl = "https://myhomefab.ru";
 const siteName = "3D Мастерская - Профессиональные модели для 3D печати";
 const siteDescription =
   "Создаю качественные 3D модели с детальным описанием и техническими характеристиками для успешной печати. Профессиональные модели для 3D принтеров.";
+
+// Проверка версии приложения для автоматического обновления в production
+if (import.meta.client && !import.meta.dev) {
+  onMounted(() => {
+    // Проверка при загрузке приложения
+    reloadIfNewVersion();
+
+    // Проверка при возврате фокуса на окно (пользователь вернулся на вкладку)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        reloadIfNewVersion();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Проверка периодически (каждые 5 минут)
+    const intervalId = setInterval(() => {
+      reloadIfNewVersion();
+    }, 5 * 60 * 1000); // 5 минут
+
+    onUnmounted(() => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      clearInterval(intervalId);
+    });
+  });
+}
 
 useHead({
   titleTemplate: (title) =>

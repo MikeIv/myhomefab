@@ -1,6 +1,30 @@
 import svgLoader from "vite-svg-loader";
+import { execSync } from "node:child_process";
 
 const IS_DEV = process.env.NODE_ENV === "development";
+
+// Генерация версии приложения на основе timestamp и git commit (если доступен)
+const generateVersion = (): string => {
+  const timestamp = Date.now().toString();
+  try {
+    // Попытка получить git commit hash (если git доступен)
+    const gitHash = execSync("git rev-parse --short HEAD", {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    })
+      .toString()
+      .trim();
+    if (gitHash) {
+      return `${timestamp}-${gitHash}`;
+    }
+  } catch {
+    // Git недоступен или не инициализирован - используем только timestamp
+  }
+  return timestamp;
+};
+
+const APP_VERSION = process.env.APP_VERSION || generateVersion();
+const BUILD_TIME = process.env.BUILD_TIME || new Date().toISOString();
 
 export default defineNuxtConfig({
   modules: [
@@ -249,6 +273,8 @@ export default defineNuxtConfig({
     dbPassword: process.env.DB_PASSWORD || "",
     dbDatabase: process.env.DB_DATABASE || "my3d",
     adminPassword: process.env.ADMIN_PASSWORD || "",
+    APP_VERSION: APP_VERSION,
+    BUILD_TIME: BUILD_TIME,
     public: {
       // Пароль админки для статического хостинга (будет виден в коде клиента)
       // Для production используйте сложный пароль
@@ -259,10 +285,36 @@ export default defineNuxtConfig({
       // Может быть переопределена через NUXT_PUBLIC_API_BASE в .env
       // Если не указана, будет использован текущий хост из браузера
       apiBase: process.env.NUXT_PUBLIC_API_BASE || "",
+      // Версия приложения для проверки обновлений
+      appVersion: APP_VERSION,
+      buildTime: BUILD_TIME,
     },
   },
 
   nitro: {
     nodeModules: ["mysql2"],
+    hooks: {
+      "nitro:config"(nitroConfig) {
+        // Установка переменных окружения для серверной части
+        nitroConfig.runtimeConfig = nitroConfig.runtimeConfig || {};
+        nitroConfig.runtimeConfig.APP_VERSION = APP_VERSION;
+        nitroConfig.runtimeConfig.BUILD_TIME = BUILD_TIME;
+      },
+    },
+  },
+
+  app: {
+    head: {
+      meta: [
+        {
+          name: "app-version",
+          content: APP_VERSION,
+        },
+        {
+          name: "build-time",
+          content: BUILD_TIME,
+        },
+      ],
+    },
   },
 });
