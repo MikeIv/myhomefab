@@ -6,27 +6,17 @@ definePageMeta({
   layout: "default",
 });
 
-// SEO метатеги для страницы контактов
-const siteUrl = "https://myhomefab.ru";
+const { setSeoMeta, siteUrl } = useSeoMetaConfig();
+
 const pageTitle = "Контакты - 3D Мастерская";
 const pageDescription =
   "Свяжитесь со мной для вопросов о 3D моделях, заказах и сотрудничестве. Email: mike@ivanov-post.ru";
 
-useSeoMeta({
+setSeoMeta({
   title: pageTitle,
   description: pageDescription,
-  ogTitle: pageTitle,
-  ogDescription: pageDescription,
-  ogImage: `${siteUrl}/og-image.jpg`,
-  ogImageAlt: "Контакты - 3D Мастерская",
-  ogUrl: `${siteUrl}/contacts`,
-  ogType: "website",
-  ogSiteName: "MyHomeFab",
-  ogLocale: "ru_RU",
-  twitterCard: "summary_large_image",
-  twitterTitle: pageTitle,
-  twitterDescription: pageDescription,
-  twitterImage: `${siteUrl}/og-image.jpg`,
+  imageAlt: pageTitle,
+  url: `${siteUrl}/contacts`,
 });
 
 const email = "mike@ivanov-post.ru";
@@ -34,40 +24,43 @@ const telegramChannel = "https://t.me/homefab3d";
 </script>
 
 <template>
-  <main :class="$style.main">
-    <section :class="$style.header">
-      <div :class="$style.container">
-        <h1 :class="$style.title">{{ $t("contacts.title") }}</h1>
-        <p :class="$style.subtitle">{{ $t("contacts.subtitle") }}</p>
-      </div>
-    </section>
+  <div>
+    <main :class="$style.main">
+      <header :class="$style.header">
+        <div :class="$style.container">
+          <h1 :class="$style.title">{{ $t("contacts.title") }}</h1>
+          <p :class="$style.subtitle">{{ $t("contacts.subtitle") }}</p>
+        </div>
+      </header>
 
-    <section :class="$style.content">
-      <div :class="$style.container">
-        <div :class="$style.contactsGrid">
-          <div :class="$style.contactCard">
-            <div :class="$style.iconWrapper">
-              <EmailIcon :class="$style.icon" />
-            </div>
-            <h2 :class="$style.cardTitle">{{ $t("contacts.email.title") }}</h2>
-            <a :href="`mailto:${email}`" :class="$style.contactLink">
-              {{ email }}
-            </a>
-          </div>
+      <section :class="$style.content">
+        <div :class="$style.container">
+          <div :class="$style.contactsGrid">
+            <article :class="$style.contactCard">
+              <div :class="$style.iconWrapper">
+                <EmailIcon :class="$style.icon" />
+              </div>
+              <h2 :class="$style.cardTitle">{{ $t("contacts.email.title") }}</h2>
+              <a :href="`mailto:${email}`" :class="$style.contactLink">
+                {{ email }}
+              </a>
+            </article>
 
-          <div :class="$style.contactCard">
-            <div :class="$style.iconWrapper">
-              <TelegramIcon :class="$style.icon" />
-            </div>
-            <h2 :class="$style.cardTitle">{{ $t("contacts.telegram.title") }}</h2>
-            <a :href="telegramChannel" target="_blank" rel="noopener noreferrer" :class="$style.contactLink">
-              @homefab3d
-            </a>
+            <article :class="$style.contactCard">
+              <div :class="$style.iconWrapper">
+                <TelegramIcon :class="$style.icon" />
+              </div>
+              <h2 :class="$style.cardTitle">{{ $t("contacts.telegram.title") }}</h2>
+              <a :href="telegramChannel" target="_blank" rel="noopener noreferrer" :class="$style.contactLink">
+                @homefab3d
+              </a>
+            </article>
           </div>
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
+    <LayoutFooter />
+  </div>
 </template>
 
 <style module lang="scss">
