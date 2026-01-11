@@ -288,11 +288,21 @@ export default defineNuxtConfig({
       // Версия приложения для проверки обновлений
       appVersion: APP_VERSION,
       buildTime: BUILD_TIME,
+      // ID счетчика Яндекс.Метрики (из переменной окружения NUXT_PUBLIC_YM_ID или по умолчанию 106210655)
+      yandexMetricaId: process.env.NUXT_PUBLIC_YM_ID || "106210655",
+      // ID счетчика Google Analytics (из переменной окружения NUXT_PUBLIC_GA_ID)
+      googleAnalyticsId: process.env.NUXT_PUBLIC_GA_ID || "",
     },
   },
 
   nitro: {
     nodeModules: ["mysql2"],
+    prerender: {
+      // Предрендеринг страниц для SSG (для корректного отображения метатегов в Telegram и других ботах)
+      routes: ["/", "/collections", "/contacts", "/workshop"],
+      // Кроулить все ссылки на страницах
+      crawlLinks: true,
+    },
     hooks: {
       "nitro:config"(nitroConfig) {
         // Установка переменных окружения для серверной части
