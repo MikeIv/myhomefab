@@ -72,7 +72,8 @@ const handleCloseModal = () => {
 };
 
 const handleModelUpdate = async (updatedModel: Model) => {
-  if (!isDev || selectedModelIndex.value === null || !currentSection.value) return;
+  if (!isDev || selectedModelIndex.value === null || !currentSection.value)
+    return;
 
   const modelIndex = selectedModelIndex.value;
   updateModelFromModel(modelIndex, updatedModel);
@@ -132,7 +133,11 @@ const handleAddModel = async () => {
 };
 
 const handleRemoveModel = async (index: number) => {
-  if (!isDev || !currentSection.value || currentSection.value.models.length <= 1)
+  if (
+    !isDev ||
+    !currentSection.value ||
+    currentSection.value.models.length <= 1
+  )
     return;
 
   const wasRemoved = await removeModelData(index);
@@ -156,7 +161,9 @@ onMounted(() => {
   <div>
     <section :class="$style.header">
       <div :class="$style.container">
-        <p :class="$style.subtitle">Представленные модели были распечатаны и проверены</p>
+        <p :class="$style.subtitle">
+          Представленные модели были распечатаны и проверены
+        </p>
       </div>
     </section>
 
@@ -237,7 +244,11 @@ onMounted(() => {
 <style module lang="scss">
 .header {
   padding: rem(40) rem(20);
-  background: linear-gradient(180deg, var(--a-whiteBg) 0%, var(--a-mainBg) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--a-whiteBg) 0%,
+    var(--a-mainBg) 100%
+  );
   text-align: center;
 
   @include tablet {
@@ -255,12 +266,12 @@ onMounted(() => {
 }
 
 .subtitle {
-  font-size: rem(32);
+  font-size: rem(24);
   color: var(--a-text-primary);
   font-weight: 300;
 
   @include tablet {
-    font-size: rem(48);
+    font-size: rem(38);
   }
 }
 
@@ -352,7 +363,10 @@ onMounted(() => {
   border-radius: var(--a-borderR--card);
   background-color: var(--a-lightPrimaryBg);
   border: 2px dashed var(--a-border-primary);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   min-height: rem(216);
   display: flex;
   flex-direction: column;
@@ -400,4 +414,3 @@ onMounted(() => {
   font-size: rem(18);
 }
 </style>
-

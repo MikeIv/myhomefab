@@ -74,6 +74,9 @@
     "subtitle": "Contact me for questions about 3D models, orders and collaboration",
     "email": {
       "title": "Email"
+    },
+    "telegram": {
+      "title": "Telegram channel"
     }
   }
 }

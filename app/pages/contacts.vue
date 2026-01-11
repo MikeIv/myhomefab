@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import EmailIcon from "~/assets/icons/Email.svg";
+import TelegramIcon from "~/assets/icons/Telegram.svg";
+
 definePageMeta({
   layout: "default",
 });
@@ -27,6 +30,7 @@ useSeoMeta({
 });
 
 const email = "mike@ivanov-post.ru";
+const telegramChannel = "https://t.me/homefab3d";
 </script>
 
 <template>
@@ -40,34 +44,26 @@ const email = "mike@ivanov-post.ru";
 
     <section :class="$style.content">
       <div :class="$style.container">
-        <div :class="$style.contactCard">
-          <div :class="$style.iconWrapper">
-            <svg
-              :class="$style.icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <polyline
-                points="22,6 12,13 2,6"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+        <div :class="$style.contactsGrid">
+          <div :class="$style.contactCard">
+            <div :class="$style.iconWrapper">
+              <EmailIcon :class="$style.icon" />
+            </div>
+            <h2 :class="$style.cardTitle">{{ $t("contacts.email.title") }}</h2>
+            <a :href="`mailto:${email}`" :class="$style.contactLink">
+              {{ email }}
+            </a>
           </div>
-          <h2 :class="$style.cardTitle">{{ $t("contacts.email.title") }}</h2>
-          <a :href="`mailto:${email}`" :class="$style.emailLink">
-            {{ email }}
-          </a>
+
+          <div :class="$style.contactCard">
+            <div :class="$style.iconWrapper">
+              <TelegramIcon :class="$style.icon" />
+            </div>
+            <h2 :class="$style.cardTitle">{{ $t("contacts.telegram.title") }}</h2>
+            <a :href="telegramChannel" target="_blank" rel="noopener noreferrer" :class="$style.contactLink">
+              @homefab3d
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -143,6 +139,21 @@ const email = "mike@ivanov-post.ru";
   }
 }
 
+.contactsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: rem(24);
+
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+    gap: rem(32);
+  }
+
+  @include desktop {
+    gap: rem(40);
+  }
+}
+
 .contactCard {
   background: linear-gradient(135deg, var(--a-whiteBg) 0%, var(--a-lightPrimaryBg) 100%);
   border: 1px solid var(--a-border);
@@ -174,7 +185,7 @@ const email = "mike@ivanov-post.ru";
   width: rem(80);
   height: rem(80);
   margin: 0 auto rem(24) auto;
-  background: linear-gradient(135deg, var(--a-primaryBg) 0%, var(--a-accentBg) 100%);
+  background-color: var(--a-primaryBg);
   border-radius: 50%;
   transition: transform 0.3s ease;
 
@@ -206,7 +217,7 @@ const email = "mike@ivanov-post.ru";
   }
 }
 
-.emailLink {
+.contactLink {
   display: inline-block;
   font-size: rem(18);
   font-weight: 500;

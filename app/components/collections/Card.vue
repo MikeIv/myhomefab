@@ -281,7 +281,7 @@ const hasPreviewImage = computed(() => !!props.model.previewImage);
 .imageWrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / calc(9 * 1.32);
   overflow: hidden;
   background-color: var(--a-lightBg);
 }
