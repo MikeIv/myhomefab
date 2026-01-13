@@ -6,6 +6,12 @@
 dist
 .cursor
 
+# Database
+data/
+*.db
+*.db-shm
+*.db-wal
+
 # FTP Deploy
 .ftp-deploy-sync-state.json
 

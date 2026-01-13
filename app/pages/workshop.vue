@@ -4,6 +4,8 @@ import { useWorkshopData } from "~/composables/useWorkshopData";
 import { useWorkshopEditor } from "~/composables/useWorkshopEditor";
 import { useModalManager } from "~/composables/useModalManager";
 import { useImageManager } from "~/composables/useImageManager";
+import { useWorkshopFiles } from "~/composables/useWorkshopFiles";
+import type { ModelFile } from "~/types/workshop";
 
 definePageMeta({
   layout: "default",
@@ -29,6 +31,7 @@ const { isImageModalOpen, selectedFileIndex, openImageModal, closeImageModal } =
   useModalManager();
 
 const { getImageSrc, imageMap, getImageUrl } = useImageManager();
+const { uploadFile } = useWorkshopFiles();
 
 const canRemoveFile = computed(() => workshop.value.files.length > 1);
 
@@ -85,18 +88,25 @@ const handleUploadFile = async (index: number, file: File) => {
   if (!isDev || !workshop.value.files[index]) return;
 
   try {
-    const fileUrl = URL.createObjectURL(file);
-    updateFileField(index, "filePath", fileUrl);
-    updateFileField(index, "fileSize", file.size);
-    updateFileField(index, "fileFormat", "stl");
-    await saveWorkshopData();
-  } catch {
-    console.error("Ошибка при загрузке файла");
+    // Загружаем файл на сервер через API
+    const result = await uploadFile(file);
+
+    if (result.success && result.file) {
+      // Обновляем информацию о файле в карточке
+      updateFileField(index, "filePath", result.file.filePath);
+      updateFileField(index, "fileSize", result.file.fileSize);
+      updateFileField(index, "fileFormat", result.file.fileFormat as ModelFile["fileFormat"]);
+      await saveWorkshopData();
+    } else {
+      console.error("Ошибка при загрузке файла:", result.error);
+    }
+  } catch (error) {
+    console.error("Ошибка при загрузке файла:", error);
   }
 };
 
-onMounted(() => {
-  loadWorkshopData();
+onMounted(async () => {
+  await loadWorkshopData();
 });
 </script>
 

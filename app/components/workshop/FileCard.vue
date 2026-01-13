@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import EditIcon from "~/assets/icons/Edit.svg";
 import CloseIcon from "~/assets/icons/Close.svg";
+import { useWorkshopFiles } from "~/composables/useWorkshopFiles";
 import type { ModelFile } from "~/types/workshop";
 
 interface Props {
@@ -31,6 +32,8 @@ const formatFileSize = (bytes?: number): string => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`;
 };
 
+const { downloadFile } = useWorkshopFiles();
+
 const formatLabels: Record<ModelFile["fileFormat"], string> = {
   f3d: "Fusion 360",
   step: "STEP",
@@ -41,8 +44,8 @@ const formatLabels: Record<ModelFile["fileFormat"], string> = {
 };
 
 const handleDownload = () => {
-  if (props.file.filePath) {
-    window.open(props.file.filePath, "_blank");
+  if (props.file.filePath && props.file.name) {
+    downloadFile(props.file.filePath, props.file.name);
   }
 };
 
@@ -92,10 +95,19 @@ const handleUploadClick = (event: Event) => {
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
-  if (file && file.name.toLowerCase().endsWith(".stl")) {
-    emit("uploadFile", props.index, file);
-    // Сброс input для возможности повторного выбора того же файла
-    target.value = "";
+  if (file) {
+    const allowedExtensions = [".stl", ".glb", ".gltf", ".obj", ".f3d", ".step", ".3mf"];
+    const fileExtension = file.name
+      .substring(file.name.lastIndexOf("."))
+      .toLowerCase();
+    
+    if (allowedExtensions.includes(fileExtension)) {
+      emit("uploadFile", props.index, file);
+      // Сброс input для возможности повторного выбора того же файла
+      target.value = "";
+    } else {
+      console.warn("Неподдерживаемый формат файла:", fileExtension);
+    }
   }
 };
 
@@ -217,7 +229,7 @@ const hasFile = computed(() => !!props.file.filePath);
             v-if="isDev"
             ref="fileInputRef"
             type="file"
-            accept=".stl"
+            accept=".stl,.glb,.gltf,.obj,.f3d,.step,.3mf"
             :class="$style.fileInput"
             @change="handleFileChange"
           />

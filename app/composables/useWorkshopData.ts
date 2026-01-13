@@ -13,11 +13,41 @@ export const useWorkshopData = () => {
   const { saveWorkshopJSON } = useWorkshop();
   const { getImageSrc, getImageKeyByUrl } = useImageManager();
 
+  const isDev = import.meta.dev;
+  const API_BASE = isDev
+    ? import.meta.env.DEV_SERVER_URL || "http://localhost:3001"
+    : "";
+
   const workshop = shallowRef<WorkshopData>({ files: [], notes: [] });
 
-  const loadWorkshopData = () => {
+  const loadWorkshopData = async (): Promise<void> => {
     if (!import.meta.client) return;
 
+    // В dev режиме загружаем из API
+    if (isDev && API_BASE) {
+      try {
+        const response = await fetch(`${API_BASE}/api/workshop/data`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          workshop.value = {
+            files: result.data.files.map((file: ModelFile) => ({
+              ...file,
+              previewImage: file.previewImage
+                ? getImageSrc(file.previewImage)
+                : undefined,
+            })),
+            notes: result.data.notes,
+          };
+          return;
+        }
+      } catch (error) {
+        console.error("Ошибка при загрузке данных из API:", error);
+        // Fallback на JSON файл
+      }
+    }
+
+    // В production или при ошибке API загружаем из JSON
     try {
       if (
         workshopData &&
@@ -48,6 +78,46 @@ export const useWorkshopData = () => {
   const saveWorkshopData = async (): Promise<boolean> => {
     if (!import.meta.client) return false;
 
+    // В dev режиме сохраняем через API
+    if (isDev && API_BASE) {
+      try {
+        const dataToSave: WorkshopData = {
+          files: workshop.value.files.map((file) => ({
+            ...file,
+            previewImage: file.previewImage
+              ? getImageKeyByUrl(file.previewImage) || file.previewImage
+              : undefined,
+          })),
+          notes: workshop.value.notes,
+        };
+
+        const response = await fetch(`${API_BASE}/api/workshop/save`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataToSave),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          console.log(
+            "%c✅ Данные workshop успешно сохранены в БД!",
+            "color: #10b981; font-weight: bold; font-size: 14px",
+          );
+          return true;
+        } else {
+          console.error("Ошибка при сохранении:", result.error);
+          return false;
+        }
+      } catch (error) {
+        console.error("Ошибка при сохранении данных через API:", error);
+        // Fallback на старый метод
+      }
+    }
+
+    // В production или при ошибке API сохраняем через старый метод
     try {
       const dataToSave: WorkshopData = {
         files: workshop.value.files.map((file) => ({
