@@ -4,14 +4,15 @@
       "id": "file-1",
       "name": "Test Model v1.0",
       "description": "Тестовая модель для проверки параметров",
-      "filePath": "blob:http://localhost:3000/5e09a7c8-26b6-4aaa-a041-c048033b9616",
+      "filePath": "/uploads/files/file-3af3499b-bdb4-48bb-b8c3-27d287953740.stl",
       "fileFormat": "stl",
       "tags": [
         "тест",
         "v1.0"
       ],
       "createdAt": "2024-01-15",
-      "fileSize": 81884
+      "fileSize": 81884,
+      "originalFileName": "Plate_two_holes.stl"
     }
   ],
   "notes": [

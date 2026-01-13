@@ -12,19 +12,28 @@ if (!existsSync(DB_DIR)) {
 }
 
 // Создаем подключение к базе данных
-const db = new Database(DB_PATH);
+let db: Database.Database | null = null;
 
-// Включаем foreign keys
-db.pragma("foreign_keys = ON");
+/**
+ * Получить экземпляр базы данных
+ */
+export function getSQLiteDatabase(): Database.Database {
+  if (!db) {
+    db = new Database(DB_PATH);
+    // Включаем foreign keys
+    db.pragma("foreign_keys = ON");
+  }
+  return db;
+}
 
 /**
  * Инициализация базы данных - создание таблиц
  */
-export function initDatabase(): void {
-  console.log("Инициализация базы данных...");
+export function initSQLiteDatabase(): void {
+  const database = getSQLiteDatabase();
 
   // Таблица workshop_files
-  db.exec(`
+  database.exec(`
     CREATE TABLE IF NOT EXISTS workshop_files (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -41,7 +50,7 @@ export function initDatabase(): void {
   `);
 
   // Таблица workshop_notes
-  db.exec(`
+  database.exec(`
     CREATE TABLE IF NOT EXISTS workshop_notes (
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -54,25 +63,9 @@ export function initDatabase(): void {
   `);
 
   // Создаем индексы для улучшения производительности
-  db.exec(`
+  database.exec(`
     CREATE INDEX IF NOT EXISTS idx_workshop_files_created_at ON workshop_files(created_at);
     CREATE INDEX IF NOT EXISTS idx_workshop_notes_created_at ON workshop_notes(created_at);
     CREATE INDEX IF NOT EXISTS idx_workshop_files_format ON workshop_files(file_format);
   `);
-
-  console.log("✅ База данных инициализирована");
-}
-
-/**
- * Получить экземпляр базы данных
- */
-export function getDatabase(): Database.Database {
-  return db;
-}
-
-/**
- * Закрыть подключение к базе данных
- */
-export function closeDatabase(): void {
-  db.close();
 }

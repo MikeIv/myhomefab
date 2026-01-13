@@ -12,6 +12,9 @@ data/
 *.db-shm
 *.db-wal
 
+# Data exports (uncomment to exclude uploaded images from repository)
+# app/data/uploads/
+
 # FTP Deploy
 .ftp-deploy-sync-state.json
 
@@ -44,3 +47,4 @@ Thumbs.db
 coverage
 .nyc_output
 
+nul

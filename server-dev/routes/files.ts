@@ -20,9 +20,7 @@ const storage = multer.diskStorage({
   filename: (_req, file, cb) => {
     // Генерируем уникальное имя файла
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = file.originalname.substring(
-      file.originalname.lastIndexOf("."),
-    );
+    const ext = file.originalname.substring(file.originalname.lastIndexOf("."));
     cb(null, `file-${uniqueSuffix}${ext}`);
   },
 });
@@ -70,19 +68,22 @@ router.post("/upload", upload.single("file"), (req, res) => {
       .substring(req.file.originalname.lastIndexOf(".") + 1)
       .toLowerCase();
 
-    const formatMap: Record<string, "stl" | "glb" | "gltf" | "obj" | "f3d" | "step"> =
-      {
-        stl: "stl",
-        glb: "glb",
-        gltf: "gltf",
-        obj: "obj",
-        f3d: "f3d",
-        step: "step",
-        stp: "step",
-      };
+    const formatMap: Record<
+      string,
+      "stl" | "glb" | "gltf" | "obj" | "f3d" | "step"
+    > = {
+      stl: "stl",
+      glb: "glb",
+      gltf: "gltf",
+      obj: "obj",
+      f3d: "f3d",
+      step: "step",
+      stp: "step",
+    };
 
     const fileFormat =
-      formatMap[ext] || ("stl" as "stl" | "glb" | "gltf" | "obj" | "f3d" | "step");
+      formatMap[ext] ||
+      ("stl" as "stl" | "glb" | "gltf" | "obj" | "f3d" | "step");
 
     // Возвращаем информацию о файле
     const fileUrl = `/uploads/files/${req.file.filename}`;
@@ -102,9 +103,7 @@ router.post("/upload", upload.single("file"), (req, res) => {
     res.status(500).json({
       success: false,
       error:
-        error instanceof Error
-          ? error.message
-          : "Ошибка при загрузке файла",
+        error instanceof Error ? error.message : "Ошибка при загрузке файла",
     });
   }
 });

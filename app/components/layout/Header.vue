@@ -5,6 +5,10 @@ const route = useRoute();
 const { locale, setLocale } = useI18n();
 
 const isMenuOpen = ref(false);
+const isDev = import.meta.dev;
+const isSaving = ref(false);
+const isLoading = ref(false);
+const fileInputRef = ref<HTMLInputElement | null>(null);
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
@@ -15,9 +19,102 @@ const closeMenu = () => {
 };
 
 // Закрываем меню при изменении маршрута
-watch(() => route.path, () => {
-  closeMenu();
-});
+watch(
+  () => route.path,
+  () => {
+    closeMenu();
+  },
+);
+
+// Сохранение БД
+const handleSave = async () => {
+  if (isSaving.value) return;
+
+  try {
+    isSaving.value = true;
+    closeMenu(); // Закрываем меню на мобильных устройствах
+
+    const response = await fetch("/api/db/export");
+    if (!response.ok) {
+      throw new Error("Ошибка при экспорте данных");
+    }
+
+    const data = await response.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `database-export-${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Ошибка при сохранении БД:", error);
+    alert(
+      error instanceof Error
+        ? error.message
+        : "Произошла ошибка при сохранении базы данных",
+    );
+  } finally {
+    isSaving.value = false;
+  }
+};
+
+// Загрузка БД
+const handleLoad = () => {
+  closeMenu(); // Закрываем меню на мобильных устройствах
+  fileInputRef.value?.click();
+};
+
+const handleFileSelect = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+
+  if (!file) return;
+
+  if (isLoading.value) return;
+
+  try {
+    isLoading.value = true;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/api/db/import", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Ошибка при импорте данных");
+    }
+
+    const result = await response.json();
+    alert(
+      `Данные успешно загружены!\nИмпортировано записей: ${result.imported}`,
+    );
+
+    // Перезагружаем страницу для обновления данных
+    window.location.reload();
+  } catch (error) {
+    console.error("Ошибка при загрузке БД:", error);
+    alert(
+      error instanceof Error
+        ? error.message
+        : "Произошла ошибка при загрузке базы данных",
+    );
+  } finally {
+    isLoading.value = false;
+    // Сбрасываем значение input для возможности повторной загрузки того же файла
+    if (target) {
+      target.value = "";
+    }
+  }
+};
 </script>
 
 <template>
@@ -70,6 +167,87 @@ watch(() => route.path, () => {
         >
           {{ $t("nav.contacts") }}
         </NuxtLink>
+        <div v-if="isDev" :class="$style.devControls">
+          <button
+            :class="$style.devButton"
+            :disabled="isSaving"
+            aria-label="Сохранить базу данных"
+            @click="handleSave"
+          >
+            <svg
+              :class="$style.devIcon"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M17 21V13H7V21"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M7 3V8H15"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span>Сохранить</span>
+          </button>
+          <button
+            :class="$style.devButton"
+            :disabled="isLoading"
+            aria-label="Загрузить базу данных"
+            @click="handleLoad"
+          >
+            <svg
+              :class="$style.devIcon"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M7 10L12 15L17 10"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M12 15V3"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span>Загрузить</span>
+          </button>
+          <input
+            ref="fileInputRef"
+            type="file"
+            accept=".json"
+            style="display: none"
+            @change="handleFileSelect"
+          />
+        </div>
         <div :class="$style.langSwitcher">
           <button
             :class="[$style.langButton, { [$style.active]: locale === 'ru' }]"
@@ -151,6 +329,81 @@ watch(() => route.path, () => {
           {{ $t("nav.contacts") }}
         </NuxtLink>
       </nav>
+      <div v-if="isDev" :class="$style.sideDevControls">
+        <div :class="$style.sideDevTitle">Разработка</div>
+        <button
+          :class="$style.sideDevButton"
+          :disabled="isSaving"
+          aria-label="Сохранить базу данных"
+          @click="handleSave"
+        >
+          <svg
+            :class="$style.sideDevIcon"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M17 21V13H7V21"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M7 3V8H15"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>Сохранить БД</span>
+        </button>
+        <button
+          :class="$style.sideDevButton"
+          :disabled="isLoading"
+          aria-label="Загрузить базу данных"
+          @click="handleLoad"
+        >
+          <svg
+            :class="$style.sideDevIcon"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M7 10L12 15L17 10"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M12 15V3"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>Загрузить БД</span>
+        </button>
+      </div>
     </aside>
   </header>
 </template>
@@ -299,11 +552,70 @@ watch(() => route.path, () => {
   }
 }
 
+.devControls {
+  display: flex;
+  gap: rem(8);
+  align-items: center;
+  margin-left: auto;
+  padding-left: rem(16);
+  border-left: 1px solid var(--a-border);
+
+  @include tablet {
+    margin-left: rem(16);
+  }
+}
+
+.devButton {
+  display: flex;
+  align-items: center;
+  gap: rem(6);
+  font-size: rem(13);
+  font-weight: 500;
+  color: var(--a-text-dark);
+  background: transparent;
+  border: 1px solid var(--a-border);
+  border-radius: rem(6);
+  cursor: pointer;
+  padding: rem(6) rem(12);
+  transition: all 0.3s ease;
+
+  &:hover:not(:disabled) {
+    color: var(--a-text-primary);
+    background-color: var(--a-lightPrimaryBg);
+    border-color: var(--a-text-primary);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(rem(1));
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @include tablet {
+    font-size: rem(14);
+    padding: rem(8) rem(14);
+  }
+}
+
+.devIcon {
+  width: rem(16);
+  height: rem(16);
+  flex-shrink: 0;
+
+  @include tablet {
+    width: rem(18);
+    height: rem(18);
+  }
+}
+
 .langSwitcher {
   display: flex;
   gap: rem(4);
   align-items: center;
-  margin-left: auto;
+  margin-left: rem(16);
   padding-left: rem(16);
   border-left: 1px solid var(--a-border);
 
@@ -344,7 +656,9 @@ watch(() => route.path, () => {
   background-color: rgba(0, 0, 0, 0.5);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
   z-index: var(--z-index-overlay);
 
   @include tablet {
@@ -454,5 +768,61 @@ watch(() => route.path, () => {
       border-radius: 0 rem(2) rem(2) 0;
     }
   }
+}
+
+.sideDevControls {
+  margin-top: rem(24);
+  padding-top: rem(24);
+  border-top: 1px solid var(--a-border);
+  display: flex;
+  flex-direction: column;
+  gap: rem(12);
+}
+
+.sideDevTitle {
+  font-size: rem(14);
+  font-weight: 600;
+  color: var(--a-text-light);
+  text-transform: uppercase;
+  letter-spacing: rem(0.5);
+  margin-bottom: rem(4);
+}
+
+.sideDevButton {
+  display: flex;
+  align-items: center;
+  gap: rem(12);
+  font-size: rem(16);
+  font-weight: 500;
+  color: var(--a-text-dark);
+  background: transparent;
+  border: 1px solid var(--a-border);
+  border-radius: rem(8);
+  cursor: pointer;
+  padding: rem(12) rem(16);
+  transition: all 0.3s ease;
+  width: 100%;
+  justify-content: flex-start;
+
+  &:hover:not(:disabled) {
+    color: var(--a-text-primary);
+    background-color: var(--a-lightPrimaryBg);
+    border-color: var(--a-text-primary);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateX(rem(2));
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.sideDevIcon {
+  width: rem(20);
+  height: rem(20);
+  flex-shrink: 0;
 }
 </style>

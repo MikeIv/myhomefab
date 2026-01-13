@@ -1,4 +1,8 @@
-import { getDatabase, initDatabase, closeDatabase } from "../server-dev/database.js";
+import {
+  getDatabase,
+  initDatabase,
+  closeDatabase,
+} from "../server-dev/database.js";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { ModelFile, Fusion360Note } from "../app/types/workshop.js";

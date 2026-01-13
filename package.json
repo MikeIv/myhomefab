@@ -19,7 +19,9 @@
     "install-hooks": "bash scripts/install-hooks.sh",
     "push": "node scripts/push.js",
     "export:workshop": "tsx scripts/export-workshop-data.ts",
-    "import:workshop": "tsx scripts/import-workshop-data.ts"
+    "import:workshop": "tsx scripts/import-workshop-data.ts",
+    "export:all": "tsx scripts/export-all-data.ts",
+    "import:all": "tsx scripts/import-all-data.ts"
   },
   "dependencies": {
     "@nuxt/fonts": "^0.12.1",

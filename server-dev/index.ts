@@ -70,14 +70,26 @@ process.on("SIGTERM", () => {
   process.exit(0);
 });
 
-app.listen(PORT, () => {
-  console.log(`\n🚀 Dev сервер запущен на порту ${PORT}`);
-  console.log(`📁 База данных: data/database.db`);
-  console.log(`📁 Загруженные файлы: public/uploads/files/`);
-  console.log(`\n📡 API endpoints:`);
-  console.log(`   GET  /api/workshop/data`);
-  console.log(`   POST /api/workshop/save`);
-  console.log(`   POST /api/workshop/files/upload`);
-  console.log(`   GET  /api/workshop/files/:id/download`);
-  console.log(`\n`);
-});
+app
+  .listen(PORT, () => {
+    console.log(`\n🚀 Dev сервер запущен на порту ${PORT}`);
+    console.log(`📁 База данных: data/database.db`);
+    console.log(`📁 Загруженные файлы: public/uploads/files/`);
+    console.log(`\n📡 API endpoints:`);
+    console.log(`   GET  /api/workshop/data`);
+    console.log(`   POST /api/workshop/save`);
+    console.log(`   POST /api/workshop/files/upload`);
+    console.log(`   GET  /api/workshop/files/:id/download`);
+    console.log(`\n`);
+  })
+  .on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "EADDRINUSE") {
+      console.error(
+        `\n❌ Порт ${PORT} уже занят. Попробуйте:\n   1. Остановить процесс, использующий порт ${PORT}\n   2. Или установить переменную окружения DEV_SERVER_PORT с другим портом\n`,
+      );
+      process.exit(1);
+    } else {
+      console.error("❌ Ошибка при запуске сервера:", err);
+      process.exit(1);
+    }
+  });

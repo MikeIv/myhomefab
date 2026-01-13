@@ -14,7 +14,7 @@ export const useWorkshopData = () => {
   const { getImageSrc, getImageKeyByUrl } = useImageManager();
 
   const isDev = import.meta.dev;
-  const API_BASE = isDev
+  const DEV_SERVER_URL = isDev
     ? import.meta.env.DEV_SERVER_URL || "http://localhost:3001"
     : "";
 
@@ -23,28 +23,48 @@ export const useWorkshopData = () => {
   const loadWorkshopData = async (): Promise<void> => {
     if (!import.meta.client) return;
 
-    // В dev режиме загружаем из API
-    if (isDev && API_BASE) {
-      try {
-        const response = await fetch(`${API_BASE}/api/workshop/data`);
-        const result = await response.json();
+    // Пытаемся загрузить из API (dev server или Nuxt API)
+    let apiUrl = "/api/workshop/data";
 
-        if (result.success && result.data) {
-          workshop.value = {
-            files: result.data.files.map((file: ModelFile) => ({
-              ...file,
-              previewImage: file.previewImage
-                ? getImageSrc(file.previewImage)
-                : undefined,
-            })),
-            notes: result.data.notes,
-          };
-          return;
+    if (isDev && DEV_SERVER_URL) {
+      // Проверяем доступность dev server
+      try {
+        const healthCheck = await fetch(`${DEV_SERVER_URL}/health`, {
+          method: "GET",
+          signal: AbortSignal.timeout(1000), // Таймаут 1 секунда
+        });
+        if (healthCheck.ok) {
+          apiUrl = `${DEV_SERVER_URL}/api/workshop/data`;
         }
-      } catch (error) {
-        console.error("Ошибка при загрузке данных из API:", error);
-        // Fallback на JSON файл
+      } catch {
+        // Dev server недоступен, используем Nuxt API
       }
+    }
+
+    try {
+      const response = await fetch(apiUrl);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        workshop.value = {
+          files: result.data.files.map((file: ModelFile) => ({
+            ...file,
+            previewImage: file.previewImage
+              ? getImageSrc(file.previewImage)
+              : undefined,
+          })),
+          notes: result.data.notes,
+        };
+        return;
+      }
+    } catch (error) {
+      console.error("Ошибка при загрузке данных из API:", error);
+      // Fallback на JSON файл
     }
 
     // В production или при ошибке API загружаем из JSON
@@ -78,43 +98,70 @@ export const useWorkshopData = () => {
   const saveWorkshopData = async (): Promise<boolean> => {
     if (!import.meta.client) return false;
 
-    // В dev режиме сохраняем через API
-    if (isDev && API_BASE) {
+    // Пытаемся сохранить через API (dev server или Nuxt API)
+    let apiUrl = "/api/workshop/save";
+
+    if (isDev && DEV_SERVER_URL) {
+      // Проверяем доступность dev server
       try {
-        const dataToSave: WorkshopData = {
-          files: workshop.value.files.map((file) => ({
-            ...file,
-            previewImage: file.previewImage
-              ? getImageKeyByUrl(file.previewImage) || file.previewImage
-              : undefined,
-          })),
-          notes: workshop.value.notes,
-        };
-
-        const response = await fetch(`${API_BASE}/api/workshop/save`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dataToSave),
+        const healthCheck = await fetch(`${DEV_SERVER_URL}/health`, {
+          method: "GET",
+          signal: AbortSignal.timeout(1000), // Таймаут 1 секунда
         });
-
-        const result = await response.json();
-
-        if (result.success) {
-          console.log(
-            "%c✅ Данные workshop успешно сохранены в БД!",
-            "color: #10b981; font-weight: bold; font-size: 14px",
-          );
-          return true;
-        } else {
-          console.error("Ошибка при сохранении:", result.error);
-          return false;
+        if (healthCheck.ok) {
+          apiUrl = `${DEV_SERVER_URL}/api/workshop/save`;
         }
-      } catch (error) {
-        console.error("Ошибка при сохранении данных через API:", error);
-        // Fallback на старый метод
+      } catch {
+        // Dev server недоступен, используем Nuxt API
       }
+    }
+
+    try {
+      const dataToSave: WorkshopData = {
+        files: workshop.value.files.map((file) => ({
+          ...file,
+          previewImage: file.previewImage
+            ? getImageKeyByUrl(file.previewImage) || file.previewImage
+            : undefined,
+        })),
+        notes: workshop.value.notes,
+      };
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSave),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          error: response.statusText || "Ошибка при сохранении",
+        }));
+        throw new Error(
+          errorData.error || errorData.statusMessage || "Ошибка при сохранении",
+        );
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log(
+          "%c✅ Данные workshop успешно сохранены!",
+          "color: #10b981; font-weight: bold; font-size: 14px",
+        );
+        return true;
+      } else {
+        console.error(
+          "Ошибка при сохранении:",
+          result.error || result.statusMessage,
+        );
+        return false;
+      }
+    } catch (error) {
+      console.error("Ошибка при сохранении данных через API:", error);
+      // Fallback на старый метод
     }
 
     // В production или при ошибке API сохраняем через старый метод
