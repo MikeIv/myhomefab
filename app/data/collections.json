@@ -214,6 +214,25 @@
             "material": "PLA",
             "printTime": "2 часа "
           }
+        },
+        {
+          "id": "model-1768305165940",
+          "title": "Прыгающая лягушка",
+          "description": "Описание модели",
+          "shortDescription": "Прыгающая лягушка — веселая механическая игрушка, которая оживает от простого нажатия и поражает прыжками.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/frog.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 66,
+              "height": 50,
+              "depth": 30,
+              "unit": "mm"
+            },
+            "weight": 18,
+            "material": "PLA",
+            "printTime": "30 минут "
+          }
         }
       ]
     },
