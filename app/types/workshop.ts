@@ -15,6 +15,7 @@ export interface ModelFile {
   filePath: string;
   fileFormat: "f3d" | "step" | "stl" | "obj" | "glb" | "gltf";
   fileSize?: number;
+  originalFileName?: string;
   version?: string;
   previewImage?: string;
   tags?: string[];

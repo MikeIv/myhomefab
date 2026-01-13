@@ -23,6 +23,7 @@ const emit = defineEmits<{
   startEditingTitle: [index: number];
   attachFile: [index: number];
   uploadFile: [index: number, file: File];
+  deleteFile: [index: number];
 }>();
 
 const formatFileSize = (bytes?: number): string => {
@@ -32,7 +33,7 @@ const formatFileSize = (bytes?: number): string => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`;
 };
 
-const { downloadFile } = useWorkshopFiles();
+const { downloadFile, deleteFile } = useWorkshopFiles();
 
 const formatLabels: Record<ModelFile["fileFormat"], string> = {
   f3d: "Fusion 360",
@@ -44,8 +45,10 @@ const formatLabels: Record<ModelFile["fileFormat"], string> = {
 };
 
 const handleDownload = () => {
-  if (props.file.filePath && props.file.name) {
-    downloadFile(props.file.filePath, props.file.name);
+  if (props.file.filePath) {
+    // Используем оригинальное имя файла, если оно есть, иначе имя модели
+    const fileName = props.file.originalFileName || props.file.name || "file";
+    downloadFile(props.file.filePath, fileName);
   }
 };
 
@@ -82,7 +85,8 @@ const handleTitleClick = () => {
 
 const handleAttachFile = (event: Event) => {
   event.stopPropagation();
-  emit("attachFile", props.index);
+  // Открываем диалог выбора файла, как при загрузке
+  fileInputRef.value?.click();
 };
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
@@ -113,6 +117,38 @@ const handleFileChange = (event: Event) => {
 
 const hasPreviewImage = computed(() => !!props.file.previewImage);
 const hasFile = computed(() => !!props.file.filePath);
+
+const getFileExtension = (filePath?: string, originalFileName?: string): string => {
+  const fileName = originalFileName || filePath;
+  if (!fileName) return "";
+  const ext = fileName.substring(fileName.lastIndexOf(".") + 1).toUpperCase();
+  return ext || "";
+};
+
+const getFileName = (filePath?: string, originalFileName?: string): string => {
+  // Используем оригинальное имя файла, если оно есть, иначе извлекаем из пути
+  if (originalFileName) {
+    return originalFileName;
+  }
+  if (!filePath) return "";
+  const fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+  return fileName || "";
+};
+
+const handleDeleteFile = async (event: Event) => {
+  event.stopPropagation();
+  if (!props.file.filePath) return;
+  
+  if (confirm("Вы уверены, что хотите удалить этот файл?")) {
+    const result = await deleteFile(props.file.filePath);
+    if (result.success) {
+      emit("deleteFile", props.index);
+    } else {
+      console.error("Ошибка при удалении файла:", result.error);
+      alert(`Ошибка при удалении файла: ${result.error || "Неизвестная ошибка"}`);
+    }
+  }
+};
 </script>
 
 <template>
@@ -196,16 +232,33 @@ const hasFile = computed(() => !!props.file.filePath);
         {{ file.description }}
       </p>
 
-      <div :class="$style.info">
-        <div :class="$style.infoItem">
-          <span :class="$style.infoLabel">Размер:</span>
-          <span :class="$style.infoValue">{{
-            formatFileSize(file.fileSize)
-          }}</span>
-        </div>
-        <div v-if="file.version" :class="$style.infoItem">
-          <span :class="$style.infoLabel">Версия:</span>
-          <span :class="$style.infoValue">{{ file.version }}</span>
+      <div v-if="hasFile" :class="$style.info">
+        <div :class="$style.infoHeader">
+          <div :class="$style.infoContent">
+            <div :class="$style.infoItem">
+              <span :class="$style.infoLabel">Название:</span>
+              <span :class="$style.infoValue">{{ getFileName(file.filePath, file.originalFileName) }}</span>
+            </div>
+            <div :class="$style.infoItem">
+              <span :class="$style.infoLabel">Размер:</span>
+              <span :class="$style.infoValue">{{
+                formatFileSize(file.fileSize)
+              }}</span>
+            </div>
+            <div :class="$style.infoItem">
+              <span :class="$style.infoLabel">Расширение:</span>
+              <span :class="$style.infoValue">{{ getFileExtension(file.filePath, file.originalFileName) }}</span>
+            </div>
+          </div>
+          <button
+            v-if="isDev"
+            :class="$style.deleteFileButton"
+            type="button"
+            aria-label="Удалить файл"
+            @click.stop="handleDeleteFile"
+          >
+            <CloseIcon />
+          </button>
         </div>
       </div>
 
@@ -216,23 +269,15 @@ const hasFile = computed(() => !!props.file.filePath);
       </div>
 
       <div :class="$style.actionsBottom">
-        <button
-          v-if="!hasFile && isDev"
-          :class="$style.attachButton"
-          type="button"
-          @click.stop="handleAttachFile"
-        >
-          Прикрепить файл
-        </button>
-        <template v-else-if="hasFile">
-          <input
-            v-if="isDev"
-            ref="fileInputRef"
-            type="file"
-            accept=".stl,.glb,.gltf,.obj,.f3d,.step,.3mf"
-            :class="$style.fileInput"
-            @change="handleFileChange"
-          />
+        <input
+          v-if="isDev"
+          ref="fileInputRef"
+          type="file"
+          accept=".stl,.glb,.gltf,.obj,.f3d,.step,.3mf"
+          :class="$style.fileInput"
+          @change="handleFileChange"
+        />
+        <template v-if="hasFile">
           <button
             v-if="isDev"
             :class="$style.uploadButton"
@@ -249,6 +294,14 @@ const hasFile = computed(() => !!props.file.filePath);
             Скачать
           </button>
         </template>
+        <button
+          v-else-if="isDev"
+          :class="$style.attachButton"
+          type="button"
+          @click.stop="handleAttachFile"
+        >
+          Прикрепить файл
+        </button>
       </div>
     </div>
   </article>
@@ -497,20 +550,75 @@ const hasFile = computed(() => !!props.file.filePath);
   border-radius: rem(8);
 }
 
+.infoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: rem(12);
+}
+
+.infoContent {
+  display: flex;
+  flex-direction: column;
+  gap: rem(8);
+  flex: 1;
+  min-width: 0;
+}
+
 .infoItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: rem(13);
+  gap: rem(8);
 }
 
 .infoLabel {
   color: var(--a-text-light);
+  white-space: nowrap;
 }
 
 .infoValue {
   color: var(--a-text-dark);
   font-weight: 500;
+  text-align: right;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.deleteFileButton {
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: rem(6);
+  width: rem(32);
+  height: rem(32);
+  min-width: rem(32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+  color: rgba(239, 68, 68, 0.8);
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+    transform: scale(1.05);
+    color: rgba(239, 68, 68, 1);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: rem(16);
+    height: rem(16);
+  }
 }
 
 .tags {

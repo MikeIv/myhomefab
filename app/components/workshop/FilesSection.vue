@@ -18,6 +18,7 @@ const emit = defineEmits<{
   startEditingTitle: [index: number];
   attachFile: [index: number];
   uploadFile: [index: number, file: File];
+  deleteFile: [index: number];
   addFile: [];
 }>();
 
@@ -44,6 +45,7 @@ const handleAddFile = () => {
         @start-editing-title="(idx) => emit('startEditingTitle', idx)"
         @attach-file="(idx) => emit('attachFile', idx)"
         @upload-file="(idx, file) => emit('uploadFile', idx, file)"
+        @delete-file="(idx) => emit('deleteFile', idx)"
       />
 
       <button

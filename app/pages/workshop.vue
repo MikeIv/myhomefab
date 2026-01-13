@@ -96,6 +96,7 @@ const handleUploadFile = async (index: number, file: File) => {
       updateFileField(index, "filePath", result.file.filePath);
       updateFileField(index, "fileSize", result.file.fileSize);
       updateFileField(index, "fileFormat", result.file.fileFormat as ModelFile["fileFormat"]);
+      updateFileField(index, "originalFileName", result.file.originalName);
       await saveWorkshopData();
     } else {
       console.error("Ошибка при загрузке файла:", result.error);
@@ -103,6 +104,16 @@ const handleUploadFile = async (index: number, file: File) => {
   } catch (error) {
     console.error("Ошибка при загрузке файла:", error);
   }
+};
+
+const handleDeleteFile = async (index: number) => {
+  if (!isDev || !workshop.value.files[index]) return;
+
+  // Очищаем информацию о файле в карточке
+  updateFileField(index, "filePath", "");
+  updateFileField(index, "fileSize", undefined);
+  updateFileField(index, "originalFileName", undefined);
+  await saveWorkshopData();
 };
 
 onMounted(async () => {
@@ -134,6 +145,7 @@ onMounted(async () => {
           @start-editing-title="startEditingTitle"
           @attach-file="handleAttachFile"
           @upload-file="handleUploadFile"
+          @delete-file="handleDeleteFile"
           @add-file="handleAddFile"
         />
 

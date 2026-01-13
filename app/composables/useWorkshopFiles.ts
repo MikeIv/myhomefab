@@ -1,13 +1,15 @@
 export const useWorkshopFiles = () => {
   const isDev = import.meta.dev;
-  const API_BASE = isDev
+  const DEV_SERVER_URL = isDev
     ? import.meta.env.DEV_SERVER_URL || "http://localhost:3001"
     : "";
 
   /**
    * Загрузить файл на сервер
    */
-  const uploadFile = async (file: File): Promise<{
+  const uploadFile = async (
+    file: File,
+  ): Promise<{
     success: boolean;
     file?: {
       filename: string;
@@ -18,28 +20,49 @@ export const useWorkshopFiles = () => {
     };
     error?: string;
   }> => {
-    if (!isDev) {
-      return {
-        success: false,
-        error: "Загрузка файлов доступна только в режиме разработки",
-      };
-    }
-
     try {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch(`${API_BASE}/api/workshop/files/upload`, {
+      // Пытаемся использовать dev server, если он доступен, иначе используем Nuxt API
+      let apiUrl = "/api/workshop/files/upload";
+      
+      if (isDev && DEV_SERVER_URL) {
+        // Проверяем доступность dev server
+        try {
+          const healthCheck = await fetch(`${DEV_SERVER_URL}/health`, {
+            method: "GET",
+            signal: AbortSignal.timeout(1000), // Таймаут 1 секунда
+          });
+          if (healthCheck.ok) {
+            apiUrl = `${DEV_SERVER_URL}/api/workshop/files/upload`;
+          }
+        } catch {
+          // Dev server недоступен, используем Nuxt API
+        }
+      }
+
+      const response = await fetch(apiUrl, {
         method: "POST",
         body: formData,
       });
 
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          error: response.statusText || "Ошибка при загрузке файла",
+        }));
         return {
           success: false,
-          error: data.error || "Ошибка при загрузке файла",
+          error: errorData.error || errorData.statusMessage || "Ошибка при загрузке файла",
+        };
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        return {
+          success: false,
+          error: data.error || data.statusMessage || "Ошибка при загрузке файла",
         };
       }
 
@@ -52,9 +75,7 @@ export const useWorkshopFiles = () => {
       return {
         success: false,
         error:
-          error instanceof Error
-            ? error.message
-            : "Ошибка при загрузке файла",
+          error instanceof Error ? error.message : "Ошибка при загрузке файла",
       };
     }
   };
@@ -62,7 +83,9 @@ export const useWorkshopFiles = () => {
   /**
    * Получить информацию о файле для скачивания
    */
-  const getFileInfo = async (fileId: string): Promise<{
+  const getFileInfo = async (
+    fileId: string,
+  ): Promise<{
     success: boolean;
     file?: {
       id: string;
@@ -74,16 +97,27 @@ export const useWorkshopFiles = () => {
     error?: string;
   }> => {
     try {
-      const response = await fetch(
-        `${API_BASE}/api/workshop/files/${fileId}/download`,
-      );
+      // Используем Nuxt API (endpoint пока не реализован, но структура готова)
+      const apiUrl = `/api/workshop/files/${fileId}/download`;
+      
+      const response = await fetch(apiUrl);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          error: response.statusText || "Ошибка при получении информации о файле",
+        }));
+        return {
+          success: false,
+          error: errorData.error || errorData.statusMessage || "Ошибка при получении информации о файле",
+        };
+      }
 
       const data = await response.json();
 
-      if (!response.ok || !data.success) {
+      if (!data.success) {
         return {
           success: false,
-          error: data.error || "Ошибка при получении информации о файле",
+          error: data.error || data.statusMessage || "Ошибка при получении информации о файле",
         };
       }
 
@@ -107,13 +141,10 @@ export const useWorkshopFiles = () => {
    * Скачать файл
    */
   const downloadFile = (filePath: string, fileName: string): void => {
-    // В production файлы уже в public/uploads/files/
-    // В dev режиме используем полный URL
-    const url = isDev
-      ? `${API_BASE}${filePath}`
-      : filePath.startsWith("/")
-        ? filePath
-        : `/${filePath}`;
+    // Файлы всегда в public/uploads/files/, используем относительный путь
+    const url = filePath.startsWith("/")
+      ? filePath
+      : `/${filePath}`;
 
     const link = document.createElement("a");
     link.href = url;
@@ -123,9 +154,78 @@ export const useWorkshopFiles = () => {
     document.body.removeChild(link);
   };
 
+  /**
+   * Удалить файл с сервера
+   */
+  const deleteFile = async (
+    filePath: string,
+  ): Promise<{
+    success: boolean;
+    error?: string;
+  }> => {
+    try {
+      // Пытаемся использовать dev server, если он доступен, иначе используем Nuxt API
+      let apiUrl = "/api/workshop/files/delete";
+      
+      if (isDev && DEV_SERVER_URL) {
+        // Проверяем доступность dev server
+        try {
+          const healthCheck = await fetch(`${DEV_SERVER_URL}/health`, {
+            method: "GET",
+            signal: AbortSignal.timeout(1000), // Таймаут 1 секунда
+          });
+          if (healthCheck.ok) {
+            apiUrl = `${DEV_SERVER_URL}/api/workshop/files/delete`;
+          }
+        } catch {
+          // Dev server недоступен, используем Nuxt API
+        }
+      }
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ filePath }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          error: response.statusText || "Ошибка при удалении файла",
+        }));
+        return {
+          success: false,
+          error: errorData.error || errorData.statusMessage || "Ошибка при удалении файла",
+        };
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        return {
+          success: false,
+          error: data.error || data.statusMessage || "Ошибка при удалении файла",
+        };
+      }
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      console.error("Ошибка при удалении файла:", error);
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Ошибка при удалении файла",
+      };
+    }
+  };
+
   return {
     uploadFile,
     getFileInfo,
     downloadFile,
+    deleteFile,
   };
 };
