@@ -13,7 +13,9 @@
     "format": "prettier --write .",
     "stylelint": "stylelint \"**/*.{vue,scss}\"",
     "stylelint:fix": "stylelint \"**/*.{vue,scss}\" --fix",
-    "fonts:download": "node scripts/download-fonts.js"
+    "fonts:download": "node scripts/download-fonts.js",
+    "install-hooks": "bash scripts/install-hooks.sh",
+    "push": "node scripts/push.js"
   },
   "dependencies": {
     "@nuxt/fonts": "^0.12.1",

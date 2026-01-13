@@ -4,6 +4,7 @@ export const useModalManager = () => {
   const isModalOpen = ref(false);
   const isImageModalOpen = ref(false);
   const selectedModelIndex = ref<number | null>(null);
+  const selectedFileIndex = ref<number | null>(null);
 
   const openModal = (modelIndex: number) => {
     selectedModelIndex.value = modelIndex;
@@ -21,14 +22,14 @@ export const useModalManager = () => {
     }
   };
 
-  const openImageModal = (modelIndex: number) => {
-    selectedModelIndex.value = modelIndex;
+  const openImageModal = (fileIndex: number) => {
+    selectedFileIndex.value = fileIndex;
     isImageModalOpen.value = true;
   };
 
   const closeImageModal = () => {
     isImageModalOpen.value = false;
-    selectedModelIndex.value = null;
+    selectedFileIndex.value = null;
   };
 
   // Очищаем overflow при размонтировании
@@ -47,6 +48,7 @@ export const useModalManager = () => {
     isModalOpen,
     isImageModalOpen,
     selectedModelIndex,
+    selectedFileIndex,
     openModal,
     closeModal,
     openImageModal,

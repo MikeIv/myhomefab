@@ -203,7 +203,9 @@ const hasPreviewImage = computed(() => !!props.model.previewImage);
   border-radius: var(--a-borderR--card);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   box-shadow: 0 rem(2) rem(8) rgba(0, 0, 0, 0.1);
 
   &:hover {
@@ -232,7 +234,9 @@ const hasPreviewImage = computed(() => !!props.model.previewImage);
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
   color: var(--a-text-dark);
 
   &:hover {
@@ -260,7 +264,9 @@ const hasPreviewImage = computed(() => !!props.model.previewImage);
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
   color: var(--a-whiteBg);
 
   &:hover {

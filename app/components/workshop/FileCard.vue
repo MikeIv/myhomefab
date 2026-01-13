@@ -1,11 +1,28 @@
 <script setup lang="ts">
+import { computed, ref } from "vue";
+import EditIcon from "~/assets/icons/Edit.svg";
+import CloseIcon from "~/assets/icons/Close.svg";
 import type { ModelFile } from "~/types/workshop";
 
 interface Props {
   file: ModelFile;
+  index: number;
+  isDev: boolean;
+  isEditingTitle: boolean;
+  canRemove: boolean;
 }
 
 const props = defineProps<Props>();
+
+const emit = defineEmits<{
+  editImage: [index: number];
+  remove: [index: number];
+  updateTitle: [index: number, title: string];
+  finishEditingTitle: [index: number];
+  startEditingTitle: [index: number];
+  attachFile: [index: number];
+  uploadFile: [index: number, file: File];
+}>();
 
 const formatFileSize = (bytes?: number): string => {
   if (!bytes) return "—";
@@ -24,56 +41,217 @@ const formatLabels: Record<ModelFile["fileFormat"], string> = {
 };
 
 const handleDownload = () => {
-  window.open(props.file.filePath, "_blank");
+  if (props.file.filePath) {
+    window.open(props.file.filePath, "_blank");
+  }
 };
+
+const handleEditImage = (event: Event) => {
+  event.stopPropagation();
+  emit("editImage", props.index);
+};
+
+const handleRemove = (event: Event) => {
+  event.stopPropagation();
+  emit("remove", props.index);
+};
+
+const handleTitleInput = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  emit("updateTitle", props.index, target.value);
+};
+
+const handleTitleBlur = () => {
+  emit("finishEditingTitle", props.index);
+};
+
+const handleTitleKeyup = (event: KeyboardEvent) => {
+  if (event.key === "Enter") {
+    emit("finishEditingTitle", props.index);
+  }
+};
+
+const handleTitleClick = () => {
+  if (props.isDev) {
+    emit("startEditingTitle", props.index);
+  }
+};
+
+const handleAttachFile = (event: Event) => {
+  event.stopPropagation();
+  emit("attachFile", props.index);
+};
+
+const fileInputRef = ref<HTMLInputElement | null>(null);
+
+const handleUploadClick = (event: Event) => {
+  event.stopPropagation();
+  fileInputRef.value?.click();
+};
+
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (file && file.name.toLowerCase().endsWith(".stl")) {
+    emit("uploadFile", props.index, file);
+    // Сброс input для возможности повторного выбора того же файла
+    target.value = "";
+  }
+};
+
+const hasPreviewImage = computed(() => !!props.file.previewImage);
+const hasFile = computed(() => !!props.file.filePath);
 </script>
 
 <template>
   <article :class="$style.card">
-    <div v-if="file.previewImage" :class="$style.preview">
-      <img :src="file.previewImage" :alt="file.name" :class="$style.previewImage" />
+    <div v-if="isDev" :class="$style.actions">
+      <button
+        v-if="hasPreviewImage"
+        :class="$style.editButton"
+        type="button"
+        aria-label="Изменить изображение"
+        @click="handleEditImage"
+      >
+        <EditIcon />
+      </button>
+
+      <button
+        v-if="canRemove"
+        :class="$style.removeButton"
+        type="button"
+        aria-label="Удалить карточку"
+        @click="handleRemove"
+      >
+        <CloseIcon />
+      </button>
     </div>
+
+    <div :class="$style.imageWrapper">
+      <img
+        v-if="hasPreviewImage"
+        :src="file.previewImage"
+        :alt="file.name"
+        :class="$style.previewImage"
+        loading="lazy"
+      />
+      <div
+        v-else-if="isDev"
+        :class="$style.addImageButton"
+        @click.stop="handleEditImage"
+      >
+        Добавить изображение
+      </div>
+      <div v-else :class="$style.imagePlaceholder" />
+      <button
+        v-if="isDev && !hasPreviewImage"
+        :class="$style.addImageButtonBottom"
+        type="button"
+        aria-label="Добавить изображение"
+        @click.stop="handleEditImage"
+      >
+        Добавить
+      </button>
+    </div>
+
     <div :class="$style.content">
       <div :class="$style.header">
-        <h3 :class="$style.title">{{ file.name }}</h3>
+        <div
+          v-if="isEditingTitle && isDev"
+          :class="$style.editContainer"
+          @click.stop
+        >
+          <input
+            :value="file.name"
+            :class="$style.editInput"
+            autofocus
+            @blur="handleTitleBlur"
+            @keyup="handleTitleKeyup"
+            @input="handleTitleInput"
+          />
+        </div>
+        <h3
+          v-else
+          :class="[$style.title, { [$style.titleEditable]: isDev }]"
+          @click.stop="handleTitleClick"
+        >
+          {{ file.name }}
+        </h3>
         <span :class="$style.format">{{ formatLabels[file.fileFormat] }}</span>
       </div>
+
       <p v-if="file.description" :class="$style.description">
         {{ file.description }}
       </p>
+
       <div :class="$style.info">
         <div :class="$style.infoItem">
           <span :class="$style.infoLabel">Размер:</span>
-          <span :class="$style.infoValue">{{ formatFileSize(file.fileSize) }}</span>
+          <span :class="$style.infoValue">{{
+            formatFileSize(file.fileSize)
+          }}</span>
         </div>
         <div v-if="file.version" :class="$style.infoItem">
           <span :class="$style.infoLabel">Версия:</span>
           <span :class="$style.infoValue">{{ file.version }}</span>
         </div>
       </div>
+
       <div v-if="file.tags && file.tags.length > 0" :class="$style.tags">
-        <span
-          v-for="tag in file.tags"
-          :key="tag"
-          :class="$style.tag"
-        >
+        <span v-for="tag in file.tags" :key="tag" :class="$style.tag">
           {{ tag }}
         </span>
       </div>
-      <button :class="$style.downloadButton" @click="handleDownload">
-        Скачать
-      </button>
+
+      <div :class="$style.actionsBottom">
+        <button
+          v-if="!hasFile && isDev"
+          :class="$style.attachButton"
+          type="button"
+          @click.stop="handleAttachFile"
+        >
+          Прикрепить файл
+        </button>
+        <template v-else-if="hasFile">
+          <input
+            v-if="isDev"
+            ref="fileInputRef"
+            type="file"
+            accept=".stl"
+            :class="$style.fileInput"
+            @change="handleFileChange"
+          />
+          <button
+            v-if="isDev"
+            :class="$style.uploadButton"
+            type="button"
+            @click.stop="handleUploadClick"
+          >
+            Загрузить
+          </button>
+          <button
+            :class="$style.downloadButton"
+            type="button"
+            @click.stop="handleDownload"
+          >
+            Скачать
+          </button>
+        </template>
+      </div>
     </div>
   </article>
 </template>
 
 <style module lang="scss">
 .card {
+  position: relative;
   background-color: var(--a-whiteBg);
   border-radius: var(--a-borderR--card);
   overflow: hidden;
   box-shadow: 0 rem(2) rem(8) rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
 
@@ -83,7 +261,78 @@ const handleDownload = () => {
   }
 }
 
-.preview {
+.actions {
+  position: absolute;
+  top: rem(12);
+  right: rem(12);
+  z-index: 3;
+  display: flex;
+  gap: rem(8);
+  align-items: center;
+}
+
+.editButton {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: rem(6);
+  width: rem(36);
+  height: rem(36);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+  color: var(--a-text-dark);
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 1);
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: rem(18);
+    height: rem(18);
+  }
+}
+
+.removeButton {
+  background-color: rgba(239, 68, 68, 0.9);
+  border: none;
+  border-radius: rem(6);
+  width: rem(36);
+  height: rem(36);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+  color: var(--a-whiteBg);
+
+  &:hover {
+    background-color: rgba(239, 68, 68, 1);
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: rem(18);
+    height: rem(18);
+  }
+}
+
+.imageWrapper {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
@@ -94,6 +343,63 @@ const handleDownload = () => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .previewImage {
+  transform: scale(1.05);
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background-color: var(--a-lightPrimaryBg);
+}
+
+.addImageButton {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--a-lightPrimaryBg);
+  border: 2px dashed var(--a-border-primary);
+  color: var(--a-text-dark);
+  font-size: rem(16);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--a-whiteBg);
+    border-color: var(--a-primary);
+  }
+}
+
+.addImageButtonBottom {
+  position: absolute;
+  bottom: rem(12);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: rem(8) rem(16);
+  background-color: var(--a-primaryBg);
+  border: none;
+  border-radius: var(--a-borderR--btn);
+  color: var(--a-text-white);
+  font-size: rem(14);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 2;
+
+  &:hover {
+    background-color: var(--a-accentBg);
+    transform: translateX(-50%) scale(1.05);
+  }
+
+  &:active {
+    transform: translateX(-50%) scale(0.95);
+  }
 }
 
 .content {
@@ -118,6 +424,39 @@ const handleDownload = () => {
   line-height: 1.3;
   flex: 1;
   min-width: 0;
+}
+
+.titleEditable {
+  cursor: pointer;
+  padding: rem(4) rem(8);
+  border-radius: rem(4);
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--a-lightPrimaryBg);
+  }
+}
+
+.editContainer {
+  flex: 1;
+  min-width: 0;
+}
+
+.editInput {
+  width: 100%;
+  border: 1px solid var(--a-border);
+  border-radius: rem(6);
+  padding: rem(8) rem(12);
+  font-size: rem(18);
+  font-weight: 600;
+  color: var(--a-text-dark);
+  background-color: var(--a-whiteBg);
+  outline: none;
+
+  &:focus {
+    border-color: var(--a-primary);
+    box-shadow: 0 0 0 rem(3) rgba(59, 130, 246, 0.1);
+  }
 }
 
 .format {
@@ -176,17 +515,29 @@ const handleDownload = () => {
   border-radius: rem(12);
 }
 
-.downloadButton {
+.actionsBottom {
   margin-top: auto;
+  display: flex;
+  gap: rem(8);
+}
+
+.fileInput {
+  display: none;
+}
+
+.downloadButton {
+  flex: 1;
   padding: rem(10) rem(20);
   background-color: var(--a-primaryBg);
-  color: var(--a-white);
+  color: var(--a-text-white);
   border: none;
   border-radius: var(--a-borderR--btn);
   font-size: rem(14);
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
 
   &:hover {
     background-color: var(--a-text-primary);
@@ -197,5 +548,50 @@ const handleDownload = () => {
     transform: translateY(0);
   }
 }
-</style>
 
+.attachButton {
+  width: 100%;
+  padding: rem(10) rem(20);
+  background-color: var(--a-lightPrimaryBg);
+  color: var(--a-text-dark);
+  border: 2px dashed var(--a-border-primary);
+  border-radius: var(--a-borderR--btn);
+  font-size: rem(14);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: var(--a-whiteBg);
+    border-color: var(--a-primary);
+    transform: translateY(rem(-1));
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.uploadButton {
+  flex: 1;
+  padding: rem(10) rem(20);
+  background-color: var(--a-lightPrimaryBg);
+  color: var(--a-text-dark);
+  border: 1px solid var(--a-border-primary);
+  border-radius: var(--a-borderR--btn);
+  font-size: rem(14);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: var(--a-whiteBg);
+    border-color: var(--a-primary);
+    transform: translateY(rem(-1));
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+</style>
