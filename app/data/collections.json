@@ -18,7 +18,7 @@
               "depth": 69,
               "unit": "mm"
             },
-            "weight": 65,
+            "weight": 90,
             "material": "PLA",
             "printTime": "1 час 60 минут"
           },
@@ -145,6 +145,25 @@
             "material": "PLA",
             "printTime": "23 минуты "
           }
+        },
+        {
+          "id": "model-1768296672048",
+          "title": "Фиксатор двери",
+          "description": "Описание модели",
+          "shortDescription": "Дверной фиксатор — надежный стопор с сотовидной структурой, который крепко держит дверь в нужном положении.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/door_stoper.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 70,
+              "height": 20,
+              "depth": 25,
+              "unit": "mm"
+            },
+            "weight": 9,
+            "material": "PLA",
+            "printTime": "30 минут "
+          }
         }
       ]
     },
@@ -238,6 +257,26 @@
             "weight": 43,
             "material": "PLA",
             "printTime": "1 час 42 минуты"
+          }
+        },
+        {
+          "id": "model-1768134438815",
+          "title": "Коробка (размеры на выбор)",
+          "description": "Описание модели",
+          "shortDescription": "Универсальная коробка для хранения — компактный кейс с защелками в любом цвете на выбор, подстраиваемый под ваши нужды до 240 мм.",
+          "previewImage": null,
+          "previewImageKey": "collections/tools/tools-003.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 100,
+              "height": 100,
+              "depth": 100,
+              "unit": "mm"
+            },
+            "dimensionsText": "до 240 мм по любой оси",
+            "weightText": "~ 150 г",
+            "material": "PLA",
+            "printTime": "~ 3 часа 30 минут"
           }
         }
       ]
