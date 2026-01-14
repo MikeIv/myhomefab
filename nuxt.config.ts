@@ -300,7 +300,7 @@ export default defineNuxtConfig({
     nodeModules: ["mysql2"],
     prerender: {
       // Предрендеринг страниц для SSG (для корректного отображения метатегов в Telegram и других ботах)
-      routes: ["/", "/collections", "/contacts", "/workshop"],
+      routes: ["/", "/collections", "/contacts", "/workshop", "/api/version"],
       // Кроулить все ссылки на страницах
       crawlLinks: true,
     },

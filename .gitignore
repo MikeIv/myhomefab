@@ -6,6 +6,9 @@
 dist
 .cursor
 
+# Generated version file
+public/api/version.json
+
 # Database
 data/
 *.db

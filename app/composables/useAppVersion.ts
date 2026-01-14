@@ -24,32 +24,48 @@ export const useAppVersion = () => {
 
     try {
       const apiBase = useRuntimeConfig().public.apiBase || "";
-      const versionUrl = apiBase ? `${apiBase}/api/version` : "/api/version";
 
-      const response = await fetch(versionUrl, {
-        method: "GET",
-        cache: "no-cache",
-        headers: {
-          "Cache-Control": "no-cache",
-        },
-      });
+      // Сначала пытаемся получить версию из статического JSON файла (для статического хостинга)
+      // Затем пытаемся получить из API роута (для Node.js сервера)
+      const versionUrls = [
+        apiBase ? `${apiBase}/api/version.json` : "/api/version.json",
+        apiBase ? `${apiBase}/api/version` : "/api/version",
+      ];
 
-      // На статическом хостинге API endpoints не работают (404) - это нормально
-      if (!response.ok) {
-        // Тихий возврат false для 404 и других ошибок HTTP
-        return false;
+      for (const versionUrl of versionUrls) {
+        try {
+          const response = await fetch(versionUrl, {
+            method: "GET",
+            cache: "no-cache",
+            headers: {
+              "Cache-Control": "no-cache",
+            },
+          });
+
+          if (!response.ok) {
+            // Пробуем следующий URL
+            continue;
+          }
+
+          const data = await response.json();
+
+          if (data.version && data.version !== currentVersion.value) {
+            // Версия изменилась - нужно перезагрузить страницу
+            console.log(
+              `Обнаружена новая версия приложения: ${data.version} (текущая: ${currentVersion.value})`,
+            );
+            return true;
+          }
+
+          // Версия совпадает или не найдена
+          return false;
+        } catch {
+          // Пробуем следующий URL
+          continue;
+        }
       }
 
-      const data = await response.json();
-
-      if (data.version && data.version !== currentVersion.value) {
-        // Версия изменилась - нужно перезагрузить страницу
-        console.log(
-          `Обнаружена новая версия приложения: ${data.version} (текущая: ${currentVersion.value})`,
-        );
-        return true;
-      }
-
+      // Если ни один URL не сработал, тихо возвращаем false
       return false;
     } catch {
       // На статическом хостинге ошибки сети/API - это нормально, тихо игнорируем

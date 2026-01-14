@@ -245,7 +245,7 @@ const handleDeleteFile = async (event: Event) => {
     <div :class="$style.imageWrapper">
       <img
         v-if="hasPreviewImage"
-        :src="file.previewImage"
+        :src="file.previewImage || undefined"
         :alt="file.name"
         :class="$style.previewImage"
         loading="lazy"
