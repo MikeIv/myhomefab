@@ -34,21 +34,22 @@ export default defineEventHandler(async (event) => {
 
     // Экспорт данных из MySQL
     // Используем standalone режим, так как в API endpoint может не быть доступа к useRuntimeConfig
+    // Примечание: MySQL не используется в статичном хостинге, поэтому возвращаем пустые массивы
     let images: unknown[] = [];
     let features: unknown[] = [];
 
     try {
       images = await exportImages(true); // useStandalone = true
-    } catch (error) {
-      console.error("Ошибка при экспорте изображений:", error);
-      // Продолжаем работу, даже если MySQL недоступен
+    } catch {
+      // MySQL недоступен (ожидаемо для статичного хостинга), возвращаем пустой массив
+      images = [];
     }
 
     try {
       features = await exportFeatures(true); // useStandalone = true
-    } catch (error) {
-      console.error("Ошибка при экспорте features:", error);
-      // Продолжаем работу, даже если MySQL недоступен
+    } catch {
+      // MySQL недоступен (ожидаемо для статичного хостинга), возвращаем пустой массив
+      features = [];
     }
 
     // Экспорт данных из SQLite

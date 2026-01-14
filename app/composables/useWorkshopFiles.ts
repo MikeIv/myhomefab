@@ -26,7 +26,7 @@ export const useWorkshopFiles = () => {
 
       // Пытаемся использовать dev server, если он доступен, иначе используем Nuxt API
       let apiUrl = "/api/workshop/files/upload";
-      
+
       if (isDev && DEV_SERVER_URL) {
         // Проверяем доступность dev server
         try {
@@ -53,7 +53,10 @@ export const useWorkshopFiles = () => {
         }));
         return {
           success: false,
-          error: errorData.error || errorData.statusMessage || "Ошибка при загрузке файла",
+          error:
+            errorData.error ||
+            errorData.statusMessage ||
+            "Ошибка при загрузке файла",
         };
       }
 
@@ -62,7 +65,8 @@ export const useWorkshopFiles = () => {
       if (!data.success) {
         return {
           success: false,
-          error: data.error || data.statusMessage || "Ошибка при загрузке файла",
+          error:
+            data.error || data.statusMessage || "Ошибка при загрузке файла",
         };
       }
 
@@ -99,16 +103,20 @@ export const useWorkshopFiles = () => {
     try {
       // Используем Nuxt API (endpoint пока не реализован, но структура готова)
       const apiUrl = `/api/workshop/files/${fileId}/download`;
-      
+
       const response = await fetch(apiUrl);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({
-          error: response.statusText || "Ошибка при получении информации о файле",
+          error:
+            response.statusText || "Ошибка при получении информации о файле",
         }));
         return {
           success: false,
-          error: errorData.error || errorData.statusMessage || "Ошибка при получении информации о файле",
+          error:
+            errorData.error ||
+            errorData.statusMessage ||
+            "Ошибка при получении информации о файле",
         };
       }
 
@@ -117,7 +125,10 @@ export const useWorkshopFiles = () => {
       if (!data.success) {
         return {
           success: false,
-          error: data.error || data.statusMessage || "Ошибка при получении информации о файле",
+          error:
+            data.error ||
+            data.statusMessage ||
+            "Ошибка при получении информации о файле",
         };
       }
 
@@ -142,9 +153,7 @@ export const useWorkshopFiles = () => {
    */
   const downloadFile = (filePath: string, fileName: string): void => {
     // Файлы всегда в public/uploads/files/, используем относительный путь
-    const url = filePath.startsWith("/")
-      ? filePath
-      : `/${filePath}`;
+    const url = filePath.startsWith("/") ? filePath : `/${filePath}`;
 
     const link = document.createElement("a");
     link.href = url;
@@ -166,7 +175,7 @@ export const useWorkshopFiles = () => {
     try {
       // Пытаемся использовать dev server, если он доступен, иначе используем Nuxt API
       let apiUrl = "/api/workshop/files/delete";
-      
+
       if (isDev && DEV_SERVER_URL) {
         // Проверяем доступность dev server
         try {
@@ -196,7 +205,10 @@ export const useWorkshopFiles = () => {
         }));
         return {
           success: false,
-          error: errorData.error || errorData.statusMessage || "Ошибка при удалении файла",
+          error:
+            errorData.error ||
+            errorData.statusMessage ||
+            "Ошибка при удалении файла",
         };
       }
 
@@ -205,7 +217,8 @@ export const useWorkshopFiles = () => {
       if (!data.success) {
         return {
           success: false,
-          error: data.error || data.statusMessage || "Ошибка при удалении файла",
+          error:
+            data.error || data.statusMessage || "Ошибка при удалении файла",
         };
       }
 
