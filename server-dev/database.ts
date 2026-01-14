@@ -35,10 +35,21 @@ export function initDatabase(): void {
       preview_image TEXT,
       tags TEXT,
       version TEXT,
+      original_file_name TEXT,
       created_at TEXT NOT NULL,
       updated_at TEXT
     )
   `);
+
+  // Миграция: добавляем поле original_file_name, если оно не существует
+  try {
+    db.exec(`
+      ALTER TABLE workshop_files 
+      ADD COLUMN original_file_name TEXT
+    `);
+  } catch {
+    // Поле уже существует, игнорируем ошибку
+  }
 
   // Таблица workshop_notes
   db.exec(`

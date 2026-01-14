@@ -27,6 +27,7 @@ router.get("/data", (_req, res) => {
           preview_image as previewImage,
           tags,
           version,
+          original_file_name as originalFileName,
           created_at as createdAt,
           updated_at as updatedAt
         FROM workshop_files
@@ -106,8 +107,8 @@ router.post("/save", (req, res) => {
       const insertFile = db.prepare(`
         INSERT INTO workshop_files (
           id, name, description, file_path, file_format, 
-          file_size, preview_image, tags, version, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          file_size, preview_image, tags, version, original_file_name, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
 
       for (const file of body.files) {
@@ -121,6 +122,7 @@ router.post("/save", (req, res) => {
           file.previewImage || null,
           file.tags ? JSON.stringify(file.tags) : null,
           file.version || null,
+          file.originalFileName || null,
           file.createdAt,
           file.updatedAt || file.createdAt,
         );
