@@ -41,7 +41,7 @@ export const useCollectionsData = () => {
 
   const currentModels = computed(() => {
     if (!currentSection.value) return [];
-    return currentSection.value.models;
+    return currentSection.value.models.slice().reverse();
   });
 
   const loadCollectionsData = () => {

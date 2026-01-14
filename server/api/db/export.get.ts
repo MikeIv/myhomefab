@@ -5,6 +5,9 @@ import {
   exportWorkshopFiles,
   exportWorkshopNotes,
 } from "../../utils/db-export.js";
+import { writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import type { ModelFile, Fusion360Note } from "~/types/workshop";
 
 export default defineEventHandler(async (event) => {
   // Проверка dev режима
@@ -81,6 +84,36 @@ export default defineEventHandler(async (event) => {
         notes: workshopNotes,
       },
     };
+
+    // Обновляем workshop.json файл для production
+    try {
+      const workshopData: { files: ModelFile[]; notes: Fusion360Note[] } = {
+        files: (workshopFiles as ModelFile[]).map((file) => ({
+          ...file,
+          tags: Array.isArray(file.tags) ? file.tags : [],
+        })),
+        notes: (workshopNotes as Fusion360Note[]).map((note) => ({
+          ...note,
+          tags: Array.isArray(note.tags) ? note.tags : [],
+        })),
+      };
+
+      const workshopJsonPath = join(
+        process.cwd(),
+        "app",
+        "data",
+        "workshop.json",
+      );
+      await writeFile(
+        workshopJsonPath,
+        JSON.stringify(workshopData, null, 2),
+        "utf-8",
+      );
+      console.log("✅ Файл workshop.json успешно обновлен");
+    } catch (workshopError) {
+      console.error("⚠️  Ошибка при обновлении workshop.json:", workshopError);
+      // Не прерываем экспорт, если не удалось обновить JSON
+    }
 
     // Устанавливаем заголовки для скачивания файла
     setHeader(event, "Content-Type", "application/json");

@@ -41,13 +41,32 @@ export function initSQLiteDatabase(): void {
       file_path TEXT NOT NULL,
       file_format TEXT NOT NULL,
       file_size INTEGER,
+      original_file_name TEXT,
       preview_image TEXT,
+      software TEXT,
       tags TEXT,
       version TEXT,
       created_at TEXT NOT NULL,
       updated_at TEXT
     )
   `);
+
+  // Добавляем новые поля, если таблица уже существует (миграция)
+  try {
+    database.exec(`
+      ALTER TABLE workshop_files ADD COLUMN original_file_name TEXT;
+    `);
+  } catch {
+    // Поле уже существует, игнорируем ошибку
+  }
+
+  try {
+    database.exec(`
+      ALTER TABLE workshop_files ADD COLUMN software TEXT;
+    `);
+  } catch {
+    // Поле уже существует, игнорируем ошибку
+  }
 
   // Таблица workshop_notes
   database.exec(`

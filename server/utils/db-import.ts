@@ -160,8 +160,8 @@ export function importWorkshopFiles(
     const insertFile = db.prepare(`
       INSERT INTO workshop_files (
         id, name, description, file_path, file_format, 
-        file_size, preview_image, tags, version, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        file_size, original_file_name, preview_image, software, tags, version, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     let imported = 0;
@@ -173,7 +173,9 @@ export function importWorkshopFiles(
         file.filePath,
         file.fileFormat,
         file.fileSize || null,
+        (file as { originalFileName?: string | null }).originalFileName || null,
         file.previewImage || null,
+        (file as { software?: string | null }).software || null,
         file.tags ? JSON.stringify(file.tags) : null,
         file.version || null,
         file.createdAt,

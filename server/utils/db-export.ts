@@ -97,7 +97,9 @@ export interface WorkshopFile {
   filePath: string;
   fileFormat: string;
   fileSize: number | null;
+  originalFileName: string | null;
   previewImage: string | null;
+  software: string | null;
   tags: string[] | null;
   version: string | null;
   createdAt: string;
@@ -236,7 +238,9 @@ export function exportWorkshopFiles(db: SQLiteDatabase): WorkshopFile[] {
         file_path as filePath,
         file_format as fileFormat,
         file_size as fileSize,
+        original_file_name as originalFileName,
         preview_image as previewImage,
+        software,
         tags,
         version,
         created_at as createdAt,
