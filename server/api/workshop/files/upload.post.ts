@@ -6,7 +6,7 @@ import { randomUUID } from "node:crypto";
 const ALLOWED_EXTENSIONS = [".stl", ".glb", ".gltf", ".obj", ".f3d", ".step", ".3mf"];
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
-const formatMap: Record<string, "stl" | "glb" | "gltf" | "obj" | "f3d" | "step"> = {
+const formatMap: Record<string, "stl" | "glb" | "gltf" | "obj" | "f3d" | "step" | "3mf"> = {
   stl: "stl",
   glb: "glb",
   gltf: "gltf",
@@ -14,10 +14,10 @@ const formatMap: Record<string, "stl" | "glb" | "gltf" | "obj" | "f3d" | "step">
   f3d: "f3d",
   step: "step",
   stp: "step",
-  "3mf": "stl", // По умолчанию для 3mf
+  "3mf": "3mf",
 };
 
-function getFileFormat(filename: string): "stl" | "glb" | "gltf" | "obj" | "f3d" | "step" {
+function getFileFormat(filename: string): "stl" | "glb" | "gltf" | "obj" | "f3d" | "step" | "3mf" {
   const ext = filename
     .substring(filename.lastIndexOf(".") + 1)
     .toLowerCase();

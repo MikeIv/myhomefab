@@ -1,4 +1,4 @@
-import { shallowRef } from "vue";
+import { ref } from "vue";
 import workshopData from "~/data/workshop.json";
 import { useWorkshop } from "~/composables/useWorkshop";
 import { useImageManager } from "~/composables/useImageManager";
@@ -18,7 +18,7 @@ export const useWorkshopData = () => {
     ? import.meta.env.DEV_SERVER_URL || "http://localhost:3001"
     : "";
 
-  const workshop = shallowRef<WorkshopData>({ files: [], notes: [] });
+  const workshop = ref<WorkshopData>({ files: [], notes: [] });
 
   const loadWorkshopData = async (): Promise<void> => {
     if (!import.meta.client) return;
@@ -57,6 +57,8 @@ export const useWorkshopData = () => {
             previewImage: file.previewImage
               ? getImageSrc(file.previewImage)
               : undefined,
+            // Явно сохраняем originalFileName при загрузке
+            originalFileName: file.originalFileName,
           })),
           notes: result.data.notes,
         };
@@ -83,6 +85,8 @@ export const useWorkshopData = () => {
             previewImage: file.previewImage
               ? getImageSrc(file.previewImage)
               : undefined,
+            // Явно сохраняем originalFileName при загрузке из JSON
+            originalFileName: file.originalFileName,
           })),
           notes: (workshopData as WorkshopData).notes,
         };
@@ -123,6 +127,8 @@ export const useWorkshopData = () => {
           previewImage: file.previewImage
             ? getImageKeyByUrl(file.previewImage) || file.previewImage
             : undefined,
+          // Явно сохраняем originalFileName, чтобы оно не терялось
+          originalFileName: file.originalFileName,
         })),
         notes: workshop.value.notes,
       };
@@ -172,6 +178,8 @@ export const useWorkshopData = () => {
           previewImage: file.previewImage
             ? getImageKeyByUrl(file.previewImage) || file.previewImage
             : undefined,
+          // Явно сохраняем originalFileName, чтобы оно не терялось
+          originalFileName: file.originalFileName,
         })),
         notes: workshop.value.notes,
       };
@@ -197,31 +205,43 @@ export const useWorkshopData = () => {
   ) => {
     if (!workshop.value.files[fileIndex]) return;
 
-    const file = workshop.value.files[fileIndex];
-    if (file) {
-      (file[field] as unknown) = value;
-    }
+    // Создаем новый массив с обновленным файлом для обеспечения реактивности
+    workshop.value.files = workshop.value.files.map((file, index) => {
+      if (index === fileIndex) {
+        return {
+          ...file,
+          [field]: value,
+        };
+      }
+      return file;
+    });
   };
 
   const addFile = async (): Promise<boolean> => {
-    const newId = `file-${Date.now()}`;
-    workshop.value.files.push({
-      id: newId,
-      name: "Новый файл",
-      description: "",
-      filePath: "",
-      fileFormat: "f3d",
-      tags: [],
-      createdAt: new Date().toISOString().split("T")[0],
-    });
+    const newId = `file-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    // Создаем новый массив для обеспечения реактивности
+    workshop.value.files = [
+      ...workshop.value.files,
+      {
+        id: newId,
+        name: "Новый файл",
+        description: "",
+        filePath: "",
+        fileFormat: "f3d",
+        tags: [],
+        createdAt: new Date().toISOString().split("T")[0],
+      },
+    ];
 
     return await saveWorkshopData();
   };
 
   const removeFile = async (index: number): Promise<boolean> => {
     if (workshop.value.files.length <= 1) return false;
+    if (index < 0 || index >= workshop.value.files.length) return false;
 
-    workshop.value.files.splice(index, 1);
+    // Создаем новый массив для обеспечения реактивности
+    workshop.value.files = workshop.value.files.filter((_, i) => i !== index);
     return await saveWorkshopData();
   };
 

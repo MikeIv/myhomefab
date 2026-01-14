@@ -24,6 +24,7 @@ const emit = defineEmits<{
   attachFile: [index: number];
   uploadFile: [index: number, file: File];
   deleteFile: [index: number];
+  updatePreviewImage: [index: number, imageData: string];
 }>();
 
 const formatFileSize = (bytes?: number): string => {
@@ -42,6 +43,7 @@ const formatLabels: Record<ModelFile["fileFormat"], string> = {
   obj: "OBJ",
   glb: "GLB",
   gltf: "GLTF",
+  "3mf": "3MF",
 };
 
 const handleDownload = () => {
@@ -90,6 +92,7 @@ const handleAttachFile = (event: Event) => {
 };
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
+const imageInputRef = ref<HTMLInputElement | null>(null);
 
 const handleUploadClick = (event: Event) => {
   event.stopPropagation();
@@ -112,6 +115,41 @@ const handleFileChange = (event: Event) => {
     } else {
       console.warn("Неподдерживаемый формат файла:", fileExtension);
     }
+  }
+};
+
+const handleAddImageClick = (event: Event) => {
+  event.stopPropagation();
+  imageInputRef.value?.click();
+};
+
+const handleImageChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (file) {
+    // Проверяем, что это изображение
+    if (!file.type.startsWith("image/")) {
+      console.warn("Выбранный файл не является изображением");
+      target.value = "";
+      return;
+    }
+
+    // Читаем файл как base64
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result;
+      if (typeof result === "string") {
+        emit("updatePreviewImage", props.index, result);
+      }
+    };
+    reader.onerror = () => {
+      console.error("Ошибка при чтении файла изображения");
+      target.value = "";
+    };
+    reader.readAsDataURL(file);
+    
+    // Сброс input для возможности повторного выбора того же файла
+    target.value = "";
   }
 };
 
@@ -186,7 +224,7 @@ const handleDeleteFile = async (event: Event) => {
       <div
         v-else-if="isDev"
         :class="$style.addImageButton"
-        @click.stop="handleEditImage"
+        @click.stop="handleAddImageClick"
       >
         Добавить изображение
       </div>
@@ -196,7 +234,7 @@ const handleDeleteFile = async (event: Event) => {
         :class="$style.addImageButtonBottom"
         type="button"
         aria-label="Добавить изображение"
-        @click.stop="handleEditImage"
+        @click.stop="handleAddImageClick"
       >
         Добавить
       </button>
@@ -276,6 +314,14 @@ const handleDeleteFile = async (event: Event) => {
           accept=".stl,.glb,.gltf,.obj,.f3d,.step,.3mf"
           :class="$style.fileInput"
           @change="handleFileChange"
+        />
+        <input
+          v-if="isDev"
+          ref="imageInputRef"
+          type="file"
+          accept="image/*"
+          :class="$style.fileInput"
+          @change="handleImageChange"
         />
         <template v-if="hasFile">
           <button

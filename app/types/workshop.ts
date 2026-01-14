@@ -13,7 +13,7 @@ export interface ModelFile {
   name: string;
   description?: string;
   filePath: string;
-  fileFormat: "f3d" | "step" | "stl" | "obj" | "glb" | "gltf";
+  fileFormat: "f3d" | "step" | "stl" | "obj" | "glb" | "gltf" | "3mf";
   fileSize?: number;
   originalFileName?: string;
   version?: string;
