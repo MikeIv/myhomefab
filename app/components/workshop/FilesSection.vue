@@ -5,6 +5,7 @@ interface Props {
   files: ModelFile[];
   isDev: boolean;
   editingTitleIndex: number | null;
+  editingDescriptionIndex: number | null;
   canRemove: boolean;
 }
 
@@ -16,6 +17,9 @@ const emit = defineEmits<{
   updateTitle: [index: number, title: string];
   finishEditingTitle: [index: number];
   startEditingTitle: [index: number];
+  updateDescription: [index: number, description: string];
+  finishEditingDescription: [index: number];
+  startEditingDescription: [index: number];
   attachFile: [index: number];
   uploadFile: [index: number, file: File];
   deleteFile: [index: number];
@@ -38,12 +42,22 @@ const handleAddFile = () => {
         :index="index"
         :is-dev="isDev"
         :is-editing-title="editingTitleIndex === index"
+        :is-editing-description="editingDescriptionIndex === index"
         :can-remove="canRemove"
         @edit-image="(idx) => emit('editImage', idx)"
         @remove="(idx) => emit('remove', idx)"
         @update-title="(idx, title) => emit('updateTitle', idx, title)"
         @finish-editing-title="(idx) => emit('finishEditingTitle', idx)"
         @start-editing-title="(idx) => emit('startEditingTitle', idx)"
+        @update-description="
+          (idx, description) => emit('updateDescription', idx, description)
+        "
+        @finish-editing-description="
+          (idx) => emit('finishEditingDescription', idx)
+        "
+        @start-editing-description="
+          (idx) => emit('startEditingDescription', idx)
+        "
         @attach-file="(idx) => emit('attachFile', idx)"
         @upload-file="(idx, file) => emit('uploadFile', idx, file)"
         @delete-file="(idx) => emit('deleteFile', idx)"

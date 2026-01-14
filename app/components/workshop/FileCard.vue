@@ -10,6 +10,7 @@ interface Props {
   index: number;
   isDev: boolean;
   isEditingTitle: boolean;
+  isEditingDescription: boolean;
   canRemove: boolean;
 }
 
@@ -21,6 +22,9 @@ const emit = defineEmits<{
   updateTitle: [index: number, title: string];
   finishEditingTitle: [index: number];
   startEditingTitle: [index: number];
+  updateDescription: [index: number, description: string];
+  finishEditingDescription: [index: number];
+  startEditingDescription: [index: number];
   attachFile: [index: number];
   uploadFile: [index: number, file: File];
   deleteFile: [index: number];
@@ -35,16 +39,6 @@ const formatFileSize = (bytes?: number): string => {
 };
 
 const { downloadFile, deleteFile } = useWorkshopFiles();
-
-const formatLabels: Record<ModelFile["fileFormat"], string> = {
-  f3d: "Fusion 360",
-  step: "STEP",
-  stl: "STL",
-  obj: "OBJ",
-  glb: "GLB",
-  gltf: "GLTF",
-  "3mf": "3MF",
-};
 
 const handleDownload = () => {
   if (props.file.filePath) {
@@ -82,6 +76,28 @@ const handleTitleKeyup = (event: KeyboardEvent) => {
 const handleTitleClick = () => {
   if (props.isDev) {
     emit("startEditingTitle", props.index);
+  }
+};
+
+const handleDescriptionInput = (event: Event) => {
+  const target = event.target as HTMLTextAreaElement;
+  emit("updateDescription", props.index, target.value);
+};
+
+const handleDescriptionBlur = () => {
+  emit("finishEditingDescription", props.index);
+};
+
+const handleDescriptionKeyup = (event: KeyboardEvent) => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    emit("finishEditingDescription", props.index);
+  }
+};
+
+const handleDescriptionClick = () => {
+  if (props.isDev) {
+    emit("startEditingDescription", props.index);
   }
 };
 
@@ -276,11 +292,35 @@ const handleDeleteFile = async (event: Event) => {
         >
           {{ file.name }}
         </h3>
-        <span :class="$style.format">{{ formatLabels[file.fileFormat] }}</span>
+        <span v-if="file.software" :class="$style.format">{{
+          file.software
+        }}</span>
       </div>
 
-      <p v-if="file.description" :class="$style.description">
-        {{ file.description }}
+      <div
+        v-if="isEditingDescription && isDev"
+        :class="$style.editDescriptionContainer"
+        @click.stop
+      >
+        <textarea
+          :value="file.description || ''"
+          :class="$style.editDescriptionInput"
+          placeholder="Введите описание..."
+          rows="3"
+          autofocus
+          @blur="handleDescriptionBlur"
+          @keyup="handleDescriptionKeyup"
+          @input="handleDescriptionInput"
+        />
+      </div>
+      <p
+        v-else
+        :class="[$style.description, { [$style.descriptionEditable]: isDev }]"
+        @click.stop="handleDescriptionClick"
+      >
+        {{
+          file.description || (isDev ? "Нажмите, чтобы добавить описание" : "")
+        }}
       </p>
 
       <div v-if="hasFile" :class="$style.info">
@@ -315,12 +355,6 @@ const handleDeleteFile = async (event: Event) => {
             <CloseIcon />
           </button>
         </div>
-      </div>
-
-      <div v-if="file.tags && file.tags.length > 0" :class="$style.tags">
-        <span v-for="tag in file.tags" :key="tag" :class="$style.tag">
-          {{ tag }}
-        </span>
       </div>
 
       <div :class="$style.actionsBottom">
@@ -602,6 +636,42 @@ const handleDeleteFile = async (event: Event) => {
   color: var(--a-text-dark);
   line-height: 1.5;
   opacity: 0.7;
+  min-height: rem(21);
+}
+
+.descriptionEditable {
+  cursor: pointer;
+  padding: rem(4) rem(8);
+  border-radius: rem(4);
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--a-lightPrimaryBg);
+  }
+}
+
+.editDescriptionContainer {
+  flex: 1;
+  min-width: 0;
+}
+
+.editDescriptionInput {
+  width: 100%;
+  border: 1px solid var(--a-border);
+  border-radius: rem(6);
+  padding: rem(8) rem(12);
+  font-size: rem(14);
+  color: var(--a-text-dark);
+  background-color: var(--a-whiteBg);
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+
+  &:focus {
+    border-color: var(--a-primary);
+    box-shadow: 0 0 0 rem(3) rgba(59, 130, 246, 0.1);
+  }
 }
 
 .info {
@@ -682,20 +752,6 @@ const handleDeleteFile = async (event: Event) => {
     width: rem(16);
     height: rem(16);
   }
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: rem(8);
-}
-
-.tag {
-  font-size: rem(12);
-  color: var(--a-text-light);
-  background-color: var(--a-lightBg);
-  padding: rem(4) rem(10);
-  border-radius: rem(12);
 }
 
 .actionsBottom {

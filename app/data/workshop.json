@@ -6,6 +6,7 @@
       "description": "Тестовая модель для проверки параметров",
       "filePath": "/uploads/files/file-3af3499b-bdb4-48bb-b8c3-27d287953740.stl",
       "fileFormat": "stl",
+      "software": "Fusion 360",
       "tags": [
         "тест",
         "v1.0"

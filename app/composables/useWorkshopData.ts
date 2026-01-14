@@ -23,10 +23,44 @@ export const useWorkshopData = () => {
   const loadWorkshopData = async (): Promise<void> => {
     if (!import.meta.client) return;
 
-    // Пытаемся загрузить из API (dev server или Nuxt API)
+    // В production режиме сразу используем JSON файл (API не работает на статическом хостинге)
+    if (!isDev) {
+      try {
+        if (
+          workshopData &&
+          typeof workshopData === "object" &&
+          "files" in workshopData &&
+          "notes" in workshopData &&
+          Array.isArray(workshopData.files) &&
+          Array.isArray(workshopData.notes)
+        ) {
+          workshop.value = {
+            files: (workshopData as WorkshopData).files.map((file) => ({
+              ...file,
+              previewImage: file.previewImage
+                ? (getImageSrc(file.previewImage) ?? undefined)
+                : undefined,
+              // Явно сохраняем originalFileName при загрузке из JSON
+              originalFileName: file.originalFileName,
+            })),
+            notes: (workshopData as WorkshopData).notes,
+          };
+          return;
+        } else {
+          workshop.value = { files: [], notes: [] };
+          return;
+        }
+      } catch (error) {
+        console.error("Ошибка при загрузке данных из workshop.json:", error);
+        workshop.value = { files: [], notes: [] };
+        return;
+      }
+    }
+
+    // В dev режиме пытаемся загрузить из API (dev server или Nuxt API)
     let apiUrl = "/api/workshop/data";
 
-    if (isDev && DEV_SERVER_URL) {
+    if (DEV_SERVER_URL) {
       // Проверяем доступность dev server
       try {
         const healthCheck = await fetch(`${DEV_SERVER_URL}/health`, {
@@ -69,7 +103,7 @@ export const useWorkshopData = () => {
       // Fallback на JSON файл
     }
 
-    // В production или при ошибке API загружаем из JSON
+    // Fallback на JSON файл при ошибке API в dev режиме
     try {
       if (
         workshopData &&
@@ -102,10 +136,39 @@ export const useWorkshopData = () => {
   const saveWorkshopData = async (): Promise<boolean> => {
     if (!import.meta.client) return false;
 
-    // Пытаемся сохранить через API (dev server или Nuxt API)
+    // В production режиме сохраняем через старый метод (API не работает на статическом хостинге)
+    if (!isDev) {
+      try {
+        const dataToSave: WorkshopData = {
+          files: workshop.value.files.map((file) => ({
+            ...file,
+            previewImage: file.previewImage
+              ? getImageKeyByUrl(file.previewImage) || file.previewImage
+              : undefined,
+            // Явно сохраняем originalFileName, чтобы оно не терялось
+            originalFileName: file.originalFileName,
+          })),
+          notes: workshop.value.notes,
+        };
+
+        const saveResult = await saveWorkshopJSON(dataToSave);
+
+        if (!saveResult.success) {
+          console.error("Ошибка при сохранении:", saveResult.error);
+          return false;
+        }
+
+        return true;
+      } catch {
+        console.error("Ошибка при сохранении данных workshop");
+        return false;
+      }
+    }
+
+    // В dev режиме пытаемся сохранить через API (dev server или Nuxt API)
     let apiUrl = "/api/workshop/save";
 
-    if (isDev && DEV_SERVER_URL) {
+    if (DEV_SERVER_URL) {
       // Проверяем доступность dev server
       try {
         const healthCheck = await fetch(`${DEV_SERVER_URL}/health`, {
@@ -170,7 +233,7 @@ export const useWorkshopData = () => {
       // Fallback на старый метод
     }
 
-    // В production или при ошибке API сохраняем через старый метод
+    // Fallback на старый метод при ошибке API в dev режиме
     try {
       const dataToSave: WorkshopData = {
         files: workshop.value.files.map((file) => ({

@@ -24,8 +24,14 @@ const {
 
 const activeTab = ref<"files" | "notes">("files");
 
-const { isEditingTitle, startEditingTitle, finishEditingTitle } =
-  useWorkshopEditor();
+const {
+  isEditingTitle,
+  startEditingTitle,
+  finishEditingTitle,
+  isEditingDescription,
+  startEditingDescription,
+  finishEditingDescription,
+} = useWorkshopEditor();
 
 const { isImageModalOpen, selectedFileIndex, openImageModal, closeImageModal } =
   useModalManager();
@@ -47,12 +53,27 @@ const handleFinishEditingTitle = async (index: number) => {
   }
 };
 
+const handleUpdateDescription = (index: number, newDescription: string) => {
+  if (!isDev || !workshop.value.files[index]) return;
+  updateFileField(index, "description", newDescription);
+};
+
+const handleFinishEditingDescription = async (index: number) => {
+  if (isEditingDescription.value === index) {
+    await saveWorkshopData();
+    finishEditingDescription();
+  }
+};
+
 const handleAddFile = async () => {
   if (!isDev) return;
 
   // Сбрасываем редактирование при добавлении нового файла
   if (isEditingTitle.value !== null) {
     finishEditingTitle();
+  }
+  if (isEditingDescription.value !== null) {
+    finishEditingDescription();
   }
 
   await addFile();
@@ -67,6 +88,16 @@ const handleRemoveFile = async (index: number) => {
   } else if (isEditingTitle.value !== null && isEditingTitle.value > index) {
     // Если удаляется файл с индексом меньше редактируемого, уменьшаем индекс редактирования
     startEditingTitle(isEditingTitle.value - 1);
+  }
+
+  if (isEditingDescription.value === index) {
+    finishEditingDescription();
+  } else if (
+    isEditingDescription.value !== null &&
+    isEditingDescription.value > index
+  ) {
+    // Если удаляется файл с индексом меньше редактируемого, уменьшаем индекс редактирования
+    startEditingDescription(isEditingDescription.value - 1);
   }
 
   // Сбрасываем индекс выбранного файла в модальном окне
@@ -174,12 +205,16 @@ onMounted(async () => {
           :files="workshop.files"
           :is-dev="isDev"
           :editing-title-index="isEditingTitle"
+          :editing-description-index="isEditingDescription"
           :can-remove="canRemoveFile"
           @edit-image="handleEditImage"
           @remove="handleRemoveFile"
           @update-title="handleUpdateTitle"
           @finish-editing-title="handleFinishEditingTitle"
           @start-editing-title="startEditingTitle"
+          @update-description="handleUpdateDescription"
+          @finish-editing-description="handleFinishEditingDescription"
+          @start-editing-description="startEditingDescription"
           @attach-file="handleAttachFile"
           @upload-file="handleUploadFile"
           @delete-file="handleDeleteFile"

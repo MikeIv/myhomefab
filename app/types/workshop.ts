@@ -18,6 +18,7 @@ export interface ModelFile {
   originalFileName?: string;
   version?: string;
   previewImage?: string;
+  software?: string;
   tags?: string[];
   createdAt: string;
   updatedAt?: string;
