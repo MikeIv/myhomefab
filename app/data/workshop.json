@@ -6,28 +6,20 @@
       "description": "Деталь для соединения на шурупах различных объектов",
       "filePath": "/uploads/files/file-3af3499b-bdb4-48bb-b8c3-27d287953740.stl",
       "fileFormat": "stl",
-      "software": "Fusion 360",
+      "fileSize": 81884,
+      "originalFileName": "Plate_two_holes.stl",
+      "previewImage": "workshop/plate_two_holes.png",
+      "software": null,
       "tags": [
         "тест",
         "v1.0"
       ],
+      "version": null,
       "createdAt": "2024-01-15",
-      "fileSize": 81884,
-      "originalFileName": "Plate_two_holes.stl"
+      "updatedAt": "2024-01-15"
     }
   ],
   "notes": [
-    {
-      "id": "note-1",
-      "title": "Работа с параметрическим моделированием",
-      "content": "В Fusion 360 параметрическое моделирование позволяет создавать гибкие модели, которые легко изменять. Используйте параметры для размеров и связывайте их между компонентами.",
-      "category": "technique",
-      "tags": [
-        "параметризация",
-        "основы"
-      ],
-      "createdAt": "2024-01-10"
-    },
     {
       "id": "note-2",
       "title": "Оптимизация для 3D печати",
@@ -37,7 +29,20 @@
         "3D печать",
         "оптимизация"
       ],
-      "createdAt": "2024-01-12"
+      "createdAt": "2024-01-12",
+      "updatedAt": "2024-01-12"
+    },
+    {
+      "id": "note-1",
+      "title": "Работа с параметрическим моделированием",
+      "content": "В Fusion 360 параметрическое моделирование позволяет создавать гибкие модели, которые легко изменять. Используйте параметры для размеров и связывайте их между компонентами.",
+      "category": "technique",
+      "tags": [
+        "параметризация",
+        "основы"
+      ],
+      "createdAt": "2024-01-10",
+      "updatedAt": "2024-01-10"
     }
   ]
 }

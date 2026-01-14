@@ -34,16 +34,44 @@ export const useWorkshopData = () => {
           Array.isArray(workshopData.files) &&
           Array.isArray(workshopData.notes)
         ) {
+          const rawData = workshopData as unknown as {
+            files: Array<{
+              id: string;
+              name: string;
+              description: string;
+              filePath: string;
+              fileFormat: string;
+              fileSize: number;
+              originalFileName: string;
+              previewImage: string;
+              software: string | null;
+              tags: string[];
+              version: string | null;
+              createdAt: string;
+              updatedAt: string;
+            }>;
+            notes: Fusion360Note[];
+          };
           workshop.value = {
-            files: (workshopData as WorkshopData).files.map((file) => ({
-              ...file,
+            files: rawData.files.map((file) => ({
+              id: file.id,
+              name: file.name,
+              description: file.description,
+              filePath: file.filePath,
+              fileFormat: file.fileFormat as ModelFile["fileFormat"],
+              fileSize: file.fileSize,
+              originalFileName: file.originalFileName,
               previewImage: file.previewImage
                 ? (getImageSrc(file.previewImage) ?? undefined)
                 : undefined,
-              // Явно сохраняем originalFileName при загрузке из JSON
-              originalFileName: file.originalFileName,
+              // Преобразуем null в undefined для полей с опциональным типом
+              version: file.version ?? undefined,
+              software: file.software ?? undefined,
+              tags: file.tags,
+              createdAt: file.createdAt,
+              updatedAt: file.updatedAt,
             })),
-            notes: (workshopData as WorkshopData).notes,
+            notes: rawData.notes,
           };
           return;
         } else {
@@ -113,16 +141,44 @@ export const useWorkshopData = () => {
         Array.isArray(workshopData.files) &&
         Array.isArray(workshopData.notes)
       ) {
+        const rawData = workshopData as unknown as {
+          files: Array<{
+            id: string;
+            name: string;
+            description: string;
+            filePath: string;
+            fileFormat: string;
+            fileSize: number;
+            originalFileName: string;
+            previewImage: string;
+            software: string | null;
+            tags: string[];
+            version: string | null;
+            createdAt: string;
+            updatedAt: string;
+          }>;
+          notes: Fusion360Note[];
+        };
         workshop.value = {
-          files: (workshopData as WorkshopData).files.map((file) => ({
-            ...file,
+          files: rawData.files.map((file) => ({
+            id: file.id,
+            name: file.name,
+            description: file.description,
+            filePath: file.filePath,
+            fileFormat: file.fileFormat as ModelFile["fileFormat"],
+            fileSize: file.fileSize,
+            originalFileName: file.originalFileName,
             previewImage: file.previewImage
               ? (getImageSrc(file.previewImage) ?? undefined)
               : undefined,
-            // Явно сохраняем originalFileName при загрузке из JSON
-            originalFileName: file.originalFileName,
+            // Преобразуем null в undefined для полей с опциональным типом
+            version: file.version ?? undefined,
+            software: file.software ?? undefined,
+            tags: file.tags,
+            createdAt: file.createdAt,
+            updatedAt: file.updatedAt,
           })),
-          notes: (workshopData as WorkshopData).notes,
+          notes: rawData.notes,
         };
       } else {
         workshop.value = { files: [], notes: [] };
