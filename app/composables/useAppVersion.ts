@@ -34,7 +34,9 @@ export const useAppVersion = () => {
         },
       });
 
+      // На статическом хостинге API endpoints не работают (404) - это нормально
       if (!response.ok) {
+        // Тихий возврат false для 404 и других ошибок HTTP
         return false;
       }
 
@@ -49,8 +51,8 @@ export const useAppVersion = () => {
       }
 
       return false;
-    } catch (error) {
-      console.error("Ошибка при проверке версии:", error);
+    } catch {
+      // На статическом хостинге ошибки сети/API - это нормально, тихо игнорируем
       return false;
     } finally {
       isChecking.value = false;
