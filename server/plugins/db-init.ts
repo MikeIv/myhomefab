@@ -62,7 +62,14 @@ export default defineNitroPlugin(async (_nitroApp) => {
     const sqliteDb = getDatabase();
 
     // Проверка пустоты БД
-    const isMySQLEmpty = await isMySQLDatabaseEmpty(false); // useStandalone = false (в контексте Nuxt)
+    let isMySQLEmpty = true;
+    try {
+      isMySQLEmpty = await isMySQLDatabaseEmpty(false); // useStandalone = false (в контексте Nuxt)
+    } catch {
+      // MySQL недоступен, пропускаем проверку
+      isMySQLEmpty = true;
+    }
+
     const isSQLiteEmpty = isSQLiteDatabaseEmpty(sqliteDb);
 
     // Если БД не пустая, пропускаем импорт
@@ -85,7 +92,21 @@ export default defineNitroPlugin(async (_nitroApp) => {
         const importedImages = await importImages(images, false); // useStandalone = false (в контексте Nuxt)
         console.log(`   ✅ Импортировано изображений: ${importedImages}`);
       } catch (error) {
-        console.error("   ⚠️  Ошибка при импорте изображений:", error);
+        // Проверяем, является ли ошибка ошибкой подключения к MySQL
+        if (
+          error &&
+          typeof error === "object" &&
+          "code" in error &&
+          (error.code === "ETIMEDOUT" ||
+            error.code === "ECONNREFUSED" ||
+            error.code === "ENOTFOUND")
+        ) {
+          console.warn(
+            "   ⚠️  MySQL недоступен, пропускаем импорт изображений. Приложение будет работать с JSON файлами.",
+          );
+        } else {
+          console.warn("   ⚠️  Ошибка при импорте изображений:", error);
+        }
       }
     }
 
@@ -113,7 +134,21 @@ export default defineNitroPlugin(async (_nitroApp) => {
         const importedFeatures = await importFeatures(features, false); // useStandalone = false (в контексте Nuxt)
         console.log(`   ✅ Импортировано Features: ${importedFeatures}`);
       } catch (error) {
-        console.error("   ⚠️  Ошибка при импорте Features:", error);
+        // Проверяем, является ли ошибка ошибкой подключения к MySQL
+        if (
+          error &&
+          typeof error === "object" &&
+          "code" in error &&
+          (error.code === "ETIMEDOUT" ||
+            error.code === "ECONNREFUSED" ||
+            error.code === "ENOTFOUND")
+        ) {
+          console.warn(
+            "   ⚠️  MySQL недоступен, пропускаем импорт Features. Приложение будет работать с JSON файлами.",
+          );
+        } else {
+          console.warn("   ⚠️  Ошибка при импорте Features:", error);
+        }
       }
     }
 

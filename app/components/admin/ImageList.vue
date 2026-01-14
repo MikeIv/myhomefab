@@ -56,7 +56,7 @@ defineExpose({
 
     <UAlert
       v-if="error"
-      color="red"
+      color="error"
       variant="soft"
       :title="error"
       :class="$style.alert"
@@ -134,4 +134,3 @@ defineExpose({
   justify-content: center;
 }
 </style>
-

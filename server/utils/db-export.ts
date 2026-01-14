@@ -45,9 +45,25 @@ async function queryMySQL<T = unknown>(
   sql: string,
   params?: unknown[],
 ): Promise<T[]> {
-  const pool = createMySQLPool();
-  const [rows] = await pool.execute<T[]>(sql, params);
-  return rows;
+  try {
+    const pool = createMySQLPool();
+    const [rows] = (await pool.execute(sql, params)) as [T[], unknown];
+    return rows;
+  } catch (error) {
+    // Если MySQL недоступен, возвращаем пустой массив
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      (error.code === "ETIMEDOUT" ||
+        error.code === "ECONNREFUSED" ||
+        error.code === "ENOTFOUND" ||
+        error.code === "PROTOCOL_CONNECTION_LOST")
+    ) {
+      return [];
+    }
+    throw error;
+  }
 }
 
 export interface ImageRecord {
@@ -131,8 +147,22 @@ export async function isMySQLDatabaseEmpty(
 
     return images === 0 && features === 0;
   } catch (error) {
-    console.error("Ошибка при проверке MySQL БД:", error);
-    // Если таблицы не существуют, считаем БД пустой
+    // Если MySQL недоступен, выводим предупреждение и считаем БД пустой
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      (error.code === "ETIMEDOUT" ||
+        error.code === "ECONNREFUSED" ||
+        error.code === "ENOTFOUND")
+    ) {
+      console.warn(
+        "⚠️  MySQL недоступен, пропускаем проверку MySQL БД. Приложение будет работать с SQLite и JSON файлами.",
+      );
+    } else {
+      console.warn("⚠️  Ошибка при проверке MySQL БД:", error);
+    }
+    // Если таблицы не существуют или MySQL недоступен, считаем БД пустой
     return true;
   }
 }

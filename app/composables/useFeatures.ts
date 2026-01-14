@@ -171,6 +171,9 @@ export const useFeatures = () => {
 
       const mimeType = matches[1];
       const base64Data = matches[2];
+      if (!base64Data) {
+        return null;
+      }
 
       // Конвертируем base64 в бинарные данные
       const byteCharacters = atob(base64Data);

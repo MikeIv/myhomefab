@@ -81,7 +81,7 @@ const handleImageUploaded = () => {
 
           <UAlert
             v-if="loginError"
-            color="red"
+            color="error"
             variant="soft"
             :title="loginError"
             :class="$style.alert"
@@ -93,7 +93,7 @@ const handleImageUploaded = () => {
     <div v-else :class="$style.adminPanel">
       <div :class="$style.header">
         <h1 :class="$style.title">Панель управления изображениями</h1>
-        <UButton color="gray" variant="soft" @click="handleLogout">
+        <UButton color="neutral" variant="soft" @click="handleLogout">
           Выйти
         </UButton>
       </div>
@@ -176,7 +176,9 @@ const handleImageUploaded = () => {
   border: 1px solid #d1d5db;
   border-radius: rem(8);
   font-size: rem(14);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 
   &:focus {
     outline: none;
@@ -226,4 +228,3 @@ const handleImageUploaded = () => {
   width: 100%;
 }
 </style>
-

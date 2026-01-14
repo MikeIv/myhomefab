@@ -24,10 +24,17 @@ export default defineEventHandler(async (event) => {
     try {
       // Проверяем, что все индексы корректны
       for (let i = 0; i < body.length; i++) {
-        if (body[i].featureIndex !== i) {
+        const feature = body[i];
+        if (!feature) {
           throw createError({
             statusCode: 400,
-            statusMessage: `Неверный индекс блока: ${body[i].featureIndex}. Ожидается ${i}`,
+            statusMessage: `Отсутствует блок с индексом ${i}`,
+          });
+        }
+        if (feature.featureIndex !== i) {
+          throw createError({
+            statusCode: 400,
+            statusMessage: `Неверный индекс блока: ${feature.featureIndex}. Ожидается ${i}`,
           });
         }
       }

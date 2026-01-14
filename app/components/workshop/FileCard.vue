@@ -103,11 +103,19 @@ const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
   if (file) {
-    const allowedExtensions = [".stl", ".glb", ".gltf", ".obj", ".f3d", ".step", ".3mf"];
+    const allowedExtensions = [
+      ".stl",
+      ".glb",
+      ".gltf",
+      ".obj",
+      ".f3d",
+      ".step",
+      ".3mf",
+    ];
     const fileExtension = file.name
       .substring(file.name.lastIndexOf("."))
       .toLowerCase();
-    
+
     if (allowedExtensions.includes(fileExtension)) {
       emit("uploadFile", props.index, file);
       // Сброс input для возможности повторного выбора того же файла
@@ -147,7 +155,7 @@ const handleImageChange = (event: Event) => {
       target.value = "";
     };
     reader.readAsDataURL(file);
-    
+
     // Сброс input для возможности повторного выбора того же файла
     target.value = "";
   }
@@ -156,7 +164,10 @@ const handleImageChange = (event: Event) => {
 const hasPreviewImage = computed(() => !!props.file.previewImage);
 const hasFile = computed(() => !!props.file.filePath);
 
-const getFileExtension = (filePath?: string, originalFileName?: string): string => {
+const getFileExtension = (
+  filePath?: string,
+  originalFileName?: string,
+): string => {
   const fileName = originalFileName || filePath;
   if (!fileName) return "";
   const ext = fileName.substring(fileName.lastIndexOf(".") + 1).toUpperCase();
@@ -176,14 +187,16 @@ const getFileName = (filePath?: string, originalFileName?: string): string => {
 const handleDeleteFile = async (event: Event) => {
   event.stopPropagation();
   if (!props.file.filePath) return;
-  
+
   if (confirm("Вы уверены, что хотите удалить этот файл?")) {
     const result = await deleteFile(props.file.filePath);
     if (result.success) {
       emit("deleteFile", props.index);
     } else {
       console.error("Ошибка при удалении файла:", result.error);
-      alert(`Ошибка при удалении файла: ${result.error || "Неизвестная ошибка"}`);
+      alert(
+        `Ошибка при удалении файла: ${result.error || "Неизвестная ошибка"}`,
+      );
     }
   }
 };
@@ -275,7 +288,9 @@ const handleDeleteFile = async (event: Event) => {
           <div :class="$style.infoContent">
             <div :class="$style.infoItem">
               <span :class="$style.infoLabel">Название:</span>
-              <span :class="$style.infoValue">{{ getFileName(file.filePath, file.originalFileName) }}</span>
+              <span :class="$style.infoValue">{{
+                getFileName(file.filePath, file.originalFileName)
+              }}</span>
             </div>
             <div :class="$style.infoItem">
               <span :class="$style.infoLabel">Размер:</span>
@@ -285,7 +300,9 @@ const handleDeleteFile = async (event: Event) => {
             </div>
             <div :class="$style.infoItem">
               <span :class="$style.infoLabel">Расширение:</span>
-              <span :class="$style.infoValue">{{ getFileExtension(file.filePath, file.originalFileName) }}</span>
+              <span :class="$style.infoValue">{{
+                getFileExtension(file.filePath, file.originalFileName)
+              }}</span>
             </div>
           </div>
           <button

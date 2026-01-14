@@ -20,6 +20,7 @@ npm run fonts:download
 4. Распакуйте архив и скопируйте файлы в эту папку
 
 Или используйте [google-webfonts-helper](https://google-webfonts-helper.herokuapp.com/fonts/roboto-condensed):
+
 1. Выберите веса: 100, 200, 300, 400, 500, 600, 700, 800
 2. Выберите форматы: WOFF2 и WOFF
 3. Скачайте файлы и поместите их в эту папку
@@ -48,4 +49,3 @@ npm run fonts:download
 ## Подключение
 
 Шрифты автоматически подключаются через файл `app/assets/styles/base/_fonts.scss`.
-

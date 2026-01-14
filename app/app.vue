@@ -23,9 +23,12 @@ if (import.meta.client && !import.meta.dev) {
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     // Проверка периодически (каждые 5 минут)
-    const intervalId = setInterval(() => {
-      reloadIfNewVersion();
-    }, 5 * 60 * 1000); // 5 минут
+    const intervalId = setInterval(
+      () => {
+        reloadIfNewVersion();
+      },
+      5 * 60 * 1000,
+    ); // 5 минут
 
     onUnmounted(() => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -35,8 +38,7 @@ if (import.meta.client && !import.meta.dev) {
 }
 
 useHead({
-  titleTemplate: (title) =>
-    title ? `${title} | 3D Models` : siteName,
+  titleTemplate: (title) => (title ? `${title} | 3D Models` : siteName),
   htmlAttrs: {
     lang: "ru",
   },

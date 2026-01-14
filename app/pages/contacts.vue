@@ -40,7 +40,9 @@ const telegramChannel = "https://t.me/homefab3d";
               <div :class="$style.iconWrapper">
                 <EmailIcon :class="$style.icon" />
               </div>
-              <h2 :class="$style.cardTitle">{{ $t("contacts.email.title") }}</h2>
+              <h2 :class="$style.cardTitle">
+                {{ $t("contacts.email.title") }}
+              </h2>
               <a :href="`mailto:${email}`" :class="$style.contactLink">
                 {{ email }}
               </a>
@@ -50,8 +52,15 @@ const telegramChannel = "https://t.me/homefab3d";
               <div :class="$style.iconWrapper">
                 <TelegramIcon :class="$style.icon" />
               </div>
-              <h2 :class="$style.cardTitle">{{ $t("contacts.telegram.title") }}</h2>
-              <a :href="telegramChannel" target="_blank" rel="noopener noreferrer" :class="$style.contactLink">
+              <h2 :class="$style.cardTitle">
+                {{ $t("contacts.telegram.title") }}
+              </h2>
+              <a
+                :href="telegramChannel"
+                target="_blank"
+                rel="noopener noreferrer"
+                :class="$style.contactLink"
+              >
                 @homefab3d
               </a>
             </article>
@@ -71,7 +80,11 @@ const telegramChannel = "https://t.me/homefab3d";
 
 .header {
   padding: rem(60) rem(20);
-  background: linear-gradient(180deg, var(--a-whiteBg) 0%, var(--a-mainBg) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--a-whiteBg) 0%,
+    var(--a-mainBg) 100%
+  );
   text-align: center;
 
   @include tablet {
@@ -148,7 +161,11 @@ const telegramChannel = "https://t.me/homefab3d";
 }
 
 .contactCard {
-  background: linear-gradient(135deg, var(--a-whiteBg) 0%, var(--a-lightPrimaryBg) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--a-whiteBg) 0%,
+    var(--a-lightPrimaryBg) 100%
+  );
   border: 1px solid var(--a-border);
   border-radius: var(--a-borderR--card);
   padding: rem(40) rem(32);

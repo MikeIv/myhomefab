@@ -13,7 +13,7 @@
 3. Откройте консоль браузера (F12)
 4. Выполните команду:
    ```javascript
-   exportFeaturesToJSON()
+   exportFeaturesToJSON();
    ```
 5. Файл `features.json` будет автоматически скачан
 6. Скопируйте содержимое скачанного файла в `app/data/features.json`
@@ -24,7 +24,7 @@
 1. Откройте консоль браузера (F12)
 2. Выполните:
    ```javascript
-   localStorage.getItem('features_section_data')
+   localStorage.getItem("features_section_data");
    ```
 3. Скопируйте полученный JSON
 4. Вставьте в файл `app/data/features.json` (замените содержимое)
@@ -70,6 +70,7 @@
 3. **Загруженные изображения** сохраняются как base64 в localStorage и в JSON файле.
 
 4. После обновления `app/data/features.json` выполните билд проекта:
+
    ```bash
    yarn build
    ```
@@ -86,4 +87,3 @@
 ```
 
 Но для этого нужно будет сохранять данные localStorage в файл перед билдом.
-

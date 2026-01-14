@@ -175,6 +175,7 @@ const handleFileSelect = async (event: Event) => {
             @click="handleSave"
           >
             <svg
+              v-if="!isSaving"
               :class="$style.devIcon"
               viewBox="0 0 24 24"
               fill="none"
@@ -202,7 +203,8 @@ const handleFileSelect = async (event: Event) => {
                 stroke-linejoin="round"
               />
             </svg>
-            <span>Сохранить</span>
+            <span v-if="isSaving" :class="$style.spinner"></span>
+            <span>{{ isSaving ? "Сохранение..." : "Сохранить" }}</span>
           </button>
           <button
             :class="$style.devButton"
@@ -338,6 +340,7 @@ const handleFileSelect = async (event: Event) => {
           @click="handleSave"
         >
           <svg
+            v-if="!isSaving"
             :class="$style.sideDevIcon"
             viewBox="0 0 24 24"
             fill="none"
@@ -365,7 +368,8 @@ const handleFileSelect = async (event: Event) => {
               stroke-linejoin="round"
             />
           </svg>
-          <span>Сохранить БД</span>
+          <span v-if="isSaving" :class="$style.spinner"></span>
+          <span>{{ isSaving ? "Сохранение..." : "Сохранить БД" }}</span>
         </button>
         <button
           :class="$style.sideDevButton"
@@ -824,5 +828,26 @@ const handleFileSelect = async (event: Event) => {
   width: rem(20);
   height: rem(20);
   flex-shrink: 0;
+}
+
+.spinner {
+  width: rem(16);
+  height: rem(16);
+  border: 2px solid var(--a-border);
+  border-top-color: var(--a-text-primary);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  flex-shrink: 0;
+
+  @include tablet {
+    width: rem(18);
+    height: rem(18);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

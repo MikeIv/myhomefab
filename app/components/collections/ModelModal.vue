@@ -40,8 +40,12 @@ watch(
         printInfo: newModel.printInfo ? { ...newModel.printInfo } : undefined,
       };
       // Определяем режимы на основе данных
-      dimensionsMode.value = newModel.technicalSpecs.dimensionsText?.trim() ? "text" : "structured";
-      weightMode.value = newModel.technicalSpecs.weightText?.trim() ? "text" : "structured";
+      dimensionsMode.value = newModel.technicalSpecs.dimensionsText?.trim()
+        ? "text"
+        : "structured";
+      weightMode.value = newModel.technicalSpecs.weightText?.trim()
+        ? "text"
+        : "structured";
     } else {
       localModel.value = null;
     }
@@ -64,14 +68,15 @@ const handleSave = () => {
 
   // Подготавливаем данные для сохранения в зависимости от режимов
   const technicalSpecs = { ...localModel.value.technicalSpecs };
-  
+
   // Если выбран текстовый режим для размеров, очищаем структурированные данные
   if (dimensionsMode.value === "text") {
-    technicalSpecs.dimensionsText = technicalSpecs.dimensionsText?.trim() || undefined;
+    technicalSpecs.dimensionsText =
+      technicalSpecs.dimensionsText?.trim() || undefined;
   } else {
     technicalSpecs.dimensionsText = undefined;
   }
-  
+
   // Если выбран текстовый режим для веса, очищаем структурированные данные
   if (weightMode.value === "text") {
     technicalSpecs.weightText = technicalSpecs.weightText?.trim() || undefined;
@@ -83,20 +88,22 @@ const handleSave = () => {
   const modelToSave: Model = {
     ...localModel.value,
     technicalSpecs,
-    printInfo: localModel.value.printInfo &&
+    printInfo:
+      localModel.value.printInfo &&
       (localModel.value.printInfo.printerModel ||
         localModel.value.printInfo.filamentType ||
         localModel.value.printInfo.filamentColor ||
         localModel.value.printInfo.supports !== undefined ||
         localModel.value.printInfo.notes)
-      ? {
-          ...localModel.value.printInfo,
-          printerModel: localModel.value.printInfo.printerModel || undefined,
-          filamentType: localModel.value.printInfo.filamentType || undefined,
-          filamentColor: localModel.value.printInfo.filamentColor || undefined,
-          notes: localModel.value.printInfo.notes || undefined,
-        }
-      : undefined,
+        ? {
+            ...localModel.value.printInfo,
+            printerModel: localModel.value.printInfo.printerModel || undefined,
+            filamentType: localModel.value.printInfo.filamentType || undefined,
+            filamentColor:
+              localModel.value.printInfo.filamentColor || undefined,
+            notes: localModel.value.printInfo.notes || undefined,
+          }
+        : undefined,
   };
 
   emit("update", modelToSave);
@@ -115,17 +122,23 @@ const handleCancel = () => {
         dimensionsText: props.model.technicalSpecs.dimensionsText || undefined,
         weightText: props.model.technicalSpecs.weightText || undefined,
       },
-      printInfo: props.model.printInfo ? { ...props.model.printInfo } : undefined,
+      printInfo: props.model.printInfo
+        ? { ...props.model.printInfo }
+        : undefined,
     };
-    dimensionsMode.value = props.model.technicalSpecs.dimensionsText?.trim() ? "text" : "structured";
-    weightMode.value = props.model.technicalSpecs.weightText?.trim() ? "text" : "structured";
+    dimensionsMode.value = props.model.technicalSpecs.dimensionsText?.trim()
+      ? "text"
+      : "structured";
+    weightMode.value = props.model.technicalSpecs.weightText?.trim()
+      ? "text"
+      : "structured";
   }
   isEditingSpecs.value = false;
 };
 
 const startEditing = () => {
   if (!canEdit.value || !localModel.value) return;
-  
+
   // Инициализируем printInfo, если его нет
   if (!localModel.value.printInfo) {
     localModel.value.printInfo = {
@@ -136,7 +149,7 @@ const startEditing = () => {
       notes: "",
     };
   }
-  
+
   // Инициализируем текстовые поля, если их нет
   if (!localModel.value.technicalSpecs.dimensionsText) {
     localModel.value.technicalSpecs.dimensionsText = "";
@@ -144,28 +157,35 @@ const startEditing = () => {
   if (!localModel.value.technicalSpecs.weightText) {
     localModel.value.technicalSpecs.weightText = "";
   }
-  
+
   isEditingSpecs.value = true;
 };
 
 const toggleDimensionsMode = () => {
   if (!localModel.value) return;
-  
-  dimensionsMode.value = dimensionsMode.value === "structured" ? "text" : "structured";
-  
+
+  dimensionsMode.value =
+    dimensionsMode.value === "structured" ? "text" : "structured";
+
   // Инициализируем текстовое поле, если его нет
-  if (dimensionsMode.value === "text" && !localModel.value.technicalSpecs.dimensionsText) {
+  if (
+    dimensionsMode.value === "text" &&
+    !localModel.value.technicalSpecs.dimensionsText
+  ) {
     localModel.value.technicalSpecs.dimensionsText = "";
   }
 };
 
 const toggleWeightMode = () => {
   if (!localModel.value) return;
-  
+
   weightMode.value = weightMode.value === "structured" ? "text" : "structured";
-  
+
   // Инициализируем текстовое поле, если его нет
-  if (weightMode.value === "text" && !localModel.value.technicalSpecs.weightText) {
+  if (
+    weightMode.value === "text" &&
+    !localModel.value.technicalSpecs.weightText
+  ) {
     localModel.value.technicalSpecs.weightText = "";
   }
 };
@@ -227,14 +247,21 @@ onUnmounted(() => {
                 :alt="localModel.title"
                 :class="$style.previewImage"
               />
-              <div v-else :class="$style.imagePlaceholder" role="img" :aria-label="$t('portfolio.modal.noImage')">
+              <div
+                v-else
+                :class="$style.imagePlaceholder"
+                role="img"
+                :aria-label="$t('portfolio.modal.noImage')"
+              >
                 {{ $t("portfolio.modal.noImage") }}
               </div>
             </figure>
 
             <section :class="$style.infoSection">
               <header>
-                <h2 id="modal-title" :class="$style.title">{{ localModel.title }}</h2>
+                <h2 id="modal-title" :class="$style.title">
+                  {{ localModel.title }}
+                </h2>
                 <p
                   v-if="localModel.shortDescription"
                   id="modal-description"
@@ -251,7 +278,10 @@ onUnmounted(() => {
                 </p>
               </header>
 
-              <section :class="$style.specsSection" :aria-label="$t('portfolio.modal.technicalSpecs')">
+              <section
+                :class="$style.specsSection"
+                :aria-label="$t('portfolio.modal.technicalSpecs')"
+              >
                 <header :class="$style.sectionHeader">
                   <h3 :class="$style.sectionTitle">
                     {{ $t("portfolio.modal.technicalSpecs") }}
@@ -266,12 +296,21 @@ onUnmounted(() => {
                     {{ $t("portfolio.modal.edit") }}
                   </button>
                 </header>
-                <dl :class="$style.specsList" :aria-live="isEditingSpecs ? 'polite' : undefined">
+                <dl
+                  :class="$style.specsList"
+                  :aria-live="isEditingSpecs ? 'polite' : undefined"
+                >
                   <div :class="$style.specItem">
-                    <dt :class="$style.specLabel">{{ $t("portfolio.modal.dimensions") }}</dt>
+                    <dt :class="$style.specLabel">
+                      {{ $t("portfolio.modal.dimensions") }}
+                    </dt>
                     <dd :class="$style.specValue">
                       <template v-if="!isEditingSpecs">
-                        <template v-if="localModel.technicalSpecs.dimensionsText?.trim()">
+                        <template
+                          v-if="
+                            localModel.technicalSpecs.dimensionsText?.trim()
+                          "
+                        >
                           {{ localModel.technicalSpecs.dimensionsText }}
                         </template>
                         <template v-else>
@@ -282,9 +321,17 @@ onUnmounted(() => {
                         </template>
                       </template>
                       <div v-else :class="$style.editContainer">
-                        <div :class="$style.modeToggle" role="group" aria-label="Режим ввода размеров">
+                        <div
+                          :class="$style.modeToggle"
+                          role="group"
+                          aria-label="Режим ввода размеров"
+                        >
                           <button
-                            :class="[$style.toggleButton, dimensionsMode === 'structured' && $style.toggleButtonActive]"
+                            :class="[
+                              $style.toggleButton,
+                              dimensionsMode === 'structured' &&
+                                $style.toggleButtonActive,
+                            ]"
                             type="button"
                             aria-label="Структурированный режим"
                             @click="toggleDimensionsMode"
@@ -292,7 +339,11 @@ onUnmounted(() => {
                             Структурированный
                           </button>
                           <button
-                            :class="[$style.toggleButton, dimensionsMode === 'text' && $style.toggleButtonActive]"
+                            :class="[
+                              $style.toggleButton,
+                              dimensionsMode === 'text' &&
+                                $style.toggleButtonActive,
+                            ]"
                             type="button"
                             aria-label="Текстовый режим"
                             @click="toggleDimensionsMode"
@@ -300,9 +351,16 @@ onUnmounted(() => {
                             Текстовый
                           </button>
                         </div>
-                        <div v-if="dimensionsMode === 'structured'" :class="$style.editInputs" role="group" aria-label="Размеры модели">
+                        <div
+                          v-if="dimensionsMode === 'structured'"
+                          :class="$style.editInputs"
+                          role="group"
+                          aria-label="Размеры модели"
+                        >
                           <input
-                            v-model.number="localModel.technicalSpecs.dimensions.width"
+                            v-model.number="
+                              localModel.technicalSpecs.dimensions.width
+                            "
                             :class="$style.editInput"
                             type="number"
                             step="0.1"
@@ -310,7 +368,9 @@ onUnmounted(() => {
                           />
                           <span aria-hidden="true">×</span>
                           <input
-                            v-model.number="localModel.technicalSpecs.dimensions.height"
+                            v-model.number="
+                              localModel.technicalSpecs.dimensions.height
+                            "
                             :class="$style.editInput"
                             type="number"
                             step="0.1"
@@ -318,7 +378,9 @@ onUnmounted(() => {
                           />
                           <span aria-hidden="true">×</span>
                           <input
-                            v-model.number="localModel.technicalSpecs.dimensions.depth"
+                            v-model.number="
+                              localModel.technicalSpecs.dimensions.depth
+                            "
                             :class="$style.editInput"
                             type="number"
                             step="0.1"
@@ -346,10 +408,14 @@ onUnmounted(() => {
                     </dd>
                   </div>
                   <div :class="$style.specItem">
-                    <dt :class="$style.specLabel">{{ $t("portfolio.modal.weight") }}</dt>
+                    <dt :class="$style.specLabel">
+                      {{ $t("portfolio.modal.weight") }}
+                    </dt>
                     <dd :class="$style.specValue">
                       <template v-if="!isEditingSpecs">
-                        <template v-if="localModel.technicalSpecs.weightText?.trim()">
+                        <template
+                          v-if="localModel.technicalSpecs.weightText?.trim()"
+                        >
                           {{ localModel.technicalSpecs.weightText }}
                         </template>
                         <template v-else>
@@ -357,9 +423,17 @@ onUnmounted(() => {
                         </template>
                       </template>
                       <div v-else :class="$style.editContainer">
-                        <div :class="$style.modeToggle" role="group" aria-label="Режим ввода веса">
+                        <div
+                          :class="$style.modeToggle"
+                          role="group"
+                          aria-label="Режим ввода веса"
+                        >
                           <button
-                            :class="[$style.toggleButton, weightMode === 'structured' && $style.toggleButtonActive]"
+                            :class="[
+                              $style.toggleButton,
+                              weightMode === 'structured' &&
+                                $style.toggleButtonActive,
+                            ]"
                             type="button"
                             aria-label="Структурированный режим"
                             @click="toggleWeightMode"
@@ -367,7 +441,11 @@ onUnmounted(() => {
                             Структурированный
                           </button>
                           <button
-                            :class="[$style.toggleButton, weightMode === 'text' && $style.toggleButtonActive]"
+                            :class="[
+                              $style.toggleButton,
+                              weightMode === 'text' &&
+                                $style.toggleButtonActive,
+                            ]"
                             type="button"
                             aria-label="Текстовый режим"
                             @click="toggleWeightMode"
@@ -375,7 +453,10 @@ onUnmounted(() => {
                             Текстовый
                           </button>
                         </div>
-                        <div v-if="weightMode === 'structured'" :class="$style.editInputs">
+                        <div
+                          v-if="weightMode === 'structured'"
+                          :class="$style.editInputs"
+                        >
                           <input
                             v-model.number="localModel.technicalSpecs.weight"
                             :class="$style.editInput"
@@ -391,13 +472,17 @@ onUnmounted(() => {
                           :class="$style.editInput"
                           type="text"
                           placeholder="например: 150 г"
-                          :aria-label="$t('portfolio.modal.weight') + ' (текстовый режим)'"
+                          :aria-label="
+                            $t('portfolio.modal.weight') + ' (текстовый режим)'
+                          "
                         />
                       </div>
                     </dd>
                   </div>
                   <div :class="$style.specItem">
-                    <dt :class="$style.specLabel">{{ $t("portfolio.modal.material") }}</dt>
+                    <dt :class="$style.specLabel">
+                      {{ $t("portfolio.modal.material") }}
+                    </dt>
                     <dd :class="$style.specValue">
                       <template v-if="!isEditingSpecs">
                         {{ localModel.technicalSpecs.material || "-" }}
@@ -413,7 +498,9 @@ onUnmounted(() => {
                     </dd>
                   </div>
                   <div :class="$style.specItem">
-                    <dt :class="$style.specLabel">{{ $t("portfolio.modal.printTime") }}</dt>
+                    <dt :class="$style.specLabel">
+                      {{ $t("portfolio.modal.printTime") }}
+                    </dt>
                     <dd :class="$style.specValue">
                       <template v-if="!isEditingSpecs">
                         {{ localModel.technicalSpecs.printTime || "-" }}
@@ -431,7 +518,12 @@ onUnmounted(() => {
                   </div>
                 </dl>
                 <footer v-if="isEditingSpecs" :class="$style.editActions">
-                  <button :class="$style.saveButton" type="button" aria-label="Сохранить изменения" @click="handleSave">
+                  <button
+                    :class="$style.saveButton"
+                    type="button"
+                    aria-label="Сохранить изменения"
+                    @click="handleSave"
+                  >
                     {{ $t("portfolio.modal.save") }}
                   </button>
                   <button
@@ -446,12 +538,21 @@ onUnmounted(() => {
               </section>
 
               <aside
-                v-if="isDev && (localModel.printInfo || (isEditingSpecs && canEdit && localModel.printInfo))"
+                v-if="
+                  isDev &&
+                  (localModel.printInfo ||
+                    (isEditingSpecs && canEdit && localModel.printInfo))
+                "
                 :class="$style.printSection"
                 :aria-label="$t('portfolio.modal.printInfo')"
               >
-                <h3 :class="$style.sectionTitle">{{ $t("portfolio.modal.printInfo") }}</h3>
-                <dl :class="$style.specsList" :aria-live="isEditingSpecs ? 'polite' : undefined">
+                <h3 :class="$style.sectionTitle">
+                  {{ $t("portfolio.modal.printInfo") }}
+                </h3>
+                <dl
+                  :class="$style.specsList"
+                  :aria-live="isEditingSpecs ? 'polite' : undefined"
+                >
                   <div :class="$style.specItem">
                     <dt :class="$style.specLabel">
                       {{ $t("portfolio.modal.printerModel") }}
@@ -512,7 +613,13 @@ onUnmounted(() => {
                     </dt>
                     <dd :class="$style.specValue">
                       <template v-if="!isEditingSpecs">
-                        {{ localModel.printInfo?.supports !== undefined ? (localModel.printInfo.supports ? "Да" : "Нет") : "-" }}
+                        {{
+                          localModel.printInfo?.supports !== undefined
+                            ? localModel.printInfo.supports
+                              ? "Да"
+                              : "Нет"
+                            : "-"
+                        }}
                       </template>
                       <template v-else-if="localModel.printInfo">
                         <select
@@ -528,7 +635,9 @@ onUnmounted(() => {
                     </dd>
                   </div>
                   <div :class="$style.specItem">
-                    <dt :class="$style.specLabel">{{ $t("portfolio.modal.notes") }}</dt>
+                    <dt :class="$style.specLabel">
+                      {{ $t("portfolio.modal.notes") }}
+                    </dt>
                     <dd :class="$style.specValue">
                       <template v-if="!isEditingSpecs">
                         {{ localModel.printInfo?.notes || "-" }}

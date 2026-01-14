@@ -28,7 +28,7 @@ watch(
     if (newPath && canvasRef.value) {
       loadModel(newPath);
     }
-  }
+  },
 );
 </script>
 
@@ -66,7 +66,7 @@ watch(
   width: 100%;
   height: 100%;
   min-height: rem(400);
-  
+
   @include tablet {
     min-height: rem(500);
   }

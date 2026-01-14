@@ -121,7 +121,7 @@ const hasPreviewImage = computed(() => !!props.model.previewImage);
     <div :class="$style.imageWrapper">
       <img
         v-if="hasPreviewImage"
-        :src="model.previewImage"
+        :src="model.previewImage || undefined"
         :alt="model.title"
         :class="$style.image"
         loading="lazy"

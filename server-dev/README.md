@@ -5,11 +5,13 @@
 ## Запуск
 
 ### Запуск только dev сервера:
+
 ```bash
 yarn dev:server
 ```
 
 ### Запуск Nuxt и dev сервера одновременно:
+
 ```bash
 yarn dev:all
 ```
@@ -40,6 +42,7 @@ yarn dev:all
 Загруженные файлы сохраняются в `public/uploads/files/`.
 
 Поддерживаемые форматы:
+
 - STL
 - GLB
 - GLTF
@@ -51,11 +54,13 @@ yarn dev:all
 ## Скрипты
 
 ### Экспорт данных в JSON для production:
+
 ```bash
 yarn export:workshop
 ```
 
 ### Импорт данных из JSON в БД:
+
 ```bash
 yarn import:workshop
 ```

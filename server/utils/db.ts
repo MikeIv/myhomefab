@@ -47,7 +47,7 @@ export async function query<T = unknown>(
   params?: unknown[],
 ): Promise<T[]> {
   const pool = getDatabasePool();
-  const [rows] = await pool.execute<T[]>(sql, params);
+  const [rows] = (await pool.execute(sql, params)) as [T[], unknown];
   return rows;
 }
 
@@ -56,7 +56,7 @@ export async function queryOne<T = unknown>(
   params?: unknown[],
 ): Promise<T | null> {
   const rows = await query<T>(sql, params);
-  return rows.length > 0 ? rows[0] : null;
+  return rows.length > 0 ? (rows[0] ?? null) : null;
 }
 
 export async function closePool(): Promise<void> {

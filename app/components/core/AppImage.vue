@@ -29,4 +29,3 @@ const imageSrc = computed(() => getImageSrc(props.src));
     :class="className"
   />
 </template>
-

@@ -39,11 +39,29 @@ export const useSeoMetaConfig = () => {
       ogImage: image,
       ogImageAlt: imageAlt,
       ogUrl: url,
-      ogType: type,
+      ogType: type as
+        | "article"
+        | "website"
+        | "book"
+        | "profile"
+        | "music.song"
+        | "music.album"
+        | "music.playlist"
+        | "music.radio_status"
+        | "video.movie"
+        | "video.episode"
+        | "video.tv_show"
+        | "video.other"
+        | undefined,
       ogSiteName: siteName,
       ogLocale: locale,
       ogImageSecureUrl: image,
-      twitterCard,
+      twitterCard: twitterCard as
+        | "summary"
+        | "summary_large_image"
+        | "app"
+        | "player"
+        | undefined,
       twitterTitle: title,
       twitterDescription: description,
       twitterImage: image,

@@ -18,23 +18,25 @@ const imageUrl = getImageSrc(imageKey); // Возвращает правильн
 ```
 
 **Что делает:**
+
 - Принимает ключ изображения, URL или null
 - Возвращает валидный URL для использования в `img src` или `backgroundImage`
 - Автоматически обрабатывает ключи из `app/assets/images/`
 - Поддерживает base64, абсолютные URL и относительные пути
 
 **Примеры:**
+
 ```typescript
 // Ключ изображения
-getImageSrc("collections/household/house-002.jpeg") 
+getImageSrc("collections/household/house-002.jpeg");
 // → "/_nuxt/assets/images/collections/household/house-002.jpeg"
 
 // Уже валидный URL
-getImageSrc("/_nuxt/assets/images/main-page/main-page-01.jpg")
+getImageSrc("/_nuxt/assets/images/main-page/main-page-01.jpg");
 // → "/_nuxt/assets/images/main-page/main-page-01.jpg"
 
 // null
-getImageSrc(null) 
+getImageSrc(null);
 // → null
 ```
 
@@ -60,6 +62,7 @@ getImageSrc(null)
 ```
 
 **Props:**
+
 - `src` - ключ изображения, URL или null
 - `alt` - альтернативный текст (по умолчанию "")
 - `loading` - "lazy" | "eager" (по умолчанию "lazy")

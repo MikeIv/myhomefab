@@ -25,11 +25,7 @@ const categoryLabels: Record<Fusion360Note["category"], string> = {
     </div>
     <p :class="$style.content">{{ note.content }}</p>
     <div v-if="note.tags && note.tags.length > 0" :class="$style.tags">
-      <span
-        v-for="tag in note.tags"
-        :key="tag"
-        :class="$style.tag"
-      >
+      <span v-for="tag in note.tags" :key="tag" :class="$style.tag">
         {{ tag }}
       </span>
     </div>
@@ -45,7 +41,9 @@ const categoryLabels: Record<Fusion360Note["category"], string> = {
   border-radius: var(--a-borderR--card);
   padding: rem(24);
   box-shadow: 0 rem(2) rem(8) rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
   gap: rem(16);
@@ -136,4 +134,3 @@ const categoryLabels: Record<Fusion360Note["category"], string> = {
   color: var(--a-text-light);
 }
 </style>
-

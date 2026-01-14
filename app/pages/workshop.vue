@@ -49,11 +49,37 @@ const handleFinishEditingTitle = async (index: number) => {
 
 const handleAddFile = async () => {
   if (!isDev) return;
+
+  // Сбрасываем редактирование при добавлении нового файла
+  if (isEditingTitle.value !== null) {
+    finishEditingTitle();
+  }
+
   await addFile();
 };
 
 const handleRemoveFile = async (index: number) => {
   if (!isDev || !canRemoveFile.value) return;
+
+  // Сбрасываем индексы редактирования, если удаляемый файл был в процессе редактирования
+  if (isEditingTitle.value === index) {
+    finishEditingTitle();
+  } else if (isEditingTitle.value !== null && isEditingTitle.value > index) {
+    // Если удаляется файл с индексом меньше редактируемого, уменьшаем индекс редактирования
+    startEditingTitle(isEditingTitle.value - 1);
+  }
+
+  // Сбрасываем индекс выбранного файла в модальном окне
+  if (selectedFileIndex.value === index) {
+    closeImageModal();
+  } else if (
+    selectedFileIndex.value !== null &&
+    selectedFileIndex.value > index
+  ) {
+    // Если удаляется файл с индексом меньше выбранного, уменьшаем индекс выбранного файла
+    selectedFileIndex.value = selectedFileIndex.value - 1;
+  }
+
   await removeFile(index);
 };
 
@@ -95,7 +121,11 @@ const handleUploadFile = async (index: number, file: File) => {
       // Обновляем информацию о файле в карточке
       updateFileField(index, "filePath", result.file.filePath);
       updateFileField(index, "fileSize", result.file.fileSize);
-      updateFileField(index, "fileFormat", result.file.fileFormat as ModelFile["fileFormat"]);
+      updateFileField(
+        index,
+        "fileFormat",
+        result.file.fileFormat as ModelFile["fileFormat"],
+      );
       updateFileField(index, "originalFileName", result.file.originalName);
       await saveWorkshopData();
     } else {
@@ -113,6 +143,13 @@ const handleDeleteFile = async (index: number) => {
   updateFileField(index, "filePath", "");
   updateFileField(index, "fileSize", undefined);
   updateFileField(index, "originalFileName", undefined);
+  await saveWorkshopData();
+};
+
+const handleUpdatePreviewImage = async (index: number, imageData: string) => {
+  if (!isDev || !workshop.value.files[index]) return;
+
+  updateFileField(index, "previewImage", imageData);
   await saveWorkshopData();
 };
 
@@ -147,6 +184,7 @@ onMounted(async () => {
           @upload-file="handleUploadFile"
           @delete-file="handleDeleteFile"
           @add-file="handleAddFile"
+          @update-preview-image="handleUpdatePreviewImage"
         />
 
         <WorkshopNotesSection

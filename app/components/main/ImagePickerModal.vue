@@ -62,11 +62,7 @@ watch(
 
 <template>
   <Teleport to="body">
-    <div
-      v-if="isOpen"
-      :class="$style.modalOverlay"
-      @click="handleClose"
-    >
+    <div v-if="isOpen" :class="$style.modalOverlay" @click="handleClose">
       <div :class="$style.modalContent" @click.stop>
         <div :class="$style.modalHeader">
           <h3 :class="$style.modalTitle">Выберите изображение</h3>
@@ -221,4 +217,3 @@ watch(
   line-height: 1.3;
 }
 </style>
-

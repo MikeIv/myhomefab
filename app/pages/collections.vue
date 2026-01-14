@@ -40,6 +40,7 @@ const {
   isModalOpen,
   isImageModalOpen,
   selectedModelIndex,
+  selectedFileIndex,
   openModal,
   closeModal,
   openImageModal,
@@ -83,14 +84,14 @@ const handleModelUpdate = async (updatedModel: Model) => {
 
 const handleSelectImage = async (imageKey: string) => {
   if (
-    selectedModelIndex.value === null ||
+    selectedFileIndex.value === null ||
     !currentSection.value ||
-    !currentSection.value.models[selectedModelIndex.value]
+    !currentSection.value.models[selectedFileIndex.value]
   ) {
     return;
   }
 
-  const index = selectedModelIndex.value;
+  const index = selectedFileIndex.value;
   const imagePath = imageMap.value.get(imageKey) || getImageUrl(imageKey);
   const model = currentSection.value.models[index];
 

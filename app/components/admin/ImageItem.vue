@@ -49,7 +49,7 @@ const handleReplaceClick = () => {
 const handleReplaceFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    replaceFile.value = target.files[0];
+    replaceFile.value = target.files[0] || null;
     replaceError.value = "";
   }
 };
@@ -145,7 +145,7 @@ const formatDate = (dateString: string): string => {
 
       <div :class="$style.actions">
         <UButton
-          color="blue"
+          color="primary"
           variant="soft"
           size="sm"
           :disabled="isDeleting || isUpdating"
@@ -154,7 +154,7 @@ const formatDate = (dateString: string): string => {
           Заменить
         </UButton>
         <UButton
-          color="red"
+          color="error"
           variant="soft"
           size="sm"
           :loading="isDeleting"
@@ -194,7 +194,9 @@ const formatDate = (dateString: string): string => {
                 @change="handleReplaceFileSelect"
               />
               <p v-if="replaceFile" :class="$style.fileInfo">
-                Выбран: {{ replaceFile.name }} ({{ formatFileSize(replaceFile.size) }})
+                Выбран: {{ replaceFile.name }} ({{
+                  formatFileSize(replaceFile.size)
+                }})
               </p>
             </div>
 
@@ -211,7 +213,7 @@ const formatDate = (dateString: string): string => {
 
             <UAlert
               v-if="replaceError"
-              color="red"
+              color="error"
               variant="soft"
               :title="replaceError"
               :class="$style.alert"
@@ -230,7 +232,7 @@ const formatDate = (dateString: string): string => {
             </UButton>
             <UButton
               v-if="replaceFile"
-              color="blue"
+              color="primary"
               :loading="isUpdating"
               :disabled="isUpdating"
               @click="handleReplaceSubmit"
@@ -239,7 +241,7 @@ const formatDate = (dateString: string): string => {
             </UButton>
             <UButton
               v-else
-              color="blue"
+              color="primary"
               :loading="isUpdating"
               :disabled="isUpdating || replaceAltText === image.altText"
               @click="handleUpdateAltText"
@@ -414,4 +416,3 @@ const formatDate = (dateString: string): string => {
   gap: rem(12);
 }
 </style>
-

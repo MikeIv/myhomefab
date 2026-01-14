@@ -67,7 +67,10 @@ export default defineEventHandler(async (event) => {
         });
       }
 
-      const [imageRows] = await connection.execute<
+      const [imageRows] = (await connection.execute(
+        "SELECT * FROM images WHERE id = ?",
+        [insertId],
+      )) as [
         Array<{
           id: number;
           filename: string;
@@ -80,8 +83,9 @@ export default defineEventHandler(async (event) => {
           alt_text: string | null;
           created_at: string;
           updated_at: string;
-        }>
-      >("SELECT * FROM images WHERE id = ?", [insertId]);
+        }>,
+        unknown,
+      ];
 
       if (!imageRows || imageRows.length === 0) {
         throw createError({
@@ -91,6 +95,12 @@ export default defineEventHandler(async (event) => {
       }
 
       const imageRecord = imageRows[0];
+      if (!imageRecord) {
+        throw createError({
+          statusCode: 500,
+          statusMessage: "Изображение не найдено после сохранения",
+        });
+      }
 
       return {
         success: true,

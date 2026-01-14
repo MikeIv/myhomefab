@@ -18,7 +18,7 @@ const emit = defineEmits<{
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    selectedFile.value = target.files[0];
+    selectedFile.value = target.files[0] || null;
     uploadError.value = "";
     uploadSuccess.value = false;
   }
@@ -80,12 +80,16 @@ const formatFileSize = (bytes: number): string => {
           @change="handleFileSelect"
         />
         <p v-if="selectedFile" :class="$style.fileInfo">
-          Выбран файл: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
+          Выбран файл: {{ selectedFile.name }} ({{
+            formatFileSize(selectedFile.size)
+          }})
         </p>
       </div>
 
       <div :class="$style.field">
-        <label :class="$style.label" for="alt-text">Alt текст (необязательно)</label>
+        <label :class="$style.label" for="alt-text"
+          >Alt текст (необязательно)</label
+        >
         <input
           id="alt-text"
           v-model="altText"
@@ -106,7 +110,7 @@ const formatFileSize = (bytes: number): string => {
 
       <UAlert
         v-if="uploadError"
-        color="red"
+        color="error"
         variant="soft"
         :title="uploadError"
         :class="$style.alert"
@@ -114,7 +118,7 @@ const formatFileSize = (bytes: number): string => {
 
       <UAlert
         v-if="uploadSuccess"
-        color="green"
+        color="success"
         variant="soft"
         title="Изображение успешно загружено!"
         :class="$style.alert"
@@ -203,4 +207,3 @@ const formatFileSize = (bytes: number): string => {
   margin-top: rem(8);
 }
 </style>
-

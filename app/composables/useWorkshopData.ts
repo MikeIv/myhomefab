@@ -55,7 +55,7 @@ export const useWorkshopData = () => {
           files: result.data.files.map((file: ModelFile) => ({
             ...file,
             previewImage: file.previewImage
-              ? getImageSrc(file.previewImage)
+              ? (getImageSrc(file.previewImage) ?? undefined)
               : undefined,
             // Явно сохраняем originalFileName при загрузке
             originalFileName: file.originalFileName,
@@ -83,7 +83,7 @@ export const useWorkshopData = () => {
           files: (workshopData as WorkshopData).files.map((file) => ({
             ...file,
             previewImage: file.previewImage
-              ? getImageSrc(file.previewImage)
+              ? (getImageSrc(file.previewImage) ?? undefined)
               : undefined,
             // Явно сохраняем originalFileName при загрузке из JSON
             originalFileName: file.originalFileName,
@@ -229,7 +229,7 @@ export const useWorkshopData = () => {
         filePath: "",
         fileFormat: "f3d",
         tags: [],
-        createdAt: new Date().toISOString().split("T")[0],
+        createdAt: new Date().toISOString().split("T")[0] as string,
       },
     ];
 
@@ -253,7 +253,7 @@ export const useWorkshopData = () => {
       content: "",
       category: "tip",
       tags: [],
-      createdAt: new Date().toISOString().split("T")[0],
+      createdAt: new Date().toISOString().split("T")[0] as string,
     });
 
     return await saveWorkshopData();

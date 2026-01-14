@@ -47,6 +47,7 @@ export default defineNuxtConfig({
   },
 
   ui: {
+    // @ts-expect-error - icons property exists but not in types
     icons: ["mdi", "simple-icons"],
     theme: {
       colors: ["primary", "secondary", "info", "success", "warning", "error"],
@@ -223,7 +224,7 @@ export default defineNuxtConfig({
     },
     fix: process.env.NODE_ENV === "development",
     cache: true,
-  },
+  } as unknown as Parameters<typeof defineNuxtConfig>[0]["eslint"],
 
   i18n: {
     langDir: "locales",
@@ -304,7 +305,15 @@ export default defineNuxtConfig({
       crawlLinks: true,
     },
     hooks: {
-      "nitro:config"(nitroConfig) {
+      // @ts-expect-error - nitro:config hook exists but not in types
+      "nitro:config"(nitroConfig: {
+        runtimeConfig?: {
+          APP_VERSION?: string;
+          BUILD_TIME?: string;
+          [key: string]: unknown;
+        };
+        [key: string]: unknown;
+      }) {
         // Установка переменных окружения для серверной части
         nitroConfig.runtimeConfig = nitroConfig.runtimeConfig || {};
         nitroConfig.runtimeConfig.APP_VERSION = APP_VERSION;

@@ -3,10 +3,21 @@ import { writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 
-const ALLOWED_EXTENSIONS = [".stl", ".glb", ".gltf", ".obj", ".f3d", ".step", ".3mf"];
+const ALLOWED_EXTENSIONS = [
+  ".stl",
+  ".glb",
+  ".gltf",
+  ".obj",
+  ".f3d",
+  ".step",
+  ".3mf",
+];
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
-const formatMap: Record<string, "stl" | "glb" | "gltf" | "obj" | "f3d" | "step" | "3mf"> = {
+const formatMap: Record<
+  string,
+  "stl" | "glb" | "gltf" | "obj" | "f3d" | "step" | "3mf"
+> = {
   stl: "stl",
   glb: "glb",
   gltf: "gltf",
@@ -17,10 +28,10 @@ const formatMap: Record<string, "stl" | "glb" | "gltf" | "obj" | "f3d" | "step" 
   "3mf": "3mf",
 };
 
-function getFileFormat(filename: string): "stl" | "glb" | "gltf" | "obj" | "f3d" | "step" | "3mf" {
-  const ext = filename
-    .substring(filename.lastIndexOf(".") + 1)
-    .toLowerCase();
+function getFileFormat(
+  filename: string,
+): "stl" | "glb" | "gltf" | "obj" | "f3d" | "step" | "3mf" {
+  const ext = filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
   return formatMap[ext] || "stl";
 }
 
@@ -70,10 +81,7 @@ async function saveFile(buffer: Buffer, filename: string): Promise<string> {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
-    console.error(
-      `Ошибка при создании директории ${filesDir}:`,
-      errorMessage,
-    );
+    console.error(`Ошибка при создании директории ${filesDir}:`, errorMessage);
     throw new Error(
       `Не удалось создать директорию для загрузки: ${errorMessage}`,
     );
@@ -148,9 +156,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Ошибка при загрузке файла";
+      error instanceof Error ? error.message : "Ошибка при загрузке файла";
 
     let detailedMessage = errorMessage;
 

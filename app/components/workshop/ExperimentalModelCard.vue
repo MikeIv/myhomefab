@@ -51,7 +51,10 @@ const statusColors: Record<ExperimentalModel["status"], string> = {
         <h3 :class="$style.title">{{ model.title }}</h3>
         <span
           :class="$style.status"
-          :style="{ backgroundColor: statusColors[model.status] + '20', color: statusColors[model.status] }"
+          :style="{
+            backgroundColor: statusColors[model.status] + '20',
+            color: statusColors[model.status],
+          }"
         >
           {{ statusLabels[model.status] }}
         </span>
@@ -60,11 +63,7 @@ const statusColors: Record<ExperimentalModel["status"], string> = {
         {{ model.shortDescription }}
       </p>
       <div v-if="model.tags && model.tags.length > 0" :class="$style.tags">
-        <span
-          v-for="tag in model.tags"
-          :key="tag"
-          :class="$style.tag"
-        >
+        <span v-for="tag in model.tags" :key="tag" :class="$style.tag">
           {{ tag }}
         </span>
       </div>
@@ -78,7 +77,9 @@ const statusColors: Record<ExperimentalModel["status"], string> = {
   border-radius: var(--a-borderR--card);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   box-shadow: 0 rem(2) rem(8) rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
@@ -205,4 +206,3 @@ const statusColors: Record<ExperimentalModel["status"], string> = {
   border-radius: rem(12);
 }
 </style>
-

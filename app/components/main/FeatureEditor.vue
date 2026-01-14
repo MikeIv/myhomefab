@@ -88,10 +88,7 @@ watch(
     :class="[$style.textContainer, { [$style.textContainerEditable]: isDev }]"
     @click="isDev && $emit('start-edit')"
   >
-    <span
-      :class="$style.featureText"
-      :style="{ color: textColor }"
-    >
+    <span :class="$style.featureText" :style="{ color: textColor }">
       {{ text || "Для дома" }}
     </span>
   </div>
@@ -114,11 +111,7 @@ watch(
       >
         <ColorPickerIcon :class="$style.colorPickerIcon" />
       </button>
-      <div
-        v-if="isEditingColor"
-        :class="$style.colorPicker"
-        @click.stop
-      >
+      <div v-if="isEditingColor" :class="$style.colorPicker" @click.stop>
         <button
           v-for="color in colorOptions"
           :key="color"
@@ -245,7 +238,9 @@ watch(
   border: 2px solid var(--a-border);
   border-radius: rem(4);
   cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
 
   &:hover {
     transform: scale(1.2);
@@ -257,4 +252,3 @@ watch(
   }
 }
 </style>
-

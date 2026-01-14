@@ -20,6 +20,7 @@ const emit = defineEmits<{
   uploadFile: [index: number, file: File];
   deleteFile: [index: number];
   addFile: [];
+  updatePreviewImage: [index: number, imageData: string];
 }>();
 
 const handleAddFile = () => {
@@ -46,6 +47,9 @@ const handleAddFile = () => {
         @attach-file="(idx) => emit('attachFile', idx)"
         @upload-file="(idx, file) => emit('uploadFile', idx, file)"
         @delete-file="(idx) => emit('deleteFile', idx)"
+        @update-preview-image="
+          (idx, imageData) => emit('updatePreviewImage', idx, imageData)
+        "
       />
 
       <button

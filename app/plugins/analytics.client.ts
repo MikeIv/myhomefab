@@ -58,9 +58,12 @@ export default defineNuxtPlugin(() => {
     document.head.appendChild(script);
 
     // Инициализация gtag
-    window.dataLayer = window.dataLayer || [];
+
+    (window as { dataLayer?: unknown[] }).dataLayer =
+      (window as { dataLayer?: unknown[] }).dataLayer || [];
+
     function gtag(...args: unknown[]): void {
-      window.dataLayer.push(args);
+      ((window as { dataLayer?: unknown[] }).dataLayer || []).push(args);
     }
 
     (window as { gtag?: typeof gtag }).gtag = gtag;

@@ -8,12 +8,8 @@ import featuresData from "~/data/features.json";
 
 const isDev = import.meta.dev;
 const { saveFeaturesJSON, loadFeaturesJSON } = useFeatures();
-const {
-  getImageSrc,
-  getImageKeyByUrl,
-  imageMap,
-  getImageUrl,
-} = useImageManager();
+const { getImageSrc, getImageKeyByUrl, imageMap, getImageUrl } =
+  useImageManager();
 
 interface FeatureData {
   backgroundImage: string | null;
@@ -331,7 +327,9 @@ onMounted(() => {
   padding: rem(32);
   border-radius: var(--a-borderR--card);
   background-color: var(--a-lightPrimaryBg);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   min-height: rem(216);
   display: flex;
   align-items: center;
@@ -381,7 +379,9 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
   color: var(--a-text-dark);
 
   &:hover {
@@ -409,7 +409,9 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
   color: var(--a-whiteBg);
 
   &:hover {
@@ -465,7 +467,10 @@ onMounted(() => {
   border-radius: var(--a-borderR--card);
   background-color: var(--a-lightPrimaryBg);
   border: 2px dashed var(--a-border-primary);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   min-height: rem(216);
   display: flex;
   flex-direction: column;

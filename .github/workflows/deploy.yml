@@ -8,13 +8,13 @@ on:
   workflow_dispatch:
     inputs:
       full_clean:
-        description: 'Полная очистка на сервере (dangerous-clean-slate)'
+        description: "Полная очистка на сервере (dangerous-clean-slate)"
         required: false
-        default: 'false'
+        default: "false"
       debug:
-        description: 'Включить подробные логи и диагностику'
+        description: "Включить подробные логи и диагностику"
         required: false
-        default: 'false'
+        default: "false"
 
 concurrency:
   group: deploy-${{ github.ref }}
@@ -23,7 +23,7 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,8 +31,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'yarn'
+          node-version: "20"
+          cache: "yarn"
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -135,14 +135,14 @@ jobs:
           echo "Removing .ftp-deploy-sync-state.json from server..."
           # Устанавливаем инструменты для работы с FTP/SFTP
           sudo apt-get update && sudo apt-get install -y sshpass lftp
-          
+
           # Пробуем удалить через SFTP (если используется SFTP)
           sshpass -p "${{ secrets.TIMEWEB_PASSWORD }}" sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 ${{ secrets.TIMEWEB_USERNAME }}@${{ secrets.TIMEWEB_HOST }} <<EOF || true
           cd ${{ steps.normalize-path.outputs.normalized_path }}
           rm .ftp-deploy-sync-state.json
           quit
           EOF
-          
+
           # Если SFTP не сработал, пробуем через FTP
           lftp -c "
             set ftp:ssl-allow no;
@@ -152,6 +152,5 @@ jobs:
             rm -f .ftp-deploy-sync-state.json;
             quit;
           " || true
-          
-          echo "✓ Attempted to remove .ftp-deploy-sync-state.json"
 
+          echo "✓ Attempted to remove .ftp-deploy-sync-state.json"
