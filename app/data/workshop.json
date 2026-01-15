@@ -1,6 +1,21 @@
 {
   "files": [
     {
+      "id": "file-1768494136025-6xfu0gh",
+      "name": "Переходник для пылесоса",
+      "description": "Простой переходник для пылесоса",
+      "filePath": "/uploads/files/file-1768494769554-461043578.stl",
+      "fileFormat": "stl",
+      "fileSize": 171784,
+      "originalFileName": "adapter for vacuum cleaner.stl",
+      "previewImage": "workshop/adapter.jpg",
+      "software": null,
+      "tags": [],
+      "version": null,
+      "createdAt": "2026-01-15",
+      "updatedAt": "2026-01-15"
+    },
+    {
       "id": "file-1",
       "name": "Крепежная деталь",
       "description": "Деталь для соединения на шурупах различных объектов",

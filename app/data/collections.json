@@ -318,6 +318,31 @@
           }
         }
       ]
+    },
+    {
+      "id": "holidays",
+      "title": "Праздники",
+      "models": [
+        {
+          "id": "holiday-template-1",
+          "title": "Подвижный дракон",
+          "description": "Описание модели",
+          "shortDescription": "К празднику дня всех влюбленных\n",
+          "previewImage": null,
+          "previewImageKey": "collections/holidays/holidays-001.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 95,
+              "height": 64,
+              "depth": 22,
+              "unit": "mm"
+            },
+            "weight": 18,
+            "material": "PLA",
+            "printTime": "2 часа"
+          }
+        }
+      ]
     }
   ]
 }
