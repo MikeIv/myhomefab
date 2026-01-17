@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import type { Model } from "~/types/model";
 import { useCollectionsData } from "~/composables/useCollectionsData";
 import { useCollectionEditor } from "~/composables/useCollectionEditor";
@@ -51,6 +51,34 @@ const { getImageSrc, imageMap, getImageUrl } = useImageManager();
 
 const selectedModel = ref<Model | null>(null);
 
+// Computed для получения количества моделей (оптимизация производительности)
+const totalModelsCount = computed(() => {
+  return currentSection.value?.models.length ?? 0;
+});
+
+// Преобразует индекс из обращенного массива currentModels в индекс исходного массива
+const getOriginalIndex = (reversedIndex: number): number => {
+  if (totalModelsCount.value === 0) return reversedIndex;
+  return totalModelsCount.value - 1 - reversedIndex;
+};
+
+// Преобразует индекс исходного массива в индекс обращенного массива currentModels
+const getReversedIndex = (originalIndex: number): number => {
+  if (totalModelsCount.value === 0) return originalIndex;
+  return totalModelsCount.value - 1 - originalIndex;
+};
+
+// Computed свойства для проверки редактирования с учетом обращенного массива
+const isEditingTitleReversed = computed(() => {
+  if (isEditingTitle.value === null) return null;
+  return getReversedIndex(isEditingTitle.value);
+});
+
+const isEditingDescriptionReversed = computed(() => {
+  if (isEditingDescription.value === null) return null;
+  return getReversedIndex(isEditingDescription.value);
+});
+
 const selectSection = (sectionId: string) => {
   selectSectionData(sectionId);
   selectedModel.value = null;
@@ -60,11 +88,13 @@ const selectSection = (sectionId: string) => {
 const handleModelSelect = (modelIndex: number) => {
   if (!currentSection.value) return;
 
-  const model = currentSection.value.models[modelIndex];
+  const originalIndex = getOriginalIndex(modelIndex);
+  const models = currentSection.value.models;
+  const model = models[originalIndex];
   if (!model) return;
 
   selectedModel.value = convertToModel(model);
-  openModal(modelIndex);
+  openModal(originalIndex);
 };
 
 const handleCloseModal = () => {
@@ -102,30 +132,56 @@ const handleSelectImage = async (imageKey: string) => {
   }
 };
 
-const handleUpdateTitle = (index: number, newTitle: string) => {
-  if (!isDev || !currentSection.value || !currentSection.value.models[index])
-    return;
-  updateModelField(index, "title", newTitle);
+const handleUpdateTitle = (reversedIndex: number, newTitle: string) => {
+  if (!isDev || !currentSection.value) return;
+  const originalIndex = getOriginalIndex(reversedIndex);
+  const models = currentSection.value.models;
+  if (!models[originalIndex]) return;
+  updateModelField(originalIndex, "title", newTitle);
 };
 
-const handleFinishEditingTitle = async (index: number) => {
-  if (isEditingTitle.value === index) {
+const handleFinishEditingTitle = async (reversedIndex: number) => {
+  const originalIndex = getOriginalIndex(reversedIndex);
+  // Проверяем, что редактируется именно эта модель
+  if (isEditingTitle.value === originalIndex) {
     await saveCollectionsData();
     finishEditingTitle();
   }
 };
 
-const handleUpdateDescription = (index: number, newDescription: string) => {
-  if (!isDev || !currentSection.value || !currentSection.value.models[index])
-    return;
-  updateModelField(index, "shortDescription", newDescription);
+const handleUpdateDescription = (
+  reversedIndex: number,
+  newDescription: string,
+) => {
+  if (!isDev || !currentSection.value) return;
+  const originalIndex = getOriginalIndex(reversedIndex);
+  const models = currentSection.value.models;
+  if (!models[originalIndex]) return;
+  updateModelField(originalIndex, "shortDescription", newDescription);
 };
 
-const handleFinishEditingDescription = async (index: number) => {
-  if (isEditingDescription.value === index) {
+const handleFinishEditingDescription = async (reversedIndex: number) => {
+  const originalIndex = getOriginalIndex(reversedIndex);
+  // Проверяем, что редактируется именно эта модель
+  if (isEditingDescription.value === originalIndex) {
     await saveCollectionsData();
     finishEditingDescription();
   }
+};
+
+const handleStartEditingTitle = (reversedIndex: number) => {
+  const originalIndex = getOriginalIndex(reversedIndex);
+  startEditingTitle(originalIndex);
+};
+
+const handleStartEditingDescription = (reversedIndex: number) => {
+  const originalIndex = getOriginalIndex(reversedIndex);
+  startEditingDescription(originalIndex);
+};
+
+const handleEditImage = (reversedIndex: number) => {
+  const originalIndex = getOriginalIndex(reversedIndex);
+  openImageModal(originalIndex);
 };
 
 const handleAddModel = async () => {
@@ -133,7 +189,7 @@ const handleAddModel = async () => {
   await addModelData();
 };
 
-const handleRemoveModel = async (index: number) => {
+const handleRemoveModel = async (reversedIndex: number) => {
   if (
     !isDev ||
     !currentSection.value ||
@@ -141,12 +197,13 @@ const handleRemoveModel = async (index: number) => {
   )
     return;
 
-  const wasRemoved = await removeModelData(index);
+  const originalIndex = getOriginalIndex(reversedIndex);
+  const wasRemoved = await removeModelData(originalIndex);
 
   if (wasRemoved && selectedModelIndex.value !== null) {
-    if (selectedModelIndex.value === index) {
+    if (selectedModelIndex.value === originalIndex) {
       closeModal();
-    } else if (selectedModelIndex.value > index) {
+    } else if (selectedModelIndex.value > originalIndex) {
       // Индекс корректируется автоматически в composable
       closeModal();
     }
@@ -196,18 +253,18 @@ onMounted(() => {
             :model="model"
             :index="index"
             :is-dev="isDev"
-            :is-editing-title="isEditingTitle === index"
-            :is-editing-description="isEditingDescription === index"
+            :is-editing-title="isEditingTitleReversed === index"
+            :is-editing-description="isEditingDescriptionReversed === index"
             :can-remove="currentModels.length > 1"
             @select="handleModelSelect"
-            @edit-image="openImageModal"
+            @edit-image="handleEditImage"
             @remove="handleRemoveModel"
             @update-title="handleUpdateTitle"
             @update-description="handleUpdateDescription"
             @finish-editing-title="handleFinishEditingTitle"
             @finish-editing-description="handleFinishEditingDescription"
-            @start-editing-title="startEditingTitle"
-            @start-editing-description="startEditingDescription"
+            @start-editing-title="handleStartEditingTitle"
+            @start-editing-description="handleStartEditingDescription"
           />
 
           <button

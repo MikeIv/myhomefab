@@ -13,6 +13,7 @@ interface CollectionModel {
   previewImageKey: string | null;
   technicalSpecs?: TechnicalSpecs;
   printInfo?: PrintInfo;
+  modelPath?: string;
 }
 
 interface CollectionSection {
@@ -25,12 +26,22 @@ interface CollectionsData {
   sections: CollectionSection[];
 }
 
+const STORAGE_KEY = "collections_selected_section_id";
+
 export const useCollectionsData = () => {
   const { saveCollectionsJSON } = useCollections();
   const { getImageSrc, getImageKeyByUrl } = useImageManager();
 
   const collections = shallowRef<CollectionsData>({ sections: [] });
   const selectedSectionId = ref<string | null>(null);
+
+  // Восстанавливаем выбранный раздел из localStorage при инициализации
+  if (import.meta.client) {
+    const savedSectionId = localStorage.getItem(STORAGE_KEY);
+    if (savedSectionId) {
+      selectedSectionId.value = savedSectionId;
+    }
+  }
 
   const currentSection = computed(() => {
     if (!selectedSectionId.value) return null;
@@ -44,8 +55,36 @@ export const useCollectionsData = () => {
     return currentSection.value.models.slice().reverse();
   });
 
+  // Вспомогательная функция для проверки существования раздела
+  const sectionExists = (sectionId: string): boolean => {
+    return collections.value.sections.some(
+      (section) => section.id === sectionId,
+    );
+  };
+
+  // Вспомогательная функция для выбора раздела с приоритетом
+  const selectSectionWithPriority = (
+    currentId: string | null,
+    savedId: string | null,
+  ): string | null => {
+    // Приоритет: текущий выбранный раздел > сохраненный в localStorage > первый раздел
+    if (currentId && sectionExists(currentId)) {
+      return currentId;
+    }
+
+    if (savedId && sectionExists(savedId)) {
+      return savedId;
+    }
+
+    const firstSection = collections.value.sections[0];
+    return firstSection ? firstSection.id : null;
+  };
+
   const loadCollectionsData = () => {
     if (!import.meta.client) return;
+
+    // Сохраняем текущий выбранный раздел перед загрузкой
+    const currentSelectedSectionId = selectedSectionId.value;
 
     try {
       if (
@@ -69,11 +108,22 @@ export const useCollectionsData = () => {
         collections.value = { sections: [] };
       }
 
-      // Устанавливаем первый раздел по умолчанию
-      if (collections.value.sections.length > 0 && !selectedSectionId.value) {
-        const firstSection = collections.value.sections[0];
-        if (firstSection) {
-          selectedSectionId.value = firstSection.id;
+      // Восстанавливаем выбранный раздел или устанавливаем первый по умолчанию
+      if (collections.value.sections.length > 0) {
+        const savedSectionId = import.meta.client
+          ? localStorage.getItem(STORAGE_KEY)
+          : null;
+        const sectionToSelect = selectSectionWithPriority(
+          currentSelectedSectionId,
+          savedSectionId,
+        );
+
+        if (sectionToSelect) {
+          selectedSectionId.value = sectionToSelect;
+          // Сохраняем в localStorage
+          if (import.meta.client) {
+            localStorage.setItem(STORAGE_KEY, sectionToSelect);
+          }
         }
       }
     } catch {
@@ -100,6 +150,7 @@ export const useCollectionsData = () => {
               : null,
             technicalSpecs: model.technicalSpecs,
             printInfo: model.printInfo,
+            modelPath: model.modelPath,
           })),
         })),
       };
@@ -120,6 +171,10 @@ export const useCollectionsData = () => {
 
   const selectSection = (sectionId: string) => {
     selectedSectionId.value = sectionId;
+    // Сохраняем выбранный раздел в localStorage
+    if (import.meta.client) {
+      localStorage.setItem(STORAGE_KEY, sectionId);
+    }
   };
 
   const updateModelField = (
@@ -127,13 +182,13 @@ export const useCollectionsData = () => {
     field: keyof CollectionModel,
     value: unknown,
   ) => {
-    if (!currentSection.value || !currentSection.value.models[modelIndex])
-      return;
+    const section = currentSection.value;
+    if (!section) return;
 
-    const model = currentSection.value.models[modelIndex];
-    if (model) {
-      (model[field] as unknown) = value;
-    }
+    const model = section.models[modelIndex];
+    if (!model) return;
+
+    (model[field] as unknown) = value;
   };
 
   const addModel = async (): Promise<boolean> => {
@@ -179,6 +234,7 @@ export const useCollectionsData = () => {
         ? [collectionModel.previewImage]
         : [],
       previewImage: collectionModel.previewImage || "",
+      modelPath: collectionModel.modelPath,
     };
   };
 
@@ -186,17 +242,18 @@ export const useCollectionsData = () => {
     modelIndex: number,
     updatedModel: Model,
   ): void => {
-    if (!currentSection.value || !currentSection.value.models[modelIndex])
-      return;
+    const section = currentSection.value;
+    if (!section) return;
 
-    const model = currentSection.value.models[modelIndex];
-    if (model) {
-      model.title = updatedModel.title;
-      model.description = updatedModel.description;
-      model.shortDescription = updatedModel.shortDescription || "";
-      model.technicalSpecs = updatedModel.technicalSpecs;
-      model.printInfo = updatedModel.printInfo;
-    }
+    const model = section.models[modelIndex];
+    if (!model) return;
+
+    model.title = updatedModel.title;
+    model.description = updatedModel.description;
+    model.shortDescription = updatedModel.shortDescription || "";
+    model.technicalSpecs = updatedModel.technicalSpecs;
+    model.printInfo = updatedModel.printInfo;
+    model.modelPath = updatedModel.modelPath;
   };
 
   return {

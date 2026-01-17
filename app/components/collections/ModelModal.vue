@@ -22,6 +22,7 @@ const localModel = ref<Model | null>(null);
 const isEditingSpecs = ref(false);
 const dimensionsMode = ref<"structured" | "text">("structured");
 const weightMode = ref<"structured" | "text">("structured");
+const isCopied = ref(false);
 
 watch(
   () => props.model,
@@ -88,20 +89,17 @@ const handleSave = () => {
   const modelToSave: Model = {
     ...localModel.value,
     technicalSpecs,
+    modelPath: localModel.value.modelPath?.trim() || undefined,
     printInfo:
       localModel.value.printInfo &&
       (localModel.value.printInfo.printerModel ||
-        localModel.value.printInfo.filamentType ||
-        localModel.value.printInfo.filamentColor ||
         localModel.value.printInfo.supports !== undefined ||
         localModel.value.printInfo.notes)
         ? {
             ...localModel.value.printInfo,
-            printerModel: localModel.value.printInfo.printerModel || undefined,
-            filamentType: localModel.value.printInfo.filamentType || undefined,
-            filamentColor:
-              localModel.value.printInfo.filamentColor || undefined,
-            notes: localModel.value.printInfo.notes || undefined,
+            printerModel:
+              localModel.value.printInfo.printerModel?.trim() || undefined,
+            notes: localModel.value.printInfo.notes?.trim() || undefined,
           }
         : undefined,
   };
@@ -143,8 +141,6 @@ const startEditing = () => {
   if (!localModel.value.printInfo) {
     localModel.value.printInfo = {
       printerModel: "",
-      filamentType: "",
-      filamentColor: "",
       supports: undefined,
       notes: "",
     };
@@ -216,6 +212,36 @@ watch(
 onUnmounted(() => {
   window.removeEventListener("keydown", handleEscape);
 });
+
+const copyModelLink = async () => {
+  if (!localModel.value?.modelPath) return;
+
+  try {
+    await navigator.clipboard.writeText(localModel.value.modelPath);
+    isCopied.value = true;
+    setTimeout(() => {
+      isCopied.value = false;
+    }, 2000);
+  } catch {
+    // Fallback для старых браузеров
+    const textArea = document.createElement("textarea");
+    textArea.value = localModel.value.modelPath;
+    textArea.style.position = "fixed";
+    textArea.style.opacity = "0";
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand("copy");
+      isCopied.value = true;
+      setTimeout(() => {
+        isCopied.value = false;
+      }, 2000);
+    } catch {
+      // Игнорируем ошибку
+    }
+    document.body.removeChild(textArea);
+  }
+};
 </script>
 
 <template>
@@ -517,24 +543,6 @@ onUnmounted(() => {
                     </dd>
                   </div>
                 </dl>
-                <footer v-if="isEditingSpecs" :class="$style.editActions">
-                  <button
-                    :class="$style.saveButton"
-                    type="button"
-                    aria-label="Сохранить изменения"
-                    @click="handleSave"
-                  >
-                    {{ $t("portfolio.modal.save") }}
-                  </button>
-                  <button
-                    :class="$style.cancelButton"
-                    type="button"
-                    aria-label="Отменить изменения"
-                    @click="handleCancel"
-                  >
-                    {{ $t("portfolio.modal.cancel") }}
-                  </button>
-                </footer>
               </section>
 
               <aside
@@ -573,37 +581,43 @@ onUnmounted(() => {
                   </div>
                   <div :class="$style.specItem">
                     <dt :class="$style.specLabel">
-                      {{ $t("portfolio.modal.filamentType") }}
+                      {{ $t("portfolio.modal.modelLink") }}
                     </dt>
                     <dd :class="$style.specValue">
                       <template v-if="!isEditingSpecs">
-                        {{ localModel.printInfo?.filamentType || "-" }}
+                        <a
+                          v-if="localModel.modelPath"
+                          :href="localModel.modelPath"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          :class="$style.modelLink"
+                        >
+                          {{ localModel.modelPath }}
+                        </a>
+                        <span v-else>-</span>
                       </template>
-                      <template v-else-if="localModel.printInfo">
-                        <input
-                          v-model="localModel.printInfo.filamentType"
-                          :class="$style.editInput"
-                          type="text"
-                          :aria-label="$t('portfolio.modal.filamentType')"
-                        />
-                      </template>
-                    </dd>
-                  </div>
-                  <div :class="$style.specItem">
-                    <dt :class="$style.specLabel">
-                      {{ $t("portfolio.modal.filamentColor") }}
-                    </dt>
-                    <dd :class="$style.specValue">
-                      <template v-if="!isEditingSpecs">
-                        {{ localModel.printInfo?.filamentColor || "-" }}
-                      </template>
-                      <template v-else-if="localModel.printInfo">
-                        <input
-                          v-model="localModel.printInfo.filamentColor"
-                          :class="$style.editInput"
-                          type="text"
-                          :aria-label="$t('portfolio.modal.filamentColor')"
-                        />
+                      <template v-else>
+                        <div :class="$style.inputWithButton">
+                          <input
+                            v-model="localModel.modelPath"
+                            :class="$style.editInput"
+                            type="text"
+                            placeholder="например: /models/model.glb"
+                            :aria-label="$t('portfolio.modal.modelLink')"
+                          />
+                          <button
+                            :class="$style.copyButton"
+                            type="button"
+                            :aria-label="
+                              isCopied
+                                ? 'Скопировано'
+                                : 'Копировать ссылку на модель'
+                            "
+                            @click="copyModelLink"
+                          >
+                            {{ isCopied ? "Скопировано!" : "Копировать" }}
+                          </button>
+                        </div>
                       </template>
                     </dd>
                   </div>
@@ -653,6 +667,25 @@ onUnmounted(() => {
                   </div>
                 </dl>
               </aside>
+
+              <footer v-if="isEditingSpecs" :class="$style.editActions">
+                <button
+                  :class="$style.saveButton"
+                  type="button"
+                  aria-label="Сохранить изменения"
+                  @click="handleSave"
+                >
+                  {{ $t("portfolio.modal.save") }}
+                </button>
+                <button
+                  :class="$style.cancelButton"
+                  type="button"
+                  aria-label="Отменить изменения"
+                  @click="handleCancel"
+                >
+                  {{ $t("portfolio.modal.cancel") }}
+                </button>
+              </footer>
             </section>
           </div>
         </article>
@@ -871,6 +904,12 @@ onUnmounted(() => {
   align-items: center;
   gap: rem(8);
   flex-wrap: wrap;
+
+  .editInput {
+    flex: 1;
+    width: auto;
+    min-width: rem(60);
+  }
 }
 
 .modeToggle {
@@ -908,7 +947,7 @@ onUnmounted(() => {
 }
 
 .editInput {
-  flex: 1;
+  width: 100%;
   min-width: rem(60);
   padding: rem(6) rem(10);
   border: 1px solid var(--a-border);
@@ -962,7 +1001,7 @@ onUnmounted(() => {
 .editActions {
   display: flex;
   gap: rem(12);
-  margin-top: rem(16);
+  margin-top: rem(32);
   padding-top: rem(16);
   border-top: 1px solid var(--a-border);
 }
@@ -1004,5 +1043,48 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.modelLink {
+  color: var(--a-primary);
+  text-decoration: underline;
+  word-break: break-all;
+
+  &:hover {
+    color: var(--a-accentBg);
+  }
+}
+
+.inputWithButton {
+  display: flex;
+  gap: rem(8);
+  align-items: center;
+
+  .editInput {
+    flex: 1;
+    width: auto;
+  }
+}
+
+.copyButton {
+  flex-shrink: 0;
+  padding: rem(6) rem(12);
+  background-color: var(--a-primaryBg);
+  color: var(--a-text-white);
+  border: none;
+  border-radius: rem(4);
+  font-size: rem(14);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: var(--a-accentBg);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
 </style>

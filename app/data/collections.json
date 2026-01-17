@@ -260,44 +260,6 @@
       "title": "Инструменты",
       "models": [
         {
-          "id": "10",
-          "title": "Кронштейн для полок",
-          "description": "Полезный инструмент для работы.",
-          "shortDescription": "Кронштейн для полок — прочный и легкий держатель с сотовидной структурой, идеальный для организации пространства дома.",
-          "previewImage": null,
-          "previewImageKey": "collections/tools/tools-001.png",
-          "technicalSpecs": {
-            "dimensions": {
-              "width": 240,
-              "height": 200,
-              "depth": 25,
-              "unit": "mm"
-            },
-            "weight": 115,
-            "material": "PLA",
-            "printTime": "3 часа 20 минут"
-          }
-        },
-        {
-          "id": "model-1768051083714",
-          "title": "Коробка для хранения мелких деталей ",
-          "description": "Описание модели",
-          "shortDescription": "Коробка для хранения мелких деталей — яркий и удобный органайзер для винтиков, шурупов и инструментов с самоскладывающейся крышкой.",
-          "previewImage": null,
-          "previewImageKey": "collections/tools/tools-002.jpg",
-          "technicalSpecs": {
-            "dimensions": {
-              "width": 74,
-              "height": 74,
-              "depth": 27,
-              "unit": "mm"
-            },
-            "weight": 43,
-            "material": "PLA",
-            "printTime": "1 час 42 минуты"
-          }
-        },
-        {
           "id": "model-1768134438815",
           "title": "Коробка (размеры на выбор)",
           "description": "Описание модели",
@@ -316,6 +278,39 @@
             "material": "PLA",
             "printTime": "~ 3 часа 30 минут"
           }
+        },
+        {
+          "id": "model-1768657587789",
+          "title": "Зажим для проводов",
+          "description": "Описание модели",
+          "shortDescription": "Удобный зажим для кабелей. Провода больше не путаются и удобно транспортируются.",
+          "previewImage": null,
+          "previewImageKey": "collections/tools/tools-004.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 48,
+              "height": 26,
+              "depth": 14,
+              "unit": "mm"
+            },
+            "weight": 6,
+            "material": "PLA",
+            "printTime": "25 минут"
+          },
+          "printInfo": {
+            "notes": "удобные зажимы",
+            "supports": true,
+            "printerModel": "A1"
+          },
+          "modelPath": "https://makerworld.com/ru/models/675366-cable-organizer#profileId-828612"
+        },
+        {
+          "id": "model-1768658743838",
+          "title": "Коробка для мелких предметов",
+          "description": "Описание модели",
+          "shortDescription": "Удобная коробка с подвижным механизмом для крышки.",
+          "previewImage": null,
+          "previewImageKey": "collections/tools/tools-002.jpg"
         }
       ]
     },
