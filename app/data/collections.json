@@ -336,6 +336,30 @@
             "material": "PLA",
             "printTime": "2 часа"
           }
+        },
+        {
+          "id": "model-1768673664537",
+          "title": "«Сердце на шарнирах» — ко Дню святого Валентина",
+          "description": "Описание модели",
+          "shortDescription": "Красивая подставка в форме сердца для Дня святого Валентина.",
+          "previewImage": null,
+          "previewImageKey": "collections/holidays/holidays-002.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 110,
+              "height": 115,
+              "depth": 24,
+              "unit": "mm"
+            },
+            "weight": 52,
+            "material": "PLA",
+            "printTime": "2 часа"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": true
+          },
+          "modelPath": "https://makerworld.com/ru/models/2145649-articulated-heart-valentine-s-day#profileId-2324635"
         }
       ]
     }
