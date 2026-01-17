@@ -183,6 +183,30 @@
             "material": "PLA",
             "printTime": "8 часов "
           }
+        },
+        {
+          "id": "model-1768676097556",
+          "title": "Сушилка для посуды",
+          "description": "Описание модели",
+          "shortDescription": "Сушилка для посуды — аккуратная подставка, которая помогает бокалам и чашкам быстро высыхать без разводов и луж на столешнице.\n",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-007.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 119,
+              "height": 119,
+              "depth": 66,
+              "unit": "mm"
+            },
+            "weight": 60,
+            "material": "PLA",
+            "printTime": "1 час 50 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/1125088-stackable-bottle-drying-rack#profileId-1124292"
         }
       ]
     },
