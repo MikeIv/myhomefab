@@ -207,6 +207,32 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/1125088-stackable-bottle-drying-rack#profileId-1124292"
+        },
+        {
+          "id": "model-1768751254405",
+          "title": "Светильник \"Луна\"",
+          "description": "Описание модели",
+          "shortDescription": "Светильник \"Луна\" — компактный плафон диаметром всего 9 см, создающий мягкий, волшебный свет в форме реалистичной Луны.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-008.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 90,
+              "height": 90,
+              "depth": 90,
+              "unit": "mm"
+            },
+            "dimensionsText": "диаметр 89 мм",
+            "weight": 30,
+            "material": "PLA",
+            "printTime": "2 часа 40 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false,
+            "notes": "Требует адаптивного переходника"
+          },
+          "modelPath": "https://makerworld.com/ru/models/74649-fast-bambustudio-moon-lamp-led-light?from=search#profileId-79035"
         }
       ]
     },
