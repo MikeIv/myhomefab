@@ -265,7 +265,7 @@ onMounted(() => {
   position: relative;
   background-color: var(--a-whiteBg);
   border-radius: var(--a-borderR--card);
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
   transition:
     transform 0.3s ease,
@@ -421,6 +421,7 @@ onMounted(() => {
 
 .cardContent {
   padding: rem(20);
+  overflow: visible;
 }
 
 .cardTitle {
@@ -444,6 +445,8 @@ onMounted(() => {
 
 .descriptionWrapper {
   position: relative;
+  overflow: visible;
+  z-index: 1;
 }
 
 .cardDescription {
@@ -484,9 +487,12 @@ onMounted(() => {
     0 rem(2) rem(4) rgba(0, 0, 0, 0.1);
   animation: tooltipFadeInMobile 0.2s ease;
   pointer-events: auto;
+  max-height: rem(300);
+  overflow-y: auto;
 
   @include tablet {
     max-width: rem(400);
+    max-height: rem(400);
     left: 50%;
     transform: translateX(-50%);
     right: auto;
@@ -504,6 +510,24 @@ onMounted(() => {
     @include tablet {
       left: 50%;
       transform: translateX(-50%);
+    }
+  }
+
+  &::-webkit-scrollbar {
+    width: rem(6);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: rem(3);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: rem(3);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.5);
     }
   }
 }
