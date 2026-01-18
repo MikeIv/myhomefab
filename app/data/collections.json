@@ -233,6 +233,30 @@
             "notes": "Требует адаптивного переходника"
           },
           "modelPath": "https://makerworld.com/ru/models/74649-fast-bambustudio-moon-lamp-led-light?from=search#profileId-79035"
+        },
+        {
+          "id": "model-1768764757070",
+          "title": "Сова",
+          "description": "Описание модели",
+          "shortDescription": "\"Совы не те, кем они кажутся\"\n\nЭксклюзивная арт-скульптура для ценителей: минималистичная белая сова среди классических энциклопедий и пера бросает вызов стереотипам мудрости. Уникальный дизайн станет изысканным акцентом интерьера — символ размышлений и стиля. Идеально для коллекционеров!",
+          "previewImage": null,
+          "previewImageKey": "collections/art/art-002.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 55,
+              "height": 43,
+              "depth": 120,
+              "unit": "mm"
+            },
+            "weight": 40,
+            "material": "PLA",
+            "printTime": "1 час 35 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/768557-owl#profileId-704080"
         }
       ]
     },

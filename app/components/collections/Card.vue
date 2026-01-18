@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, onMounted, nextTick, watch } from "vue";
 import EditIcon from "~/assets/icons/Edit.svg";
 import CloseIcon from "~/assets/icons/Close.svg";
 
@@ -34,6 +34,29 @@ const emit = defineEmits<{
   startEditingTitle: [index: number];
   startEditingDescription: [index: number];
 }>();
+
+const descriptionRef = ref<HTMLParagraphElement | null>(null);
+const isTooltipVisible = ref(false);
+const isTextTruncated = ref(false);
+
+const checkTextTruncation = () => {
+  if (!descriptionRef.value || props.isEditingDescription) return;
+
+  const element = descriptionRef.value;
+  isTextTruncated.value =
+    element.scrollHeight > element.clientHeight ||
+    element.scrollWidth > element.clientWidth;
+};
+
+const handleDescriptionMouseEnter = () => {
+  if (isTextTruncated.value && !props.isDev) {
+    isTooltipVisible.value = true;
+  }
+};
+
+const handleDescriptionMouseLeave = () => {
+  isTooltipVisible.value = false;
+};
 
 const handleCardClick = () => {
   emit("select", props.index);
@@ -92,6 +115,32 @@ const handleDescriptionClick = () => {
 };
 
 const hasPreviewImage = computed(() => !!props.model.previewImage);
+
+watch(
+  () => props.model.shortDescription,
+  () => {
+    nextTick(() => {
+      checkTextTruncation();
+    });
+  },
+);
+
+watch(
+  () => props.isEditingDescription,
+  (isEditing) => {
+    if (!isEditing) {
+      nextTick(() => {
+        checkTextTruncation();
+      });
+    }
+  },
+);
+
+onMounted(() => {
+  nextTick(() => {
+    checkTextTruncation();
+  });
+});
 </script>
 
 <template>
@@ -182,16 +231,31 @@ const hasPreviewImage = computed(() => !!props.model.previewImage);
           @input="handleDescriptionInput"
         />
       </div>
-      <p
+      <div
         v-else-if="model.shortDescription"
-        :class="[
-          $style.cardDescription,
-          { [$style.cardDescriptionEditable]: isDev },
-        ]"
-        @click.stop="handleDescriptionClick"
+        :class="$style.descriptionWrapper"
       >
-        {{ model.shortDescription }}
-      </p>
+        <p
+          ref="descriptionRef"
+          :class="[
+            $style.cardDescription,
+            { [$style.cardDescriptionEditable]: isDev },
+          ]"
+          @click.stop="handleDescriptionClick"
+          @mouseenter="handleDescriptionMouseEnter"
+          @mouseleave="handleDescriptionMouseLeave"
+        >
+          {{ model.shortDescription }}
+        </p>
+        <div
+          v-if="isTooltipVisible && isTextTruncated"
+          :class="$style.tooltip"
+          @mouseenter="handleDescriptionMouseEnter"
+          @mouseleave="handleDescriptionMouseLeave"
+        >
+          <p :class="$style.tooltipText">{{ model.shortDescription }}</p>
+        </div>
+      </div>
     </div>
   </article>
 </template>
@@ -378,6 +442,10 @@ const hasPreviewImage = computed(() => !!props.model.previewImage);
   }
 }
 
+.descriptionWrapper {
+  position: relative;
+}
+
 .cardDescription {
   font-size: rem(14);
   color: var(--a-text-dark);
@@ -398,6 +466,76 @@ const hasPreviewImage = computed(() => !!props.model.previewImage);
 
   &:hover {
     background-color: var(--a-lightPrimaryBg);
+  }
+}
+
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + rem(12));
+  left: 0;
+  right: 0;
+  z-index: var(--z-index-dropdown);
+  background-color: var(--a-text-dark);
+  color: var(--a-whiteBg);
+  padding: rem(12) rem(16);
+  border-radius: rem(8);
+  box-shadow:
+    0 rem(4) rem(12) rgba(0, 0, 0, 0.15),
+    0 rem(2) rem(4) rgba(0, 0, 0, 0.1);
+  animation: tooltipFadeInMobile 0.2s ease;
+  pointer-events: auto;
+
+  @include tablet {
+    max-width: rem(400);
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    animation: tooltipFadeInTablet 0.2s ease;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: rem(20);
+    border: rem(8) solid transparent;
+    border-top-color: var(--a-text-dark);
+
+    @include tablet {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  }
+}
+
+.tooltipText {
+  font-size: rem(14);
+  line-height: 1.5;
+  color: var(--a-whiteBg);
+  margin: 0;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+@keyframes tooltipFadeInMobile {
+  from {
+    opacity: 0;
+    transform: translateY(rem(4));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tooltipFadeInTablet {
+  from {
+    opacity: 0;
+    transform: translate(-50%, rem(4));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%);
   }
 }
 
