@@ -233,6 +233,30 @@
             "notes": "Требует адаптивного переходника"
           },
           "modelPath": "https://makerworld.com/ru/models/74649-fast-bambustudio-moon-lamp-led-light?from=search#profileId-79035"
+        },
+        {
+          "id": "model-1768842591296",
+          "title": "Закладка для книги.",
+          "description": "Описание модели",
+          "shortDescription": "Аккуратная закладка для книги в форме сердечка. Она бережно фиксирует страницу и не мнёт листы, так что можно спокойно прерваться и легко вернуться к чтению. Цвет можно выбрать любой, но особенно красиво смотрится насыщенный красный: он добавляет чуть больше уюта, романтики и отлично смотрится как маленький подарок для близких.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-009.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 35,
+              "height": 35,
+              "depth": 15,
+              "unit": "mm"
+            },
+            "weight": 4,
+            "material": "PLA",
+            "printTime": "20 минут "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/153339-heart-bookmark-valentines-day#profileId-167478"
         }
       ]
     },
