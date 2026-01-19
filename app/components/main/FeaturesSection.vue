@@ -200,6 +200,36 @@ const removeFeature = async (index: number) => {
   await saveFeaturesData();
 };
 
+// Маппинг текстов features на ID разделов коллекций
+const getSectionIdByText = (text: string): string | null => {
+  const mapping: Record<string, string> = {
+    Art: "art",
+    "Для дома": "home",
+    Игрушки: "toys",
+    Инструменты: "tools",
+    Праздники: "holidays",
+  };
+  return mapping[text] || null;
+};
+
+// Обработчик клика на блок feature
+const handleFeatureClick = (featureText: string) => {
+  // Если режим редактирования, не обрабатываем клик
+  if (isDev && isEditingText.value !== null) return;
+
+  // "Мастерская" ведет на отдельную страницу
+  if (featureText === "Мастерская") {
+    navigateTo("/workshop");
+    return;
+  }
+
+  // Остальные ведут на страницу коллекций с нужным разделом
+  const sectionId = getSectionIdByText(featureText);
+  if (sectionId) {
+    navigateTo(`/collections?section=${sectionId}`);
+  }
+};
+
 onMounted(() => {
   loadFeaturesData();
 });
@@ -208,8 +238,16 @@ onMounted(() => {
 <template>
   <section :class="$style.features">
     <div :class="$style.container">
+      <div v-if="isDev" :class="$style.addFeatureWrapper">
+        <CoreAddButton
+          label="Добавить блок"
+          aria-label="Добавить новый блок"
+          @click="addFeature"
+        />
+      </div>
+
       <div :class="$style.grid">
-        <div
+        <button
           v-for="(feature, index) in features"
           :key="index"
           :class="$style.feature"
@@ -221,6 +259,8 @@ onMounted(() => {
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
           }"
+          type="button"
+          @click="handleFeatureClick(feature.text)"
         >
           <div v-if="isDev" :class="$style.actions">
             <button
@@ -228,7 +268,7 @@ onMounted(() => {
               :class="$style.editButton"
               type="button"
               aria-label="Изменить изображение"
-              @click="openImageModal(index)"
+              @click.stop="openImageModal(index)"
             >
               <EditIcon />
             </button>
@@ -238,20 +278,21 @@ onMounted(() => {
               :class="$style.removeButton"
               type="button"
               aria-label="Удалить блок"
-              @click="removeFeature(index)"
+              @click.stop="removeFeature(index)"
             >
               <CloseIcon />
             </button>
           </div>
 
           <div :class="$style.content">
-            <div
+            <button
               v-if="isDev && !feature.backgroundImage"
               :class="$style.addButton"
-              @click="openImageModal(index)"
+              type="button"
+              @click.stop="openImageModal(index)"
             >
               Добавить
-            </div>
+            </button>
 
             <MainFeatureEditor
               :text="feature.text"
@@ -264,17 +305,6 @@ onMounted(() => {
               @start-edit="startEditingText(index)"
             />
           </div>
-        </div>
-
-        <button
-          v-if="isDev"
-          :class="$style.addFeatureButton"
-          type="button"
-          aria-label="Добавить новый блок"
-          @click="addFeature"
-        >
-          <span :class="$style.addFeatureIcon">+</span>
-          <span :class="$style.addFeatureText">Добавить блок</span>
         </button>
       </div>
     </div>
@@ -327,6 +357,8 @@ onMounted(() => {
   padding: rem(32);
   border-radius: var(--a-borderR--card);
   background-color: var(--a-lightPrimaryBg);
+  border: none;
+  cursor: pointer;
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
@@ -339,6 +371,10 @@ onMounted(() => {
   &:hover {
     transform: translateY(rem(-4));
     box-shadow: 0 rem(8) rem(24) rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(rem(-2));
   }
 
   &::before {
@@ -460,53 +496,15 @@ onMounted(() => {
   }
 }
 
-.addFeatureButton {
-  position: relative;
-  text-align: center;
-  padding: rem(32);
-  border-radius: var(--a-borderR--card);
-  background-color: var(--a-lightPrimaryBg);
-  border: 2px dashed var(--a-border-primary);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    border-color 0.3s ease;
-  min-height: rem(216);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: rem(12);
-  cursor: pointer;
-  color: var(--a-text-dark);
+.addFeatureWrapper {
+  margin-bottom: rem(24);
 
-  &:hover {
-    transform: translateY(rem(-4));
-    box-shadow: 0 rem(8) rem(24) rgba(0, 0, 0, 0.1);
-    border-color: var(--a-primary);
-    background-color: var(--a-whiteBg);
+  @include tablet {
+    margin-bottom: rem(32);
   }
 
-  &:active {
-    transform: translateY(rem(-2));
+  @include desktop {
+    margin-bottom: rem(40);
   }
-}
-
-.addFeatureIcon {
-  font-size: rem(48);
-  font-weight: 300;
-  line-height: 1;
-  color: var(--a-primary);
-  transition: transform 0.2s ease;
-
-  .addFeatureButton:hover & {
-    transform: scale(1.1);
-  }
-}
-
-.addFeatureText {
-  font-size: rem(18);
-  font-weight: 500;
-  color: var(--a-text-dark);
 }
 </style>

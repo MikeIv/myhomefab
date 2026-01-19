@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import type { Model } from "~/types/model";
 import { useCollectionsData } from "~/composables/useCollectionsData";
 import { useCollectionEditor } from "~/composables/useCollectionEditor";
@@ -9,6 +9,8 @@ import { useImageManager } from "~/composables/useImageManager";
 definePageMeta({
   layout: "default",
 });
+
+const route = useRoute();
 
 const isDev = import.meta.dev;
 
@@ -210,9 +212,44 @@ const handleRemoveModel = async (reversedIndex: number) => {
   }
 };
 
+// Обработка query параметра section при загрузке страницы
+const handleSectionQuery = () => {
+  const sectionParam = route.query.section;
+  if (typeof sectionParam === "string" && sectionParam) {
+    // Проверяем, что раздел существует в коллекциях
+    const sectionExists = collections.value.sections.some(
+      (section) => section.id === sectionParam,
+    );
+    if (sectionExists) {
+      selectSection(sectionParam);
+    }
+  }
+};
+
 onMounted(() => {
   loadCollectionsData();
 });
+
+// Отслеживаем изменения коллекций и обрабатываем query параметр после загрузки
+watch(
+  () => collections.value.sections.length,
+  () => {
+    if (collections.value.sections.length > 0 && route.query.section) {
+      handleSectionQuery();
+    }
+  },
+  { immediate: true },
+);
+
+// Отслеживаем изменения query параметра
+watch(
+  () => route.query.section,
+  () => {
+    if (collections.value.sections.length > 0) {
+      handleSectionQuery();
+    }
+  },
+);
 </script>
 
 <template>
@@ -246,6 +283,14 @@ onMounted(() => {
 
     <section :class="$style.content">
       <div :class="$style.container">
+        <div v-if="isDev" :class="$style.addCardWrapper">
+          <CoreAddButton
+            label="Добавить карточку"
+            aria-label="Добавить новую карточку"
+            @click="handleAddModel"
+          />
+        </div>
+
         <div v-if="currentModels.length > 0" :class="$style.grid">
           <CollectionsCard
             v-for="(model, index) in currentModels"
@@ -266,17 +311,6 @@ onMounted(() => {
             @start-editing-title="handleStartEditingTitle"
             @start-editing-description="handleStartEditingDescription"
           />
-
-          <button
-            v-if="isDev"
-            :class="$style.addCardButton"
-            type="button"
-            aria-label="Добавить новую карточку"
-            @click="handleAddModel"
-          >
-            <span :class="$style.addCardIcon">+</span>
-            <span :class="$style.addCardText">Добавить карточку</span>
-          </button>
         </div>
         <div v-else :class="$style.empty">
           <p>{{ $t("portfolio.empty") }}</p>
@@ -398,6 +432,18 @@ onMounted(() => {
   }
 }
 
+.addCardWrapper {
+  margin-bottom: rem(24);
+
+  @include tablet {
+    margin-bottom: rem(32);
+  }
+
+  @include desktop {
+    margin-bottom: rem(40);
+  }
+}
+
 .grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -412,56 +458,6 @@ onMounted(() => {
     grid-template-columns: repeat(3, 1fr);
     gap: rem(40);
   }
-}
-
-.addCardButton {
-  position: relative;
-  text-align: center;
-  padding: rem(32);
-  border-radius: var(--a-borderR--card);
-  background-color: var(--a-lightPrimaryBg);
-  border: 2px dashed var(--a-border-primary);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    border-color 0.3s ease;
-  min-height: rem(216);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: rem(12);
-  cursor: pointer;
-  color: var(--a-text-dark);
-
-  &:hover {
-    transform: translateY(rem(-4));
-    box-shadow: 0 rem(8) rem(24) rgba(0, 0, 0, 0.1);
-    border-color: var(--a-primary);
-    background-color: var(--a-whiteBg);
-  }
-
-  &:active {
-    transform: translateY(rem(-2));
-  }
-}
-
-.addCardIcon {
-  font-size: rem(48);
-  font-weight: 300;
-  line-height: 1;
-  color: var(--a-primary);
-  transition: transform 0.2s ease;
-
-  .addCardButton:hover & {
-    transform: scale(1.1);
-  }
-}
-
-.addCardText {
-  font-size: rem(18);
-  font-weight: 500;
-  color: var(--a-text-dark);
 }
 
 .empty {

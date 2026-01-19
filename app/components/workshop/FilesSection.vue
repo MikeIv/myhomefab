@@ -34,6 +34,18 @@ const handleAddFile = () => {
 
 <template>
   <section :class="$style.section">
+    <div v-if="isDev" :class="$style.addCardWrapper">
+      <button
+        :class="$style.addCardButton"
+        type="button"
+        aria-label="Добавить новую карточку файла"
+        @click="handleAddFile"
+      >
+        <span :class="$style.addCardIcon">+</span>
+        <span :class="$style.addCardText">Добавить файл</span>
+      </button>
+    </div>
+
     <div v-if="files.length > 0" :class="$style.grid">
       <WorkshopFileCard
         v-for="(file, index) in files"
@@ -65,17 +77,6 @@ const handleAddFile = () => {
           (idx, imageData) => emit('updatePreviewImage', idx, imageData)
         "
       />
-
-      <button
-        v-if="isDev"
-        :class="$style.addCardButton"
-        type="button"
-        aria-label="Добавить новую карточку файла"
-        @click="handleAddFile"
-      >
-        <span :class="$style.addCardIcon">+</span>
-        <span :class="$style.addCardText">Добавить файл</span>
-      </button>
     </div>
     <div v-else :class="$style.empty">
       <p>{{ $t("workshop.files.empty") }}</p>
@@ -96,6 +97,18 @@ const handleAddFile = () => {
   }
 }
 
+.addCardWrapper {
+  margin-bottom: rem(24);
+
+  @include tablet {
+    margin-bottom: rem(32);
+  }
+
+  @include desktop {
+    margin-bottom: rem(40);
+  }
+}
+
 .grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -113,53 +126,57 @@ const handleAddFile = () => {
 }
 
 .addCardButton {
-  position: relative;
-  text-align: center;
-  padding: rem(32);
-  border-radius: var(--a-borderR--card);
-  background-color: var(--a-lightPrimaryBg);
-  border: 2px dashed var(--a-border-primary);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    border-color 0.3s ease;
-  min-height: rem(216);
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: rem(12);
+  gap: rem(8);
+  padding: rem(10) rem(20);
+  border-radius: var(--a-borderR--btn);
+  background-color: var(--a-primaryBg);
+  border: 1px solid var(--a-border-primary);
+  font-size: rem(14);
+  font-weight: 500;
+  color: var(--a-text-white);
   cursor: pointer;
-  color: var(--a-text-dark);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.2s ease;
 
   &:hover {
-    transform: translateY(rem(-4));
-    box-shadow: 0 rem(8) rem(24) rgba(0, 0, 0, 0.1);
+    background-color: var(--a-accentBg);
     border-color: var(--a-primary);
-    background-color: var(--a-whiteBg);
+    transform: translateY(rem(-2));
   }
 
   &:active {
-    transform: translateY(rem(-2));
+    transform: translateY(0);
+  }
+
+  @include tablet {
+    padding: rem(12) rem(24);
+    font-size: rem(16);
   }
 }
 
 .addCardIcon {
-  font-size: rem(48);
+  font-size: rem(20);
   font-weight: 300;
   line-height: 1;
-  color: var(--a-primary);
-  transition: transform 0.2s ease;
+  color: var(--a-text-white);
 
-  .addCardButton:hover & {
-    transform: scale(1.1);
+  @include tablet {
+    font-size: rem(22);
   }
 }
 
 .addCardText {
-  font-size: rem(18);
+  font-size: rem(14);
   font-weight: 500;
-  color: var(--a-text-dark);
+  color: var(--a-text-white);
+
+  @include tablet {
+    font-size: rem(16);
+  }
 }
 
 .empty {
