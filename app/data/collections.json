@@ -257,6 +257,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/153339-heart-bookmark-valentines-day#profileId-167478"
+        },
+        {
+          "id": "model-1768930669774",
+          "title": "Органайзер настольный",
+          "description": "Описание модели",
+          "shortDescription": "Настольный органайзер — стильная подставка, которая помогает навести порядок на рабочем столе и держать канцелярию под рукой.\nМножество отделений разного размера удобно размещают ручки, маркеры, ножницы, кисточки и мелкие аксессуары, чтобы ничего не затерялось в ящиках.\n",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-010.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 150,
+              "height": 95,
+              "depth": 100,
+              "unit": "mm"
+            },
+            "weight": 220,
+            "material": "PLA",
+            "printTime": "10 часов 35 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/1312949-asanoha-pen-holder-desk-organizer#profileId-1347620"
         }
       ]
     },

@@ -38,12 +38,12 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
   ],
 
-  googleFonts: {
-    families: {
-      Inter: [400, 500, 600, 700],
-      "Roboto Mono": [400, 500, 600],
+  fonts: {
+    // Отключаем только fontshare, чтобы убрать ошибку подключения к API
+    // Google Fonts подключены напрямую через <link> в app.vue
+    providers: {
+      fontshare: false,
     },
-    display: "swap",
   },
 
   ui: {
