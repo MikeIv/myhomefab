@@ -362,7 +362,7 @@
           "description": "Описание модели",
           "shortDescription": "Прыгающая лягушка — веселая механическая игрушка, которая оживает от простого нажатия и поражает прыжками.",
           "previewImage": null,
-          "previewImageKey": "collections/toys/frog.jpg",
+          "previewImageKey": "collections/toys/toys-002.jpg",
           "technicalSpecs": {
             "dimensions": {
               "width": 66,
@@ -374,6 +374,30 @@
             "material": "PLA",
             "printTime": "30 минут "
           }
+        },
+        {
+          "id": "model-1769012417052",
+          "title": "Дракон из м/ф Как приручить дракона",
+          "description": "Описание модели",
+          "shortDescription": "Детализированная игрушка с подвижными крыльями и хвостом, идеально подходящая для игр и украшения.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-003.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 170,
+              "height": 170,
+              "depth": 25,
+              "unit": "mm"
+            },
+            "weight": 45,
+            "material": "PLA",
+            "printTime": "3 часа "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/1723239-how-to-train-your-dragon-toothless-night-fury-arti#profileId-1853350"
         }
       ]
     },
