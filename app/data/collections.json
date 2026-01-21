@@ -281,6 +281,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/1312949-asanoha-pen-holder-desk-organizer#profileId-1347620"
+        },
+        {
+          "id": "model-1769017708315",
+          "title": "Тафтинговый лоток для туалетного столика",
+          "description": "Описание модели",
+          "shortDescription": "Красивый, удобный и стильный аксессуар в который можно разместить духи, кольца, серёжки и заколки, не давая им скатываться и теряться.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-011.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 200,
+              "height": 100,
+              "depth": 50,
+              "unit": "mm"
+            },
+            "weight": 100,
+            "material": "PLA",
+            "printTime": "3 часа "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/2157658-tufted-catchall-fast-no-support-vanity-tray#profileId-2339077"
         }
       ]
     },
