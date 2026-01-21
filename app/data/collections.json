@@ -457,6 +457,31 @@
           "shortDescription": "Удобная коробка с подвижным механизмом для крышки.",
           "previewImage": null,
           "previewImageKey": "collections/tools/tools-002.jpg"
+        },
+        {
+          "id": "model-1769016532223",
+          "title": "Маленькая самосборная коробка",
+          "description": "Описание модели",
+          "shortDescription": "Маленькая самосборная коробка — плоский шаблон, который быстро превращается в компактную упаковку без клея или скотча.",
+          "previewImage": null,
+          "previewImageKey": "collections/tools/tools-005.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 100,
+              "height": 100,
+              "depth": 100,
+              "unit": "mm"
+            },
+            "dimensionsText": "до 220 в разобранном виде",
+            "weightText": "до 17 грамм",
+            "material": "PLA",
+            "printTime": "до 35 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/2160924-customizable-folding-box#profileId-2342908"
         }
       ]
     },
