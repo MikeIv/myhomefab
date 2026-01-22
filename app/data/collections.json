@@ -305,6 +305,54 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/2157658-tufted-catchall-fast-no-support-vanity-tray#profileId-2339077"
+        },
+        {
+          "id": "model-1769103182253",
+          "title": "Светильник \"Улитка\"",
+          "description": "Описание модели",
+          "shortDescription": "Светильник \"Улитка с ракушкой\" — очаровательный ночник в форме улитки с полупрозрачной спиральной ракушкой, излучающей теплый, мягкий свет.\n",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-012.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 240,
+              "height": 160,
+              "depth": 190,
+              "unit": "mm"
+            },
+            "weight": 270,
+            "material": "PLA",
+            "printTime": "10 часов "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": true
+          },
+          "modelPath": "https://makerworld.com/ru/models/2192789-snail-lamp#profileId-2382032"
+        },
+        {
+          "id": "model-1769105051074",
+          "title": "Фильтр для ванной или раковины с удобной ручкой",
+          "description": "Описание модели",
+          "shortDescription": "Фильтр для ванны или раковины с удобной ручкой — практичный ситечко, которое спасает от засоров и упрощает уход за сантехникой.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-013.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 60,
+              "height": 60,
+              "depth": 24,
+              "unit": "mm"
+            },
+            "weight": 10,
+            "material": "PLA или PEGT",
+            "printTime": "30 минут "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": true
+          },
+          "modelPath": "https://makerworld.com/ru/models/627971-sink-drain-cover-with-handle#profileId-1001085"
         }
       ]
     },
