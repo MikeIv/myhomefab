@@ -353,6 +353,30 @@
             "supports": true
           },
           "modelPath": "https://makerworld.com/ru/models/627971-sink-drain-cover-with-handle#profileId-1001085"
+        },
+        {
+          "id": "model-1769191359589",
+          "title": "Настольная корзина для мусора",
+          "description": "Описание модели",
+          "shortDescription": "Аккуратное решение для рабочего стола, кухни или туалетного столика.\nКорзина легко крепится на край стола, а благодаря сменным насадкам можно использовать либо жесткий контейнер, либо подвесить обычный полиэтиленовый пакет для быстрого выброса мусора.\n",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-014.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 130,
+              "height": 150,
+              "depth": 130,
+              "unit": "mm"
+            },
+            "weight": 220,
+            "material": "PLA",
+            "printTime": "5 часов "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": true
+          },
+          "modelPath": "https://makerworld.com/ru/models/1322655-clamp-on-desk-bin#profileId-1359115"
         }
       ]
     },
