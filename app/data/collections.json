@@ -627,6 +627,30 @@
             "supports": true
           },
           "modelPath": "https://makerworld.com/ru/models/2145649-articulated-heart-valentine-s-day#profileId-2324635"
+        },
+        {
+          "id": "model-1769273544658",
+          "title": "Вязаная улитка ко Дню святого Валентина",
+          "description": "Описание модели",
+          "shortDescription": "Милая фигурка с красным сердцем-ракушкой и антенками-сердечками, созданная для теплых признаний.",
+          "previewImage": null,
+          "previewImageKey": "collections/holidays/holidays-003.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 27,
+              "height": 67,
+              "depth": 54,
+              "unit": "mm"
+            },
+            "weight": 40,
+            "material": "PLA",
+            "printTime": "3 часа "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": true
+          },
+          "modelPath": "https://makerworld.com/ru/models/2244400-knitted-valentine-s-day-snail#profileId-2443509"
         }
       ]
     }
