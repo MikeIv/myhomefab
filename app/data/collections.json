@@ -603,6 +603,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/2160924-customizable-folding-box#profileId-2342908"
+        },
+        {
+          "id": "model-1769351357069",
+          "title": "Стеллажная корзина (132х92 мм)",
+          "description": "Описание модели",
+          "shortDescription": "Универсальные модульные корзины для организации пространства вещей.",
+          "previewImage": null,
+          "previewImageKey": "collections/tools/tools-006.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 132,
+              "height": 92,
+              "depth": 57,
+              "unit": "mm"
+            },
+            "weight": 70,
+            "material": "PLA",
+            "printTime": "2 часа 30 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/546873-92x132mm-stacking-baskets-eternity-labs#profileId-464851"
         }
       ]
     },
