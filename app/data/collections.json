@@ -627,6 +627,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/546873-92x132mm-stacking-baskets-eternity-labs#profileId-464851"
+        },
+        {
+          "id": "model-1769421303945",
+          "title": "Резак для ленты",
+          "description": "Описание модели",
+          "shortDescription": "Удобное приспособление для отрезания и удержания ленты скотча.",
+          "previewImage": null,
+          "previewImageKey": "collections/tools/tools-007.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 56,
+              "height": 40,
+              "depth": 54,
+              "unit": "mm"
+            },
+            "weight": 30,
+            "material": "PLA/PETG",
+            "printTime": "1 час 6 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/18706-50mm-tape-dispenser-cutter?from=search#profileId-17469"
         }
       ]
     },
