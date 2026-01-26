@@ -402,6 +402,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/716614-container-family#profileId-647404"
+        },
+        {
+          "id": "model-1769446325076",
+          "title": "Органайзер для ванной",
+          "description": "Описание модели",
+          "shortDescription": "Стильная подставка, которая держит ватные диски и ватные палочки в полном порядке и всегда под рукой.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-016.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 148,
+              "height": 73,
+              "depth": 65,
+              "unit": "mm"
+            },
+            "weight": 96,
+            "material": "PLA",
+            "printTime": "3 часа 40 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/2151198-pads-swabs-holder-ribbed-bath-organizer#profileId-2331339"
         }
       ]
     },
