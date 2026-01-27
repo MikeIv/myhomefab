@@ -426,6 +426,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/2151198-pads-swabs-holder-ribbed-bath-organizer#profileId-2331339"
+        },
+        {
+          "id": "model-1769526539183",
+          "title": "Органайзер для ручек, карандашей и фломастеров.",
+          "description": "Описание модели",
+          "shortDescription": "Красивый и удобный органайзер для комнатного пространства.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-017.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 91,
+              "height": 91,
+              "depth": 100,
+              "unit": "mm"
+            },
+            "weight": 152,
+            "material": "PLA",
+            "printTime": "4 часа 30 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/1371275-modern-japandi-pencil-holder-3-versions#profileId-1835262"
         }
       ]
     },
