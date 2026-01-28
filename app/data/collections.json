@@ -567,6 +567,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/1723239-how-to-train-your-dragon-toothless-night-fury-arti#profileId-1853350"
+        },
+        {
+          "id": "model-1769612474888",
+          "title": "Волк флекси",
+          "description": "Описание модели",
+          "shortDescription": "Красивая и гибкая игрушка в форме волка.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-004.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 192,
+              "height": 62,
+              "depth": 45,
+              "unit": "mm"
+            },
+            "weight": 65,
+            "material": "PLA",
+            "printTime": "3 часа 20 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/853839-floppy-wolf-flexi-articulated-animal-pip#profileId-802588"
         }
       ]
     },
