@@ -142,9 +142,11 @@ if (filesToCheck.length > 0) {
     }
   }
 
-  // Форматируем файлы с помощью Prettier
-  console.log("\n🎨 Форматирование файлов с помощью Prettier...");
-  exec(`npx prettier --write ${filesToCheck.join(" ")}`);
+  // Форматируем файлы с помощью Prettier (только при непустом списке — иначе Prettier выдаст ошибку)
+  if (filesToCheck.length > 0) {
+    console.log("\n🎨 Форматирование файлов с помощью Prettier...");
+    exec(`npx prettier --write ${filesToCheck.map((f) => `"${f}"`).join(" ")}`);
+  }
 }
 
 console.log("\n✅ Все проверки пройдены успешно!\n");

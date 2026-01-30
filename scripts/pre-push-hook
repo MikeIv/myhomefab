@@ -12,8 +12,10 @@ cd "$(git rev-parse --show-toplevel)" || exit 1
 CHANGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|ts|vue|scss|css)$' || true)
 UNSTAGED_FILES=$(git diff --name-only --diff-filter=ACM | grep -E '\.(js|ts|vue|scss|css)$' || true)
 
-# Объединяем списки и убираем дубликаты
-ALL_FILES=$(echo "$CHANGED_FILES $UNSTAGED_FILES" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+# Объединяем списки, убираем дубликаты и пустые строки
+ALL_FILES=$(echo "$CHANGED_FILES" "$UNSTAGED_FILES" | tr ' ' '\n' | grep -v '^$' | sort -u | tr '\n' ' ')
+# Убираем пробелы по краям (чтобы при пустом списке не передавать пробел в xargs)
+ALL_FILES=$(echo "$ALL_FILES" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
 if [ -z "$ALL_FILES" ]; then
   echo "✅ Нет измененных файлов для проверки."
@@ -81,10 +83,13 @@ if [ -n "$CSS_FILES" ]; then
   fi
 fi
 
-# Форматируем файлы с помощью Prettier
+# Форматируем файлы с помощью Prettier (только если есть файлы — иначе Prettier выдаст ошибку)
 echo ""
-echo "🎨 Форматирование файлов с помощью Prettier..."
-echo "$ALL_FILES" | xargs npx prettier --write
+PRETTIER_FILES=$(echo "$ALL_FILES" | tr ' ' '\n' | grep -v '^$')
+if [ -n "$PRETTIER_FILES" ]; then
+  echo "🎨 Форматирование файлов с помощью Prettier..."
+  echo "$PRETTIER_FILES" | xargs npx prettier --write
+fi
 
 echo ""
 echo "✅ Все проверки пройдены успешно!"
