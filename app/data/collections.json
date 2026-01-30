@@ -616,6 +616,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/853839-floppy-wolf-flexi-articulated-animal-pip#profileId-802588"
+        },
+        {
+          "id": "model-1769781791577",
+          "title": "Джек-рассел-терьер (с вариантом раскраски)",
+          "description": "Описание модели",
+          "shortDescription": "Очаровательная фигурка энергичной собачки с подвижными частями для игр и коллекций.\nПредставлен возможный вариант окраски. Исходная фигурка одноцветная.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-005.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 80,
+              "height": 30,
+              "depth": 55,
+              "unit": "mm"
+            },
+            "weight": 20,
+            "material": "PLA",
+            "printTime": "1 час 10 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "notes": "Модель создана в https://3d.hunyuan.tencent.com/\nМодифицирована."
+          },
+          "modelPath": "https://myhomefab.ru/collections?section=toys"
         }
       ]
     },
