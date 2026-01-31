@@ -475,6 +475,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/1103995-regular-bag-clips-v2-print-in-place#profileId-1743142"
+        },
+        {
+          "id": "model-1769877717838",
+          "title": "Сетчатый стакан",
+          "description": "Описание модели",
+          "shortDescription": "Этот универсальный контейнер сочетает в себе современный дизайн и практичную функциональность. Благодаря трем различным рисункам и подходящей крышке он органично впишется в любой интерьер — будь то ванная комната, офис, детская или кухня.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-019.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 95,
+              "height": 95,
+              "depth": 101,
+              "unit": "mm"
+            },
+            "weight": 40,
+            "material": "PLA",
+            "printTime": "3 часа "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/1802748-mesh-cup-universal-storage-container#profileId-1922547"
         }
       ]
     },
@@ -640,6 +664,30 @@
             "notes": "Модель создана в https://3d.hunyuan.tencent.com/\nМодифицирована."
           },
           "modelPath": "https://myhomefab.ru/collections?section=toys"
+        },
+        {
+          "id": "model-1769878460441",
+          "title": "Осьминог флекси",
+          "description": "Описание модели",
+          "shortDescription": "Игрушка осьминог — гибкая фигурка с шарнирными щупальцами, которая изгибается в любые позы, развлекает и может украсить ваш стол.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-006.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 104,
+              "height": 182,
+              "depth": 36,
+              "unit": "mm"
+            },
+            "weight": 52,
+            "material": "PLA",
+            "printTime": "3 часа 50 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/40737-octopus-long-tentacles#profileId-205378"
         }
       ]
     },
