@@ -59,8 +59,21 @@
         "параметризация",
         "основы"
       ],
+      "sources": [
+        "https://www.youtube.com/watch?v=Cz9SRMFmxLw"
+      ],
       "createdAt": "2024-01-10",
       "updatedAt": "2024-01-10"
     }
+  ],
+  "noteCategories": [
+    "technique",
+    "tip",
+    "tutorial",
+    "troubleshooting"
+  ],
+  "tagsList": [
+    "параметризация",
+    "основы"
   ]
 }
