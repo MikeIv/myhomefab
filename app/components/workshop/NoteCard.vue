@@ -693,16 +693,40 @@ const categoryClass = (category: string): string | undefined => {
 }
 
 .sourceLink {
+  display: inline-flex;
+  align-items: center;
   font-size: rem(13);
-  color: var(--a-primary);
+  font-weight: 500;
+  color: var(--a-text-primary);
   text-decoration: none;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding: rem(6) rem(12);
+  background-color: var(--a-lightPrimaryBg);
+  border-radius: rem(8);
+  border: 1px solid transparent;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
 
   &:hover {
-    text-decoration: underline;
+    background-color: rgba(59, 130, 246, 0.12);
+    border-color: rgba(59, 130, 246, 0.25);
+    box-shadow: 0 rem(2) rem(8) rgba(59, 130, 246, 0.15);
+    transform: translateY(rem(-1));
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--a-primary);
+    outline-offset: rem(2);
   }
 }
 
