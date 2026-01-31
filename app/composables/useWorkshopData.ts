@@ -3,10 +3,25 @@ import workshopData from "~/data/workshop.json";
 import { useWorkshop } from "~/composables/useWorkshop";
 import { useImageManager } from "~/composables/useImageManager";
 import type { ModelFile, Fusion360Note } from "~/types/workshop";
+import { DEFAULT_NOTE_CATEGORY_IDS } from "~/types/workshop";
 
 interface WorkshopData {
   files: ModelFile[];
   notes: Fusion360Note[];
+  noteCategories: string[];
+  tagsList: string[];
+}
+
+function defaultNoteCategories(): string[] {
+  return [...DEFAULT_NOTE_CATEGORY_IDS];
+}
+
+function collectTagsFromNotes(notes: Fusion360Note[]): string[] {
+  const set = new Set<string>();
+  for (const note of notes) {
+    if (note.tags) for (const t of note.tags) set.add(t);
+  }
+  return Array.from(set);
 }
 
 export const useWorkshopData = () => {
@@ -18,7 +33,12 @@ export const useWorkshopData = () => {
     ? import.meta.env.DEV_SERVER_URL || "http://localhost:3001"
     : "";
 
-  const workshop = ref<WorkshopData>({ files: [], notes: [] });
+  const workshop = ref<WorkshopData>({
+    files: [],
+    notes: [],
+    noteCategories: defaultNoteCategories(),
+    tagsList: [],
+  });
 
   const loadWorkshopData = async (): Promise<void> => {
     if (!import.meta.client) return;
@@ -52,6 +72,14 @@ export const useWorkshopData = () => {
             }>;
             notes: Fusion360Note[];
           };
+          const notes = (rawData.notes ?? []).map((n) => ({
+            ...n,
+            sources: n.sources ?? [],
+          }));
+          const rawWithMeta = rawData as {
+            noteCategories?: string[];
+            tagsList?: string[];
+          };
           workshop.value = {
             files: rawData.files.map((file) => ({
               id: file.id,
@@ -64,18 +92,32 @@ export const useWorkshopData = () => {
               previewImage: file.previewImage
                 ? (getImageSrc(file.previewImage) ?? undefined)
                 : undefined,
-              // Преобразуем null в undefined для полей с опциональным типом
               version: file.version ?? undefined,
               software: file.software ?? undefined,
               tags: file.tags,
               createdAt: file.createdAt,
               updatedAt: file.updatedAt,
             })),
-            notes: rawData.notes,
+            notes,
+            noteCategories:
+              Array.isArray(rawWithMeta.noteCategories) &&
+              rawWithMeta.noteCategories.length > 0
+                ? rawWithMeta.noteCategories
+                : defaultNoteCategories(),
+            tagsList:
+              Array.isArray(rawWithMeta.tagsList) &&
+              rawWithMeta.tagsList.length > 0
+                ? rawWithMeta.tagsList
+                : collectTagsFromNotes(notes),
           };
           return;
         } else {
-          workshop.value = { files: [], notes: [] };
+          workshop.value = {
+            files: [],
+            notes: [],
+            noteCategories: defaultNoteCategories(),
+            tagsList: [],
+          };
           return;
         }
       } catch (error) {
@@ -113,16 +155,28 @@ export const useWorkshopData = () => {
       const result = await response.json();
 
       if (result.success && result.data) {
+        const data = result.data as WorkshopData;
+        const notes = (data.notes ?? []).map((note) => ({
+          ...note,
+          sources: note.sources ?? [],
+        }));
         workshop.value = {
-          files: result.data.files.map((file: ModelFile) => ({
+          files: (data.files ?? []).map((file: ModelFile) => ({
             ...file,
             previewImage: file.previewImage
               ? (getImageSrc(file.previewImage) ?? undefined)
               : undefined,
-            // Явно сохраняем originalFileName при загрузке
             originalFileName: file.originalFileName,
           })),
-          notes: result.data.notes,
+          notes,
+          noteCategories:
+            Array.isArray(data.noteCategories) && data.noteCategories.length > 0
+              ? data.noteCategories
+              : defaultNoteCategories(),
+          tagsList:
+            Array.isArray(data.tagsList) && data.tagsList.length > 0
+              ? data.tagsList
+              : collectTagsFromNotes(notes),
         };
         return;
       }
@@ -159,6 +213,14 @@ export const useWorkshopData = () => {
           }>;
           notes: Fusion360Note[];
         };
+        const notes = (rawData.notes ?? []).map((n) => ({
+          ...n,
+          sources: n.sources ?? [],
+        }));
+        const rawWithMeta = rawData as {
+          noteCategories?: string[];
+          tagsList?: string[];
+        };
         workshop.value = {
           files: rawData.files.map((file) => ({
             id: file.id,
@@ -171,17 +233,31 @@ export const useWorkshopData = () => {
             previewImage: file.previewImage
               ? (getImageSrc(file.previewImage) ?? undefined)
               : undefined,
-            // Преобразуем null в undefined для полей с опциональным типом
             version: file.version ?? undefined,
             software: file.software ?? undefined,
             tags: file.tags,
             createdAt: file.createdAt,
             updatedAt: file.updatedAt,
           })),
-          notes: rawData.notes,
+          notes,
+          noteCategories:
+            Array.isArray(rawWithMeta.noteCategories) &&
+            rawWithMeta.noteCategories.length > 0
+              ? rawWithMeta.noteCategories
+              : defaultNoteCategories(),
+          tagsList:
+            Array.isArray(rawWithMeta.tagsList) &&
+            rawWithMeta.tagsList.length > 0
+              ? rawWithMeta.tagsList
+              : collectTagsFromNotes(notes),
         };
       } else {
-        workshop.value = { files: [], notes: [] };
+        workshop.value = {
+          files: [],
+          notes: [],
+          noteCategories: defaultNoteCategories(),
+          tagsList: [],
+        };
       }
     } catch {
       console.error("Ошибка при загрузке данных из workshop.json");
@@ -201,10 +277,14 @@ export const useWorkshopData = () => {
             previewImage: file.previewImage
               ? getImageKeyByUrl(file.previewImage) || file.previewImage
               : undefined,
-            // Явно сохраняем originalFileName, чтобы оно не терялось
             originalFileName: file.originalFileName,
           })),
-          notes: workshop.value.notes,
+          notes: workshop.value.notes.map((note) => ({
+            ...note,
+            sources: note.sources ?? [],
+          })),
+          noteCategories: workshop.value.noteCategories,
+          tagsList: workshop.value.tagsList,
         };
 
         const saveResult = await saveWorkshopJSON(dataToSave);
@@ -246,10 +326,14 @@ export const useWorkshopData = () => {
           previewImage: file.previewImage
             ? getImageKeyByUrl(file.previewImage) || file.previewImage
             : undefined,
-          // Явно сохраняем originalFileName, чтобы оно не терялось
           originalFileName: file.originalFileName,
         })),
-        notes: workshop.value.notes,
+        notes: workshop.value.notes.map((note) => ({
+          ...note,
+          sources: note.sources ?? [],
+        })),
+        noteCategories: workshop.value.noteCategories,
+        tagsList: workshop.value.tagsList,
       };
 
       const response = await fetch(apiUrl, {
@@ -297,10 +381,14 @@ export const useWorkshopData = () => {
           previewImage: file.previewImage
             ? getImageKeyByUrl(file.previewImage) || file.previewImage
             : undefined,
-          // Явно сохраняем originalFileName, чтобы оно не терялось
           originalFileName: file.originalFileName,
         })),
-        notes: workshop.value.notes,
+        notes: workshop.value.notes.map((note) => ({
+          ...note,
+          sources: note.sources ?? [],
+        })),
+        noteCategories: workshop.value.noteCategories,
+        tagsList: workshop.value.tagsList,
       };
 
       const saveResult = await saveWorkshopJSON(dataToSave);
@@ -365,23 +453,28 @@ export const useWorkshopData = () => {
   };
 
   const addNote = async (): Promise<boolean> => {
-    const newId = `note-${Date.now()}`;
-    workshop.value.notes.push({
-      id: newId,
-      title: "Новая заметка",
-      content: "",
-      category: "tip",
-      tags: [],
-      createdAt: new Date().toISOString().split("T")[0] as string,
-    });
-
+    const newId = `note-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    const firstCategory =
+      workshop.value.noteCategories[0] ?? DEFAULT_NOTE_CATEGORY_IDS[0];
+    workshop.value.notes = [
+      {
+        id: newId,
+        title: "Новая заметка",
+        content: "",
+        category: firstCategory,
+        tags: [],
+        sources: [],
+        createdAt: new Date().toISOString().split("T")[0] as string,
+      },
+      ...workshop.value.notes,
+    ];
     return await saveWorkshopData();
   };
 
   const removeNote = async (index: number): Promise<boolean> => {
     if (workshop.value.notes.length <= 1) return false;
-
-    workshop.value.notes.splice(index, 1);
+    if (index < 0 || index >= workshop.value.notes.length) return false;
+    workshop.value.notes = workshop.value.notes.filter((_, i) => i !== index);
     return await saveWorkshopData();
   };
 
@@ -391,11 +484,49 @@ export const useWorkshopData = () => {
     value: unknown,
   ) => {
     if (!workshop.value.notes[noteIndex]) return;
+    workshop.value.notes = workshop.value.notes.map((note, index) => {
+      if (index === noteIndex) {
+        return { ...note, [field]: value };
+      }
+      return note;
+    });
+  };
 
-    const note = workshop.value.notes[noteIndex];
-    if (note) {
-      (note[field] as unknown) = value;
-    }
+  const addNoteCategory = async (name: string): Promise<boolean> => {
+    const trimmed = name.trim();
+    if (!trimmed) return false;
+    if (workshop.value.noteCategories.includes(trimmed)) return true;
+    workshop.value.noteCategories = [...workshop.value.noteCategories, trimmed];
+    return await saveWorkshopData();
+  };
+
+  const removeNoteCategory = async (categoryId: string): Promise<boolean> => {
+    if (workshop.value.noteCategories.length <= 1) return false;
+    if (!workshop.value.noteCategories.includes(categoryId)) return true;
+
+    const fallbackCategory =
+      workshop.value.noteCategories.find((c) => c !== categoryId) ??
+      DEFAULT_NOTE_CATEGORY_IDS[0];
+
+    workshop.value.noteCategories = workshop.value.noteCategories.filter(
+      (c) => c !== categoryId,
+    );
+
+    workshop.value.notes = workshop.value.notes.map((note) =>
+      note.category === categoryId
+        ? { ...note, category: fallbackCategory }
+        : note,
+    );
+
+    return await saveWorkshopData();
+  };
+
+  const addTagToPool = async (name: string): Promise<boolean> => {
+    const trimmed = name.trim();
+    if (!trimmed) return false;
+    if (workshop.value.tagsList.includes(trimmed)) return true;
+    workshop.value.tagsList = [...workshop.value.tagsList, trimmed];
+    return await saveWorkshopData();
   };
 
   return {
@@ -408,5 +539,8 @@ export const useWorkshopData = () => {
     addNote,
     removeNote,
     updateNoteField,
+    addNoteCategory,
+    removeNoteCategory,
+    addTagToPool,
   };
 };

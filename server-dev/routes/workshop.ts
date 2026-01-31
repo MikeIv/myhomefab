@@ -1,12 +1,27 @@
 import express from "express";
 import { getDatabase } from "../database.js";
 import type { ModelFile, Fusion360Note } from "../../app/types/workshop.js";
+import { DEFAULT_NOTE_CATEGORY_IDS } from "../../app/types/workshop.js";
 
 const router = express.Router();
 
 interface WorkshopData {
   files: ModelFile[];
   notes: Fusion360Note[];
+  noteCategories?: string[];
+  tagsList?: string[];
+}
+
+function defaultNoteCategories(): string[] {
+  return [...DEFAULT_NOTE_CATEGORY_IDS];
+}
+
+function collectTagsFromNotes(notes: Fusion360Note[]): string[] {
+  const set = new Set<string>();
+  for (const note of notes) {
+    if (note.tags) for (const t of note.tags) set.add(t);
+  }
+  return Array.from(set);
 }
 
 // GET /api/workshop/data - Получить все данные workshop
@@ -41,8 +56,8 @@ router.get("/data", (_req, res) => {
       tags: file.tags ? JSON.parse(file.tags as unknown as string) : [],
     }));
 
-    // Получаем все заметки
-    const notes = db
+    // Получаем все заметки (включая sources)
+    const notesRaw = db
       .prepare(
         `SELECT 
           id,
@@ -50,22 +65,63 @@ router.get("/data", (_req, res) => {
           content,
           category,
           tags,
+          sources,
           created_at as createdAt,
           updated_at as updatedAt
         FROM workshop_notes
         ORDER BY created_at DESC`,
       )
-      .all() as Fusion360Note[];
+      .all() as Array<Fusion360Note & { sources?: string }>;
 
     // Парсим JSON поля
-    const parsedNotes = notes.map((note) => ({
-      ...note,
-      tags: note.tags ? JSON.parse(note.tags as unknown as string) : [],
-    }));
+    const parsedNotes = notesRaw.map((note) => {
+      let sources: string[] = [];
+      if (note.sources && typeof note.sources === "string") {
+        try {
+          sources = JSON.parse(note.sources) as string[];
+          if (!Array.isArray(sources)) sources = [];
+        } catch {
+          sources = [];
+        }
+      }
+      return {
+        ...note,
+        tags: note.tags ? JSON.parse(note.tags as unknown as string) : [],
+        sources,
+      };
+    });
+
+    // Получаем metadata (noteCategories, tagsList)
+    let noteCategories = defaultNoteCategories();
+    let tagsList = collectTagsFromNotes(parsedNotes);
+
+    try {
+      const metaRow = db
+        .prepare("SELECT value FROM workshop_metadata WHERE key = ?")
+        .get("noteCategories") as { value: string } | undefined;
+      if (metaRow) {
+        noteCategories = JSON.parse(metaRow.value) as string[];
+      }
+    } catch {
+      // используем значения по умолчанию
+    }
+
+    try {
+      const metaRow = db
+        .prepare("SELECT value FROM workshop_metadata WHERE key = ?")
+        .get("tagsList") as { value: string } | undefined;
+      if (metaRow) {
+        tagsList = JSON.parse(metaRow.value) as string[];
+      }
+    } catch {
+      // используем собранные из заметок
+    }
 
     const data: WorkshopData = {
       files: parsedFiles,
       notes: parsedNotes,
+      noteCategories,
+      tagsList,
     };
 
     res.json({
@@ -128,23 +184,47 @@ router.post("/save", (req, res) => {
         );
       }
 
-      // Вставляем заметки
+      // Вставляем заметки (включая sources)
       const insertNote = db.prepare(`
         INSERT INTO workshop_notes (
-          id, title, content, category, tags, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+          id, title, content, category, tags, sources, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `);
 
       for (const note of body.notes) {
+        const sources = Array.isArray(note.sources) ? note.sources : [];
         insertNote.run(
           note.id,
           note.title,
           note.content,
           note.category || null,
           note.tags ? JSON.stringify(note.tags) : null,
+          sources.length > 0 ? JSON.stringify(sources) : null,
           note.createdAt,
           note.updatedAt || note.createdAt,
         );
+      }
+
+      // Сохраняем noteCategories и tagsList в metadata
+      const upsertMeta = db.prepare(`
+        INSERT INTO workshop_metadata (key, value) VALUES (?, ?)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value
+      `);
+
+      if (
+        body.noteCategories &&
+        Array.isArray(body.noteCategories) &&
+        body.noteCategories.length > 0
+      ) {
+        upsertMeta.run("noteCategories", JSON.stringify(body.noteCategories));
+      }
+
+      if (
+        body.tagsList &&
+        Array.isArray(body.tagsList) &&
+        body.tagsList.length > 0
+      ) {
+        upsertMeta.run("tagsList", JSON.stringify(body.tagsList));
       }
     });
 

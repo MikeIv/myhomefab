@@ -20,9 +20,20 @@ const {
   updateFileField,
   addFile,
   removeFile,
+  addNote,
+  removeNote,
+  updateNoteField,
+  addNoteCategory,
+  removeNoteCategory,
+  addTagToPool,
 } = useWorkshopData();
 
 const activeTab = ref<"files" | "notes">("files");
+
+const isAddCategoryModalOpen = ref(false);
+const isAddTagModalOpen = ref(false);
+const isEditingNoteTitle = ref<number | null>(null);
+const isEditingNoteDescription = ref<number | null>(null);
 
 const {
   isEditingTitle,
@@ -40,6 +51,17 @@ const { getImageSrc, imageMap, getImageUrl } = useImageManager();
 const { uploadFile } = useWorkshopFiles();
 
 const canRemoveFile = computed(() => workshop.value.files.length > 1);
+const canRemoveNote = computed(() => workshop.value.notes.length > 1);
+
+const sortedNotesWithIndex = computed(() =>
+  [...workshop.value.notes]
+    .map((note, originalIndex) => ({ note, originalIndex }))
+    .sort(
+      (a, b) =>
+        new Date(b.note.createdAt).getTime() -
+        new Date(a.note.createdAt).getTime(),
+    ),
+);
 
 const handleUpdateTitle = (index: number, newTitle: string) => {
   if (!isDev || !workshop.value.files[index]) return;
@@ -184,6 +206,116 @@ const handleUpdatePreviewImage = async (index: number, imageData: string) => {
   await saveWorkshopData();
 };
 
+// Заметки
+const handleAddNote = async () => {
+  if (!isDev) return;
+  if (isEditingNoteTitle.value !== null) isEditingNoteTitle.value = null;
+  if (isEditingNoteDescription.value !== null)
+    isEditingNoteDescription.value = null;
+  await addNote();
+};
+
+const handleRemoveNote = async (index: number) => {
+  if (!isDev || !canRemoveNote.value) return;
+  if (isEditingNoteTitle.value === index) isEditingNoteTitle.value = null;
+  else if (
+    isEditingNoteTitle.value !== null &&
+    isEditingNoteTitle.value > index
+  ) {
+    isEditingNoteTitle.value = isEditingNoteTitle.value - 1;
+  }
+  if (isEditingNoteDescription.value === index)
+    isEditingNoteDescription.value = null;
+  else if (
+    isEditingNoteDescription.value !== null &&
+    isEditingNoteDescription.value > index
+  ) {
+    isEditingNoteDescription.value = isEditingNoteDescription.value - 1;
+  }
+  await removeNote(index);
+};
+
+const handleUpdateNoteTitle = (index: number, title: string) => {
+  if (!isDev || !workshop.value.notes[index]) return;
+  updateNoteField(index, "title", title);
+};
+
+const handleFinishEditingNoteTitle = async (index: number) => {
+  if (isEditingNoteTitle.value === index) {
+    await saveWorkshopData();
+    isEditingNoteTitle.value = null;
+  }
+};
+
+const handleUpdateNoteDescription = (index: number, content: string) => {
+  if (!isDev || !workshop.value.notes[index]) return;
+  updateNoteField(index, "content", content);
+};
+
+const handleFinishEditingNoteDescription = async (index: number) => {
+  if (isEditingNoteDescription.value === index) {
+    await saveWorkshopData();
+    isEditingNoteDescription.value = null;
+  }
+};
+
+const handleUpdateNoteCategory = async (index: number, category: string) => {
+  if (!isDev || !workshop.value.notes[index]) return;
+  updateNoteField(index, "category", category);
+  await saveWorkshopData();
+};
+
+const handleAddTagToNote = async (index: number, tag: string) => {
+  if (!isDev || !workshop.value.notes[index]) return;
+  const note = workshop.value.notes[index];
+  const tags = [...(note.tags ?? [])];
+  if (tags.includes(tag)) return;
+  tags.push(tag);
+  updateNoteField(index, "tags", tags);
+  await saveWorkshopData();
+};
+
+const handleRemoveTagFromNote = async (index: number, tag: string) => {
+  if (!isDev || !workshop.value.notes[index]) return;
+  const note = workshop.value.notes[index];
+  const tags = (note.tags ?? []).filter((t) => t !== tag);
+  updateNoteField(index, "tags", tags);
+  await saveWorkshopData();
+};
+
+const handleAddSourceToNote = async (index: number, url: string) => {
+  if (!isDev || !workshop.value.notes[index]) return;
+  const note = workshop.value.notes[index];
+  const sources = [...(note.sources ?? [])];
+  if (sources.includes(url)) return;
+  sources.push(url);
+  updateNoteField(index, "sources", sources);
+  await saveWorkshopData();
+};
+
+const handleRemoveSourceFromNote = async (index: number, url: string) => {
+  if (!isDev || !workshop.value.notes[index]) return;
+  const note = workshop.value.notes[index];
+  const sources = (note.sources ?? []).filter((s) => s !== url);
+  updateNoteField(index, "sources", sources);
+  await saveWorkshopData();
+};
+
+const handleAddCategorySubmit = async (name: string) => {
+  await addNoteCategory(name);
+  isAddCategoryModalOpen.value = false;
+};
+
+const handleRemoveCategory = async (_index: number, category: string) => {
+  if (!isDev) return;
+  await removeNoteCategory(category);
+};
+
+const handleAddTagSubmit = async (name: string) => {
+  await addTagToPool(name);
+  isAddTagModalOpen.value = false;
+};
+
 onMounted(async () => {
   await loadWorkshopData();
 });
@@ -198,7 +330,7 @@ onMounted(async () => {
       @update:active-tab="activeTab = $event"
     />
 
-    <section :class="$style.content">
+    <section :class="$style.content" data-section="workshop-content">
       <div :class="$style.container">
         <WorkshopFilesSection
           v-if="activeTab === 'files'"
@@ -224,10 +356,51 @@ onMounted(async () => {
 
         <WorkshopNotesSection
           v-if="activeTab === 'notes'"
-          :notes="workshop.notes"
+          :notes-with-index="sortedNotesWithIndex"
+          :is-dev="isDev"
+          :note-categories="workshop.noteCategories"
+          :tags-list="workshop.tagsList"
+          :editing-title-index="isEditingNoteTitle"
+          :editing-description-index="isEditingNoteDescription"
+          :can-remove="canRemoveNote"
+          @add-note="handleAddNote"
+          @open-add-category="isAddCategoryModalOpen = true"
+          @open-add-tag="isAddTagModalOpen = true"
+          @remove="handleRemoveNote"
+          @update-title="handleUpdateNoteTitle"
+          @finish-editing-title="handleFinishEditingNoteTitle"
+          @start-editing-title="(i: number) => (isEditingNoteTitle = i)"
+          @update-description="handleUpdateNoteDescription"
+          @finish-editing-description="handleFinishEditingNoteDescription"
+          @start-editing-description="
+            (i: number) => (isEditingNoteDescription = i)
+          "
+          @update-category="handleUpdateNoteCategory"
+          @remove-category="handleRemoveCategory"
+          @add-source="handleAddSourceToNote"
+          @remove-source="handleRemoveSourceFromNote"
+          @add-tag="handleAddTagToNote"
+          @remove-tag="handleRemoveTagFromNote"
         />
       </div>
     </section>
+
+    <WorkshopInputModal
+      :is-open="isAddCategoryModalOpen"
+      title="Добавить категорию"
+      placeholder="Название категории"
+      submit-label="Добавить"
+      @close="isAddCategoryModalOpen = false"
+      @submit="handleAddCategorySubmit"
+    />
+    <WorkshopInputModal
+      :is-open="isAddTagModalOpen"
+      title="Добавить тег"
+      placeholder="Название тега"
+      submit-label="Добавить"
+      @close="isAddTagModalOpen = false"
+      @submit="handleAddTagSubmit"
+    />
 
     <MainImagePickerModal
       :is-open="isImageModalOpen"

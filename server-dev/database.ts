@@ -59,8 +59,27 @@ export function initDatabase(): void {
       content TEXT NOT NULL,
       category TEXT,
       tags TEXT,
+      sources TEXT,
       created_at TEXT NOT NULL,
       updated_at TEXT
+    )
+  `);
+
+  // Миграция: добавляем поле sources, если оно не существует
+  try {
+    db.exec(`
+      ALTER TABLE workshop_notes
+      ADD COLUMN sources TEXT
+    `);
+  } catch {
+    // Поле уже существует, игнорируем ошибку
+  }
+
+  // Таблица workshop_metadata для noteCategories и tagsList
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS workshop_metadata (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
     )
   `);
 

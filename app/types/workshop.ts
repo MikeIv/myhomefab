@@ -2,11 +2,21 @@ export interface Fusion360Note {
   id: string;
   title: string;
   content: string;
-  category: "technique" | "tip" | "tutorial" | "troubleshooting";
+  category: string;
   tags?: string[];
+  /** Ссылки на источники (YouTube, статьи и т.д.) */
+  sources?: string[];
   createdAt: string;
   updatedAt?: string;
 }
+
+/** Коды категорий заметок по умолчанию (для подписей в UI) */
+export const DEFAULT_NOTE_CATEGORY_IDS = [
+  "technique",
+  "tip",
+  "tutorial",
+  "troubleshooting",
+] as const;
 
 export interface ModelFile {
   id: string;

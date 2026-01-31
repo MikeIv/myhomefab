@@ -6,6 +6,8 @@ import type { ModelFile, Fusion360Note } from "~/types/workshop";
 interface WorkshopData {
   files: ModelFile[];
   notes: Fusion360Note[];
+  noteCategories?: string[];
+  tagsList?: string[];
 }
 
 export default defineEventHandler(async (event) => {
