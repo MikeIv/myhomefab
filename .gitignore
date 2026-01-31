@@ -9,8 +9,8 @@ dist
 # Generated version file
 public/api/version.json
 
-# Database
-data/
+# Database (корневая data/, app/data — в репозитории)
+/data/
 *.db
 *.db-shm
 *.db-wal
