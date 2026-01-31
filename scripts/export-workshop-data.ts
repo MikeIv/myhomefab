@@ -49,7 +49,7 @@ async function exportWorkshopData() {
       tags: file.tags ? JSON.parse(file.tags as unknown as string) : [],
     }));
 
-    // Получаем все заметки
+    // Получаем все заметки (включая sources)
     const notes = db
       .prepare(
         `SELECT 
@@ -58,18 +58,33 @@ async function exportWorkshopData() {
           content,
           category,
           tags,
+          sources,
           created_at as createdAt,
           updated_at as updatedAt
         FROM workshop_notes
         ORDER BY created_at DESC`,
       )
-      .all() as Fusion360Note[];
+      .all() as Array<Fusion360Note & { sources?: string | string[] }>;
 
-    // Парсим JSON поля
-    const parsedNotes = notes.map((note) => ({
-      ...note,
-      tags: note.tags ? JSON.parse(note.tags as unknown as string) : [],
-    }));
+    // Парсим JSON поля (tags и sources)
+    const parsedNotes = notes.map((note) => {
+      let sources: string[] = [];
+      if (note.sources && typeof note.sources === "string") {
+        try {
+          const parsed = JSON.parse(note.sources) as unknown;
+          sources = Array.isArray(parsed) ? parsed : [];
+        } catch {
+          sources = [];
+        }
+      } else if (Array.isArray(note.sources)) {
+        sources = note.sources;
+      }
+      return {
+        ...note,
+        tags: note.tags ? JSON.parse(note.tags as unknown as string) : [],
+        sources,
+      } as Fusion360Note;
+    });
 
     const data: WorkshopData = {
       files: parsedFiles,
