@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { useWorkshopData } from "~/composables/useWorkshopData";
 import { useWorkshopEditor } from "~/composables/useWorkshopEditor";
 import { useModalManager } from "~/composables/useModalManager";
@@ -290,6 +290,7 @@ const handleAddSourceToNote = async (index: number, url: string) => {
   if (sources.includes(url)) return;
   sources.push(url);
   updateNoteField(index, "sources", sources);
+  await nextTick(); // Дождаться обновления реактивного состояния
   await saveWorkshopData();
 };
 
@@ -298,6 +299,7 @@ const handleRemoveSourceFromNote = async (index: number, url: string) => {
   const note = workshop.value.notes[index];
   const sources = (note.sources ?? []).filter((s) => s !== url);
   updateNoteField(index, "sources", sources);
+  await nextTick(); // Дождаться обновления реактивного состояния
   await saveWorkshopData();
 };
 

@@ -281,7 +281,7 @@ export const useWorkshopData = () => {
           })),
           notes: workshop.value.notes.map((note) => ({
             ...note,
-            sources: note.sources ?? [],
+            sources: Array.isArray(note.sources) ? [...note.sources] : [],
           })),
           noteCategories: workshop.value.noteCategories,
           tagsList: workshop.value.tagsList,
@@ -330,7 +330,7 @@ export const useWorkshopData = () => {
         })),
         notes: workshop.value.notes.map((note) => ({
           ...note,
-          sources: note.sources ?? [],
+          sources: Array.isArray(note.sources) ? [...note.sources] : [],
         })),
         noteCategories: workshop.value.noteCategories,
         tagsList: workshop.value.tagsList,
@@ -385,7 +385,7 @@ export const useWorkshopData = () => {
         })),
         notes: workshop.value.notes.map((note) => ({
           ...note,
-          sources: note.sources ?? [],
+          sources: Array.isArray(note.sources) ? [...note.sources] : [],
         })),
         noteCategories: workshop.value.noteCategories,
         tagsList: workshop.value.tagsList,
