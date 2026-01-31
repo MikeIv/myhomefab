@@ -103,15 +103,13 @@ const handleRemoveCategory = (e: Event) => {
   emit("removeCategory", props.index, props.note.category);
 };
 
-const handleAddTag = (tag: string) => {
-  emit("addTag", props.index, tag);
-  showTagSelect.value = false;
-};
-
 const onTagSelectChange = (e: Event) => {
   const target = e.target as HTMLSelectElement;
   const value = target.value;
-  if (value) handleAddTag(value);
+  if (value) {
+    emit("addTag", props.index, value);
+    showTagSelect.value = false;
+  }
   target.value = "";
 };
 
