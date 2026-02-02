@@ -688,6 +688,54 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/40737-octopus-long-tentacles#profileId-205378"
+        },
+        {
+          "id": "model-1770047057503",
+          "title": "Мини-пига Капибара",
+          "description": "Описание модели",
+          "shortDescription": "Миниатюрная фигурка для декора, сказочного сада или коллекции. Отличается чёткими контурами и аккуратной детализацией. Устойчива к механическим воздействиям, не выцветает. Подходит для украшения интерьера, создания микроландшафтов или в качестве небольшого подарка.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-007.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 18,
+              "height": 10,
+              "depth": 12,
+              "unit": "mm"
+            },
+            "weight": 1,
+            "material": "PLA",
+            "printTime": "15 минут "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/2287193-mini-capybara-buddy#profileId-2495074"
+        },
+        {
+          "id": "model-1770053799225",
+          "title": "Китовая Акула флекси",
+          "description": "Описание модели",
+          "shortDescription": "Гибкая фигурка, выполненная в виде реалистичной модели китовой акулы. Состоит из сегментированных частей, позволяющих модели принимать различные позы. Представлена в двух цветовых вариантах: красном и сером. Компактный размер делает фигурку удобной для коллекционирования, использования в качестве декора или элемента игровых наборов.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-008.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 160,
+              "height": 57,
+              "depth": 29,
+              "unit": "mm"
+            },
+            "weight": 20,
+            "material": "PLA",
+            "printTime": "1 час "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/131095-articulated-whale-shark#profileId-146051"
         }
       ]
     },
