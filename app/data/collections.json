@@ -760,6 +760,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/584640-flexi-holding-cat-print-in-place?from=search#profileId-505737"
+        },
+        {
+          "id": "model-1770129582950",
+          "title": "Черепахи антистресс",
+          "description": "Описание модели",
+          "shortDescription": "Откройте для себя мир морских приключений с нашими подвижными фигурками черепах! Эти очаровательные «живые» модели не просто стоят на полке — они готовы отправиться в путешествие по вашему столу! Благодаря подвижным лапам и шее черепахи могут «плыть», «обниматься» или принимать забавные позы.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-010.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 105,
+              "height": 93,
+              "depth": 23,
+              "unit": "mm"
+            },
+            "weight": 25,
+            "material": "PLA",
+            "printTime": "2 часа "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/171079-articulated-sea-turtle-singlecolor-multicolor?from=search#profileId-187802"
         }
       ]
     },
