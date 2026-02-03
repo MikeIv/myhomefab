@@ -736,6 +736,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/131095-articulated-whale-shark#profileId-146051"
+        },
+        {
+          "id": "model-1770106572247",
+          "title": "Кошка антисресс",
+          "description": "Описание модели",
+          "shortDescription": "Гибкая фигурка кошки — оригинальная 3D-модель с сегментированным корпусом, позволяющая принимать множество поз. Реалистичный дизайн с детализированными лапами, мордочкой и хвостом. Компактный размер делает фигурку удобной для коллекционирования, использования в качестве декора или элемента игровых наборов.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-009.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 116,
+              "height": 30,
+              "depth": 17,
+              "unit": "mm"
+            },
+            "weight": 16,
+            "material": "PLA",
+            "printTime": "1 час "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/584640-flexi-holding-cat-print-in-place?from=search#profileId-505737"
         }
       ]
     },
