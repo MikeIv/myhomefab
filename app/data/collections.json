@@ -784,6 +784,54 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/171079-articulated-sea-turtle-singlecolor-multicolor?from=search#profileId-187802"
+        },
+        {
+          "id": "model-1770211809452",
+          "title": "Капибара флекси",
+          "description": "Описание модели",
+          "shortDescription": "Подвижная фигурка капибары — оригинальный 3D-аксессуар в виде сегментированной игрушки-брелока. Конструкция с шарнирными соединениями позволяет фигурке принимать различные позы, имитируя движения настоящего животного. Реалистичный дизайн с детализированными чертами мордочки и лапок, два цветовых варианта: белый с коричневыми акцентами и однотонный серый. Компактный размер и крепление для ключей делают фигурку удобной для повседневного использования. Подходит для коллекционирования, в качестве декоративного элемента или антистрессовой игрушки.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-011.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 29,
+              "height": 70,
+              "depth": 20,
+              "unit": "mm"
+            },
+            "weight": 12,
+            "material": "PLA",
+            "printTime": "40 минут "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/1638052-articulated-capybara-strong-joints?from=search#profileId-1730551"
+        },
+        {
+          "id": "model-1770229633163",
+          "title": "Геккон антистресс",
+          "description": "Описание модели",
+          "shortDescription": "Весёлый друг для игр, но и помощник в борьбе со скукой и плохим настроением.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-012.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 61,
+              "height": 105,
+              "depth": 18,
+              "unit": "mm"
+            },
+            "weight": 20,
+            "material": "PLA",
+            "printTime": "1 час "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/2316431-flexi-geco-cute-articulated-colorful#profileId-2529454"
         }
       ]
     },
