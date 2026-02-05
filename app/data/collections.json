@@ -499,6 +499,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/1802748-mesh-cup-universal-storage-container#profileId-1922547"
+        },
+        {
+          "id": "model-1770318459025",
+          "title": "Сетчатая Чаша",
+          "description": "Описание модели",
+          "shortDescription": "Сетчатая чаша — функциональное и стильное решение для организации пространства. Элегантный узор создаёт игру теней, добавляя интерьеру изысканности. Практична для хранения мелочей: ключей, канцелярских принадлежностей, аксессуаров. Компактный дизайн сочетает эстетику и удобство использования.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-020.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 197,
+              "height": 197,
+              "depth": 66,
+              "unit": "mm"
+            },
+            "weight": 80,
+            "material": "PLA",
+            "printTime": "3 часа "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/2321535-lightweight-modern-mesh-bowl#profileId-2565558"
         }
       ]
     },
