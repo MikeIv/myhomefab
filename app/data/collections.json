@@ -523,6 +523,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/2321535-lightweight-modern-mesh-bowl#profileId-2565558"
+        },
+        {
+          "id": "model-1770454440646",
+          "title": "Квадратная Сетчатая Чаша",
+          "description": "Описание модели",
+          "shortDescription": "Сетчатая чаша — функциональное и стильное решение для организации пространства. Элегантный узор создаёт игру теней, добавляя интерьеру изысканности. Практична для хранения мелочей: ключей, канцелярских принадлежностей, аксессуаров. Компактный дизайн сочетает эстетику и удобство использования.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-021.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 170,
+              "height": 170,
+              "depth": 57,
+              "unit": "mm"
+            },
+            "weight": 65,
+            "material": "PLA",
+            "printTime": "3 часа"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/2340233-lightweight-square-mesh-bowl#profileId-2565611"
         }
       ]
     },
@@ -856,6 +880,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/2316431-flexi-geco-cute-articulated-colorful#profileId-2529454"
+        },
+        {
+          "id": "model-1770470997509",
+          "title": "Саламандра антистресс",
+          "description": "Описание модели",
+          "shortDescription": "Подвижная игрушка «Саламандра» — идеальный антистресс и увлекательный аксессуар для дома или офиса. Сегментированное тело позволяет моделировать любые позы, имитируя движения настоящей ящерицы. Детализированная текстура и выразительные глаза делают игрушку реалистичной. Компактный размер позволяет брать её с собой.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-013.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 238,
+              "height": 124,
+              "depth": 22,
+              "unit": "mm"
+            },
+            "weight": 55,
+            "material": "PLA",
+            "printTime": "3 часа 20 минут"
+          },
+          "printInfo": {
+            "printerModel": "A!",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/1277172-flexi-fire-salamander#profileId-1304937"
         }
       ]
     },
