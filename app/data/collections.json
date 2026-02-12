@@ -595,6 +595,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/2134578-pistachio-bowl-6#profileId-2311847"
+        },
+        {
+          "id": "model-1770914591407",
+          "title": "Мультичаша для орехов и печенья",
+          "description": "Описание модели",
+          "shortDescription": "Стильное и функциональное решение для сервировки. Эргономичный дизайн, разделённые секции и удобная крышка позволяют хранить и подавать лакомства с комфортом.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-024.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 180,
+              "height": 180,
+              "depth": 85,
+              "unit": "mm"
+            },
+            "weight": 280,
+            "material": "PLA",
+            "printTime": "8 часов "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/1779998-pistachio-bowl-4-5#profileId-1896011"
         }
       ]
     },
