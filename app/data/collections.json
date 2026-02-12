@@ -547,6 +547,54 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/2340233-lightweight-square-mesh-bowl#profileId-2565611"
+        },
+        {
+          "id": "model-1770654642552",
+          "title": "Светильник LED",
+          "description": "Описание модели",
+          "shortDescription": "Современный декоративный светильник с выразительным рельефом на корпусе. Контраст между матовым полупрозрачным пластиком и насыщенным основанием создаёт интересный визуальный эффект. Отлично впишется в интерьеры в стиле минимализм, скандинавский или современный классика.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-022.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 80,
+              "height": 80,
+              "depth": 190,
+              "unit": "mm"
+            },
+            "weight": 100,
+            "material": "PLA",
+            "printTime": "3 часа "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/562754-led-lamp-pattern-led-kit-001#profileId-482281"
+        },
+        {
+          "id": "model-1770889842439",
+          "title": "Мультичаша для орехов и печенья",
+          "description": "Описание модели",
+          "shortDescription": "Стильное и функциональное решение для сервировки. Эргономичный дизайн, разделённые секции и удобная крышка позволяют хранить и подавать лакомства с комфортом.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-023.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 173,
+              "height": 173,
+              "depth": 82,
+              "unit": "mm"
+            },
+            "weight": 250,
+            "material": "PLA",
+            "printTime": "6 часов"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/2134578-pistachio-bowl-6#profileId-2311847"
         }
       ]
     },
