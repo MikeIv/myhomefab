@@ -1024,6 +1024,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/131100-articulated-hammerhead-shark#profileId-863751"
+        },
+        {
+          "id": "model-1771178586267",
+          "title": "Канарейка флекси",
+          "description": "Описание модели",
+          "shortDescription": "Подвижная фигурка канарейки из пластика. Детализированная текстура перьев, подвижные крылья и лапки. Отличный сувенир или игрушка для коллекционеров.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-015.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 140,
+              "height": 135,
+              "depth": 30,
+              "unit": "mm"
+            },
+            "weight": 50,
+            "material": "PLA",
+            "printTime": "3 часа 15 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://www.myminifactory.com/object/3d-print-520157"
         }
       ]
     },
