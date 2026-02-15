@@ -619,6 +619,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/1779998-pistachio-bowl-4-5#profileId-1896011"
+        },
+        {
+          "id": "model-1771143951098",
+          "title": "Органайзер для ванной",
+          "description": "Описание модели",
+          "shortDescription": "Органайзер для ванной с двумя отделениями — стильное и удобное решение для хранения зубных щёток и пасты. Компактный дизайн идеально впишется в любую ванную комнату.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-025.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 167,
+              "height": 87,
+              "depth": 98,
+              "unit": "mm"
+            },
+            "weight": 200,
+            "material": "PLA",
+            "printTime": "7 часов "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/924962-bathroom-organizer-toothbrush-holder?from=search#profileId-887805"
         }
       ]
     },
