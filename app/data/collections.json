@@ -643,6 +643,54 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/924962-bathroom-organizer-toothbrush-holder?from=search#profileId-887805"
+        },
+        {
+          "id": "model-1771829753570",
+          "title": "Стильный лоток для яиц с выдвижными секциями (на 24 штуки).",
+          "description": "Описание модели",
+          "shortDescription": "Практичный лоток для хранения яиц с выдвижными секциями — полезное дополнение к любому холодильнику. Модель рассчитана на 24 яйца: каждое надёжно зафиксировано в отдельном отделении, что исключает риск повреждения. Выдвижные секции обеспечивают удобный доступ к яйцам.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-027.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 330,
+              "height": 120,
+              "depth": 160,
+              "unit": "mm"
+            },
+            "weight": 500,
+            "printTime": "18 часов",
+            "material": "PLA, PETG"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/601645-egg-tray-holder-two-dozen#profileId-523978"
+        },
+        {
+          "id": "model-1771830887750",
+          "title": "Корзина для овощей",
+          "description": "Описание модели",
+          "shortDescription": "Практичные корзины, которые сочетают в себе удобство и стиль. Перфорированные стенки обеспечивают циркуляцию воздуха, что особенно важно для сохранения свежести овощей и фруктов. Пастельная цветовая гамма придаёт интерьеру лёгкость и уют, а продуманная форма корзин делает их использование максимально комфортным.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-028.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 240,
+              "height": 190,
+              "depth": 125,
+              "unit": "mm"
+            },
+            "weight": 250,
+            "material": "PLA, PETG",
+            "printTime": "9 часов "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/2095168-stackable-fresh-keeper-modular-kitchen-storage#profileId-2265274"
         }
       ]
     },
@@ -1072,6 +1120,53 @@
             "supports": false
           },
           "modelPath": "https://www.myminifactory.com/object/3d-print-520157"
+        },
+        {
+          "id": "model-1771253797364",
+          "title": "Нож керамбитовый коллекционный",
+          "description": "Описание модели",
+          "shortDescription": "Этот нож сочетает в себе богатую историю и современную практичность, привлекая как коллекционеров, так и любителей активного отдыха.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-016.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 160,
+              "height": 53,
+              "depth": 46,
+              "unit": "mm"
+            },
+            "printTime": "3 часа 40 минут",
+            "weight": 53
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": true
+          },
+          "modelPath": "https://makerworld.com/ru/models/1212433-cs2-karambit#profileId-1227573"
+        },
+        {
+          "id": "model-1771831176183",
+          "title": "Дракон скелетон",
+          "description": "Описание модели",
+          "shortDescription": "Эта 3D-модель — как игрушка-трансформер: у дракона шевелятся лапки, хвостик и даже голова. Можно поставить его в любую позу — будто он готовится к бою или отдыхает после великого подвига.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-018.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 190,
+              "height": 170,
+              "depth": 41,
+              "unit": "mm"
+            },
+            "weight": 60,
+            "material": "PLA, PETG",
+            "printTime": "3 часа 25 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/129872-articulated-skeleton-dragon#profileId-140810"
         }
       ]
     },
