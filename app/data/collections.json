@@ -691,6 +691,30 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/2095168-stackable-fresh-keeper-modular-kitchen-storage#profileId-2265274"
+        },
+        {
+          "id": "model-1772263533599",
+          "title": "Подставка для смартфона походная.",
+          "description": "Описание модели",
+          "shortDescription": "Подставка для смартфона походная.",
+          "previewImage": null,
+          "previewImageKey": "collections/household/house-029.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 73,
+              "height": 34,
+              "depth": 35,
+              "unit": "mm"
+            },
+            "weight": 20,
+            "material": "PLA",
+            "printTime": "58 минут "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/1087279-small-smartphone-stand-print-in-place-design#profileId-2621025"
         }
       ]
     },
@@ -764,6 +788,31 @@
             "printerModel": "A1",
             "supports": false
           }
+        },
+        {
+          "id": "model-1772263735867",
+          "title": "Парфенон",
+          "description": "Описание модели",
+          "shortDescription": "Краткое описание",
+          "previewImage": null,
+          "previewImageKey": "collections/art/art-004.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 100,
+              "height": 100,
+              "depth": 100,
+              "unit": "mm"
+            },
+            "dimensionsText": "от 46x97x26",
+            "weightText": "от 20г",
+            "material": "PLA, PETG",
+            "printTime": "от 2 часов"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/409128-parthenon-athens-greece?from=search#profileId-356836"
         }
       ]
     },
@@ -1167,6 +1216,175 @@
             "supports": false
           },
           "modelPath": "https://makerworld.com/ru/models/129872-articulated-skeleton-dragon#profileId-140810"
+        },
+        {
+          "id": "model-1772263864261",
+          "title": "Акула Чиби антистресс.",
+          "description": "Описание модели",
+          "shortDescription": "Акула Чиби антистресс.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-019.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 79,
+              "height": 114,
+              "depth": 40,
+              "unit": "mm"
+            },
+            "weight": 30,
+            "material": "PLA",
+            "printTime": "2 часа "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/2416792-flexi-chibi-shark-print-in-place-articulated-toy#profileId-2657389"
+        },
+        {
+          "id": "model-1772264016501",
+          "title": "Мяч трансформер (d40/d70)",
+          "description": "Описание модели",
+          "shortDescription": "Мяч трансформер (d40/d70)",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-020.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 100,
+              "height": 100,
+              "depth": 100,
+              "unit": "mm"
+            },
+            "dimensionsText": "D70",
+            "weight": 87,
+            "material": "PLA",
+            "printTime": "4 часа 20 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/2112117-twisty-fidget-ball#profileId-2563368"
+        },
+        {
+          "id": "model-1772264173841",
+          "title": "Рыбка Бетта флекси.",
+          "description": "Описание модели",
+          "shortDescription": "Рыбка Бетта флекси.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-021.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 60,
+              "height": 25,
+              "depth": 23,
+              "unit": "mm"
+            },
+            "weight": 11,
+            "material": "PLA",
+            "printTime": "30 минут "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/1518825-flexi-betta-fish#profileId-1591473"
+        },
+        {
+          "id": "model-1772264294133",
+          "title": "Большая белая акула флекси.",
+          "description": "Описание модели",
+          "shortDescription": "Большая белая акула флекси.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-022.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 170,
+              "height": 84,
+              "depth": 54,
+              "unit": "mm"
+            },
+            "weight": 38,
+            "material": "PLA",
+            "printTime": "2 часа "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/131088-articulated-great-white-shark#profileId-148997"
+        },
+        {
+          "id": "model-1772264398652",
+          "title": "Белка флекси.",
+          "description": "Описание модели",
+          "shortDescription": "Белка флекси.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-023.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 232,
+              "height": 108,
+              "depth": 38,
+              "unit": "mm"
+            },
+            "weight": 95,
+            "material": "PLA",
+            "printTime": "4 часа 25 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/2409925-flexi-squirrel#profileId-2653788"
+        },
+        {
+          "id": "model-1772265046804",
+          "title": "Бегемот мини подвижный.",
+          "description": "Описание модели",
+          "shortDescription": "Бегемот мини подвижный.",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-024.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 76,
+              "height": 46,
+              "depth": 24,
+              "unit": "mm"
+            },
+            "material": "PLA",
+            "weight": 11,
+            "printTime": "1 час "
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": false
+          },
+          "modelPath": "https://makerworld.com/ru/models/956910-mini-hippo#profileId-925988"
+        },
+        {
+          "id": "model-1772265149032",
+          "title": "Лодка модель-игрушка",
+          "description": "Описание модели",
+          "shortDescription": "Лодка модель-игрушка",
+          "previewImage": null,
+          "previewImageKey": "collections/toys/toys-025.jpg",
+          "technicalSpecs": {
+            "dimensions": {
+              "width": 219,
+              "height": 74,
+              "depth": 56,
+              "unit": "mm"
+            },
+            "material": "PLA",
+            "weight": 62,
+            "printTime": "5 часов 27 минут"
+          },
+          "printInfo": {
+            "printerModel": "A1",
+            "supports": true
+          },
+          "modelPath": "https://makerworld.com/ru/models/1148633-detailed-buoyant-classic-row-boat-cfd-optimized?from=search#profileId-1210567"
         }
       ]
     },
