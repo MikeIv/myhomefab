@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AdminPrompt } from "~/types/admin";
-import { ADMIN_PROMPTS_STORAGE_KEY } from "~/types/admin";
+import adminPromptsStatic from "~/data/admin-prompts.json";
 
 definePageMeta({
   middleware: "admin",
@@ -47,32 +47,45 @@ const promptTitle = ref("");
 const promptContent = ref("");
 const editingPromptId = ref<string | null>(null);
 
+const isDev = import.meta.dev;
 const prompts = ref<AdminPrompt[]>([]);
 
-function loadPrompts() {
-  if (import.meta.client) {
-    try {
-      const raw = localStorage.getItem(ADMIN_PROMPTS_STORAGE_KEY);
-      prompts.value = raw ? JSON.parse(raw) : [];
-    } catch {
-      prompts.value = [];
+async function loadPromptsFromServer() {
+  if (!isDev) {
+    prompts.value = Array.isArray(adminPromptsStatic) ? (adminPromptsStatic as AdminPrompt[]) : [];
+    return;
+  }
+  try {
+    const data = await $fetch<AdminPrompt[]>("/api/admin/prompts");
+    prompts.value = Array.isArray(data) ? data : [];
+  } catch {
+    prompts.value = Array.isArray(adminPromptsStatic) ? (adminPromptsStatic as AdminPrompt[]) : [];
+  }
+}
+
+async function savePromptsToServer() {
+  if (!isDev) return;
+  try {
+    const response = await fetch("/api/admin/prompts/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(prompts.value),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
     }
+  } catch (error) {
+    console.error("Ошибка при сохранении промптов:", error);
   }
 }
 
-function savePromptsToStorage() {
-  if (import.meta.client) {
-    localStorage.setItem(ADMIN_PROMPTS_STORAGE_KEY, JSON.stringify(prompts.value));
-  }
-}
+onMounted(loadPromptsFromServer);
 
-onMounted(loadPrompts);
-
-const handleSavePrompt = () => {
+const handleSavePrompt = async () => {
   const title = promptTitle.value.trim();
   const content = promptContent.value.trim();
   if (!title && !content) {
-    handleDeletePrompt();
+    await handleDeletePrompt();
     return;
   }
   if (!content) {
@@ -82,13 +95,11 @@ const handleSavePrompt = () => {
     const idx = prompts.value.findIndex((p) => p.id === editingPromptId.value);
     const prev = idx !== -1 ? prompts.value[idx] : undefined;
     if (prev) {
-      prompts.value = [...prompts.value];
-      prompts.value[idx] = {
-        id: prev.id,
-        createdAt: prev.createdAt,
-        title: title || "Без названия",
-        content,
-      };
+      prompts.value = prompts.value.map((p, i) =>
+        i === idx
+          ? { id: prev.id, createdAt: prev.createdAt, title: title || "Без названия", content }
+          : p,
+      );
     }
   } else {
     const newPrompt: AdminPrompt = {
@@ -100,13 +111,13 @@ const handleSavePrompt = () => {
     prompts.value = [...prompts.value, newPrompt];
     editingPromptId.value = newPrompt.id;
   }
-  savePromptsToStorage();
+  await savePromptsToServer();
 };
 
-const handleDeletePrompt = () => {
+const handleDeletePrompt = async () => {
   if (editingPromptId.value) {
     prompts.value = prompts.value.filter((p) => p.id !== editingPromptId.value);
-    savePromptsToStorage();
+    await savePromptsToServer();
   }
   showPromptForm.value = false;
   promptTitle.value = "";
@@ -131,9 +142,9 @@ const openPromptForEdit = (p: AdminPrompt) => {
   });
 };
 
-const removePrompt = (id: string) => {
+const removePrompt = async (id: string) => {
   prompts.value = prompts.value.filter((p) => p.id !== id);
-  savePromptsToStorage();
+  await savePromptsToServer();
 };
 
 const copyPromptContent = async () => {
@@ -145,7 +156,6 @@ const copyPromptContent = async () => {
       copyFeedback.value = false;
     }, 1500);
   } catch {
-    // fallback for older browsers
     const ta = document.getElementById("prompt-content") as HTMLTextAreaElement;
     if (ta) {
       ta.select();
@@ -223,12 +233,12 @@ const copyFeedback = ref(false);
       <div :class="$style.tabsBlock">
         <div :class="$style.tabsRow" role="tablist">
           <button
+            id="tab-btn-notes"
             :class="[
               $style.tab,
               { [$style.tabActive]: activeTab === 'notes' },
             ]"
             type="button"
-            id="tab-btn-notes"
             role="tab"
             :aria-selected="activeTab === 'notes'"
             @click="activeTab = 'notes'"
@@ -249,7 +259,12 @@ const copyFeedback = ref(false);
             Промпты
           </button>
         </div>
-        <div :class="$style.tabsContent" role="tabpanel" :id="activeTab === 'notes' ? 'tab-notes' : 'tab-prompts'" :aria-labelledby="activeTab === 'notes' ? 'tab-btn-notes' : 'tab-btn-prompts'">
+        <div
+          :id="activeTab === 'notes' ? 'tab-notes' : 'tab-prompts'"
+          :class="$style.tabsContent"
+          role="tabpanel"
+          :aria-labelledby="activeTab === 'notes' ? 'tab-btn-notes' : 'tab-btn-prompts'"
+        >
           <p v-if="activeTab === 'notes'" :class="$style.placeholder">
             Содержимое вкладки «Заметки»
           </p>
