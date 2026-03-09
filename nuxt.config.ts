@@ -277,12 +277,6 @@ export default defineNuxtConfig({
     APP_VERSION: APP_VERSION,
     BUILD_TIME: BUILD_TIME,
     public: {
-      // Пароль админки для статического хостинга (будет виден в коде клиента)
-      // Для production используйте сложный пароль
-      adminPassword:
-        process.env.NUXT_PUBLIC_ADMIN_PASSWORD ||
-        process.env.ADMIN_PASSWORD ||
-        "",
       // Может быть переопределена через NUXT_PUBLIC_API_BASE в .env
       // Если не указана, будет использован текущий хост из браузера
       apiBase: process.env.NUXT_PUBLIC_API_BASE || "",

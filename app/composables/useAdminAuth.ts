@@ -1,5 +1,4 @@
 export const useAdminAuth = () => {
-  const config = useRuntimeConfig();
   const authCookie = useCookie("admin_auth", {
     default: () => "",
     maxAge: 60 * 60 * 24 * 7, // 7 дней
@@ -12,24 +11,21 @@ export const useAdminAuth = () => {
   const login = async (
     password: string,
   ): Promise<{ success: boolean; error?: string }> => {
-    // Проверка пароля на клиенте
-    // Пароль хранится в runtime config (виден в коде, но это нормально для простой админки)
-    const correctPassword = config.public.adminPassword || "";
-
-    if (!correctPassword) {
-      return {
-        success: false,
-        error:
-          "Пароль не настроен. Установите NUXT_PUBLIC_ADMIN_PASSWORD в .env",
-      };
-    }
-
-    if (password === correctPassword) {
+    try {
+      await $fetch("/api/admin/login", {
+        method: "POST",
+        body: { password },
+      });
       authCookie.value = "authenticated";
       return { success: true };
+    } catch (error: unknown) {
+      const err = error as { statusMessage?: string; data?: { message?: string } };
+      const message =
+        err?.statusMessage ||
+        err?.data?.message ||
+        "Ошибка авторизации";
+      return { success: false, error: message };
     }
-
-    return { success: false, error: "Неверный пароль" };
   };
 
   const logout = (): void => {

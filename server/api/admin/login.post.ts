@@ -1,4 +1,4 @@
-import { readBody, setCookie } from "h3";
+import { readBody } from "h3";
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
@@ -13,21 +13,19 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  if (!config.adminPassword) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: "Пароль администратора не настроен на сервере",
+    });
+  }
+
   if (password !== config.adminPassword) {
     throw createError({
       statusCode: 401,
       statusMessage: "Неверный пароль",
     });
   }
-
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict" as const,
-    maxAge: 60 * 60 * 24 * 7, // 7 дней
-  };
-
-  setCookie(event, "admin_auth", "authenticated", cookieOptions);
 
   return {
     success: true,
