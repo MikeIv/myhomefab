@@ -4,9 +4,8 @@ export const useAdminAuth = () => {
     maxAge: 60 * 60 * 24 * 7, // 7 дней
   });
 
-  const isAuthenticated = computed(() => {
-    return authCookie.value === "authenticated";
-  });
+  // ВРЕМЕННО: защита паролем отключена — заход без проверки
+  const isAuthenticated = computed(() => true); // было: authCookie.value === "authenticated"
 
   const login = async (
     password: string,
@@ -19,11 +18,12 @@ export const useAdminAuth = () => {
       authCookie.value = "authenticated";
       return { success: true };
     } catch (error: unknown) {
-      const err = error as { statusMessage?: string; data?: { message?: string } };
+      const err = error as {
+        statusMessage?: string;
+        data?: { message?: string };
+      };
       const message =
-        err?.statusMessage ||
-        err?.data?.message ||
-        "Ошибка авторизации";
+        err?.statusMessage || err?.data?.message || "Ошибка авторизации";
       return { success: false, error: message };
     }
   };
